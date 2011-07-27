@@ -15,14 +15,21 @@ import android.widget.LinearLayout;
 
 import com.jjoe64.graphview.compatible.ScaleGestureDetector;
 
+
 /**
- * GraphView creates a scaled line graph with x and y axis labels.
+ * GraphView creates a scaled Line graph or Bar graph with x and y axis labels.
+ * Bar Graphs Integrated By: Shahab Hameed (www.shahabhameed.blogspot.com)  
  */
 public class GraphView extends LinearLayout {
-	static final private class GraphViewConfig {
+
+	// Class to hold constant values
+	private static final class GraphViewConfig {
+
 		static final float BORDER = 20;
 		static final float VERTICAL_LABEL_WIDTH = 100;
 		static final float HORIZONTAL_LABEL_HEIGHT = 80;
+		static final boolean BAR = true;
+		static final boolean LINE = false;
 	}
 
 	private class GraphViewContentView extends View {
@@ -34,7 +41,8 @@ public class GraphView extends LinearLayout {
 		 */
 		public GraphViewContentView(Context context) {
 			super(context);
-			setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+			setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT,
+					LayoutParams.FILL_PARENT));
 		}
 
 		/**
@@ -42,6 +50,7 @@ public class GraphView extends LinearLayout {
 		 */
 		@Override
 		protected void onDraw(Canvas canvas) {
+
 			// normal
 			paint.setStrokeWidth(0);
 
@@ -68,6 +77,7 @@ public class GraphView extends LinearLayout {
 			// vertical lines
 			paint.setTextAlign(Align.LEFT);
 			int vers = verlabels.length - 1;
+
 			for (int i = 0; i < verlabels.length; i++) {
 				paint.setColor(Color.DKGRAY);
 				float y = ((graphheight / vers) * i) + border;
@@ -81,18 +91,20 @@ public class GraphView extends LinearLayout {
 				float x = ((graphwidth / hors) * i) + horstart;
 				canvas.drawLine(x, height - border, x, border, paint);
 				paint.setTextAlign(Align.CENTER);
-				if (i==horlabels.length-1)
+				if (i == horlabels.length - 1)
 					paint.setTextAlign(Align.RIGHT);
-				if (i==0)
+				if (i == 0)
 					paint.setTextAlign(Align.LEFT);
 				paint.setColor(Color.WHITE);
 				canvas.drawText(horlabels[i], x, height - 4, paint);
 			}
 
 			paint.setTextAlign(Align.CENTER);
-			canvas.drawText(title, (graphwidth / 2) + horstart, border - 4, paint);
+			canvas.drawText(title, (graphwidth / 2) + horstart, border - 4,
+					paint);
 
 			if (maxY != minY) {
+
 				// blue version
 				paint.setARGB(255, 0, 119, 204);
 				paint.setStrokeCap(Paint.Cap.ROUND);
@@ -115,21 +127,24 @@ public class GraphView extends LinearLayout {
 						double x = graphwidth * ratX;
 
 						float endX = (float) x + (horstart + 1);
-						float endY = (float) (border - y) + graphheight +2;
+						float endY = (float) (border - y) + graphheight + 2;
 
 						if (i > 0) {
 							// fill space between last and current point
-							int numSpace = (int) ((endX - lastEndX) / 3f) +1;
-							for (int xi=0; xi<numSpace; xi++) {
-								float spaceX = (float) (lastEndX + ((endX-lastEndX)*xi/(numSpace-1)));
-								float spaceY = (float) (lastEndY + ((endY-lastEndY)*xi/(numSpace-1)));
+							int numSpace = (int) ((endX - lastEndX) / 3f) + 1;
+							for (int xi = 0; xi < numSpace; xi++) {
+								float spaceX = (float) (lastEndX + ((endX - lastEndX)
+										* xi / (numSpace - 1)));
+								float spaceY = (float) (lastEndY + ((endY - lastEndY)
+										* xi / (numSpace - 1)));
 
 								// start => bottom edge
 								float startX = spaceX;
 
 								// do not draw over the left edge
-								if (startX-horstart > 1) {
-									canvas.drawLine(startX, startY, spaceX, spaceY, paintBackground);
+								if (startX - horstart > 1) {
+									canvas.drawLine(startX, startY, spaceX,
+											spaceY, paintBackground);
 								}
 							}
 						}
@@ -142,39 +157,65 @@ public class GraphView extends LinearLayout {
 				// draw data
 				lastEndY = 0;
 				lastEndX = 0;
-				for (int i = 0; i < values.length; i++) {
-					double valY = values[i].valueY - minY;
-					double ratY = valY / diffY;
-					double y = graphheight * ratY;
 
-					double valX = values[i].valueX - minX;
-					double ratX = valX / diffX;
-					double x = graphwidth * ratX;
+				float datalength = values.length;
+				float colwidth = (width - (2 * border)) / datalength;
+				
 
-					if (i > 0) {
-						float startX = (float) lastEndX + (horstart + 1);
-						float startY = (float) (border - lastEndY) + graphheight;
-						float endX = (float) x + (horstart + 1);
-						float endY = (float) (border - y) + graphheight;
+				if (type == GraphViewConfig.LINE) {
+					for (int i = 0; i < values.length; i++) {
+						double valY = values[i].valueY - minY;
+						double ratY = valY / diffY;
+						double y = graphheight * ratY;
 
-						canvas.drawLine(startX, startY, endX, endY, paint);
+						double valX = values[i].valueX - minX;
+						double ratX = valX / diffX;
+						double x = graphwidth * ratX;
+
+						if (i > 0) {
+							float startX = (float) lastEndX + (horstart + 1);
+							float startY = (float) (border - lastEndY)
+									+ graphheight;
+							float endX = (float) x + (horstart + 1);
+							float endY = (float) (border - y) + graphheight;
+
+							canvas.drawLine(startX, startY, endX, endY, paint);
+						}
+						lastEndY = y;
+						lastEndX = x;
 					}
-					lastEndY = y;
-					lastEndX = x;
+				} else {
+					
+					for (int i = 0; i < values.length; i++) {
+						float valY = (float) (values[i].valueY - minY);
+						float ratY = (float) (valY / diffY);
+						float y = graphheight * ratY;
+
+						float valX = (float) (values[i].valueX - minX);
+						float ratX = (float) (valX / diffX);
+						float x = graphwidth * ratX;
+						
+						canvas.drawRect((i * colwidth) + horstart, (border - y)
+								+ graphheight, ((i * colwidth) + horstart)
+								+ (colwidth - 1), height - (border - 1), paint);
+					}
+
 				}
+
 			}
 		}
 
 		private void onMoveGesture(float f) {
 			// view port update
 			if (viewportSize != 0) {
-				viewportStart -= f*viewportSize/graphwidth;
+				viewportStart -= f * viewportSize / graphwidth;
 
 				// minimal and maximal view limit
 				if (viewportStart < values[0].valueX) {
 					viewportStart = values[0].valueX;
-				} else if (viewportStart+viewportSize > values[values.length -1].valueX) {
-					viewportStart = values[values.length -1].valueX - viewportSize;
+				} else if (viewportStart + viewportSize > values[values.length - 1].valueX) {
+					viewportStart = values[values.length - 1].valueX
+							- viewportSize;
 				}
 
 				// labels have to be regenerated
@@ -227,6 +268,7 @@ public class GraphView extends LinearLayout {
 	static public class GraphViewData {
 		double valueX;
 		double valueY;
+
 		public GraphViewData(double valueX, double valueY) {
 			super();
 			this.valueX = valueX;
@@ -240,7 +282,8 @@ public class GraphView extends LinearLayout {
 		 */
 		public VerLabelsView(Context context) {
 			super(context);
-			setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT, 10));
+			setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT,
+					LayoutParams.FILL_PARENT, 10));
 		}
 
 		/**
@@ -276,6 +319,7 @@ public class GraphView extends LinearLayout {
 	private String[] horlabels;
 	private String[] verlabels;
 	private String title;
+	private boolean type;
 	private boolean drawBackground;
 	private boolean scrollable;
 	private double viewportStart;
@@ -286,21 +330,28 @@ public class GraphView extends LinearLayout {
 	private NumberFormat numberformatter;
 
 	/**
-	 *
+	 * 
 	 * @param context
-	 * @param values <b>must be sorted by valueX ASC</b>
-	 * @param title [optional]
-	 * @param horlabels [optional] if null, labels were generated automatically
-	 * @param verlabels [optional] if null, labels were generated automatically
+	 * @param values
+	 *            <b>must be sorted by valueX ASC</b>
+	 * @param title
+	 *            [optional]
+	 * @param horlabels
+	 *            [optional] if null, labels are generated automatically
+	 * @param verlabels
+	 *            [optional] if null, labels are generated automatically
 	 */
-	public GraphView(Context context, GraphViewData[] values, String title, String[] horlabels, String[] verlabels) {
+	public GraphView(Context context, GraphViewData[] values, String title,
+			String[] horlabels, String[] verlabels, boolean type) {
 		super(context);
-		setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+		setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT,
+				LayoutParams.FILL_PARENT));
 
 		if (values == null)
 			values = new GraphViewData[0];
 		else
 			this.values = values;
+
 		if (title == null)
 			title = "";
 		else
@@ -308,6 +359,7 @@ public class GraphView extends LinearLayout {
 
 		this.horlabels = horlabels;
 		this.verlabels = verlabels;
+		this.type = type;
 
 		paint = new Paint();
 		paintBackground = new Paint();
@@ -316,7 +368,8 @@ public class GraphView extends LinearLayout {
 
 		viewVerLabels = new VerLabelsView(context);
 		addView(viewVerLabels);
-		addView(new GraphViewContentView(context), new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT, 1));
+		addView(new GraphViewContentView(context), new LayoutParams(
+				LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT, 1));
 	}
 
 	private GraphViewData[] _values() {
@@ -326,9 +379,9 @@ public class GraphView extends LinearLayout {
 		} else {
 			// viewport
 			List<GraphViewData> listData = new ArrayList<GraphViewData>();
-			for (int i=0; i<values.length; i++) {
+			for (int i = 0; i < values.length; i++) {
 				if (values[i].valueX >= viewportStart) {
-					if (values[i].valueX > viewportStart+viewportSize) {
+					if (values[i].valueX > viewportStart + viewportSize) {
 						listData.add(values[i]); // one more for nice scrolling
 						break;
 					} else {
@@ -338,7 +391,8 @@ public class GraphView extends LinearLayout {
 					if (listData.isEmpty()) {
 						listData.add(values[i]);
 					}
-					listData.set(0, values[i]); // one before, for nice scrolling
+					listData.set(0, values[i]); // one before, for nice
+					// scrolling
 				}
 			}
 			return listData.toArray(new GraphViewData[listData.size()]);
@@ -346,10 +400,12 @@ public class GraphView extends LinearLayout {
 	}
 
 	/**
-	 * formats the label
-	 * can be overwritten
-	 * @param value x and y values
-	 * @param isValueX if false, value y wants to be formatted
+	 * Formats the label can be overwritten
+	 * 
+	 * @param value
+	 *            x and y values
+	 * @param isValueX
+	 *            if false, value y wants to be formatted
 	 * @return value to display
 	 */
 	protected String formatLabel(double value, boolean isValueX) {
@@ -373,23 +429,24 @@ public class GraphView extends LinearLayout {
 	}
 
 	private String[] generateHorlabels(float graphwidth) {
-		int numLabels = (int) (graphwidth/GraphViewConfig.VERTICAL_LABEL_WIDTH);
-		String[] labels = new String[numLabels+1];
+		int numLabels = (int) (graphwidth / GraphViewConfig.VERTICAL_LABEL_WIDTH);
+		String[] labels = new String[numLabels + 1];
 		double min = getMinX();
 		double max = getMaxX();
-		for (int i=0; i<=numLabels; i++) {
-			labels[i] = formatLabel(min + ((max-min)*i/numLabels), true);
+		for (int i = 0; i <= numLabels; i++) {
+			labels[i] = formatLabel(min + ((max - min) * i / numLabels), true);
 		}
 		return labels;
 	}
 
 	synchronized private String[] generateVerlabels(float graphheight) {
-		int numLabels = (int) (graphheight/GraphViewConfig.HORIZONTAL_LABEL_HEIGHT);
-		String[] labels = new String[numLabels+1];
+		int numLabels = (int) (graphheight / GraphViewConfig.HORIZONTAL_LABEL_HEIGHT);
+		String[] labels = new String[numLabels + 1];
 		double min = getMinY();
 		double max = getMaxY();
-		for (int i=0; i<=numLabels; i++) {
-			labels[numLabels-i] = formatLabel(min + ((max-min)*i/numLabels), false);
+		for (int i = 0; i <= numLabels; i++) {
+			labels[numLabels - i] = formatLabel(min
+					+ ((max - min) * i / numLabels), false);
 		}
 		return labels;
 	}
@@ -401,11 +458,12 @@ public class GraphView extends LinearLayout {
 	private double getMaxX() {
 		// if viewport is set, use this
 		if (viewportSize != 0) {
-			return viewportStart+viewportSize;
+			return viewportStart + viewportSize;
 		} else {
 			// otherwise use the max x value
-			// values must be sorted by x, so the last value has the largest X value
-			return values[values.length-1].valueX;
+			// values must be sorted by x, so the last value has the largest X
+			// value
+			return values[values.length - 1].valueX;
 		}
 	}
 
@@ -424,7 +482,8 @@ public class GraphView extends LinearLayout {
 			return viewportStart;
 		} else {
 			// otherwise use the max x value
-			// values must be sorted by x, so the first value has the smallest X value
+			// values must be sorted by x, so the first value has the smallest X
+			// value
 			return _values()[0].valueX;
 		}
 	}
@@ -443,59 +502,69 @@ public class GraphView extends LinearLayout {
 	}
 
 	/**
-	 * @param drawBackground true for a light blue background under the graph line
+	 * @param drawBackground
+	 *            true for a light blue background under the graph line
 	 */
 	public void setDrawBackground(boolean drawBackground) {
 		this.drawBackground = drawBackground;
 	}
 
 	/**
-	 * this forces scrollable = true
+	 * This forces scrollable = true
+	 * 
 	 * @param scalable
 	 */
 	synchronized public void setScalable(boolean scalable) {
 		this.scalable = scalable;
 		if (scalable == true && scaleDetector == null) {
 			scrollable = true; // automatically forces this
-			scaleDetector = new ScaleGestureDetector(getContext(), new ScaleGestureDetector.SimpleOnScaleGestureListener() {
-				@Override
-				public boolean onScale(ScaleGestureDetector detector) {
-					double newSize = viewportSize*detector.getScaleFactor();
-					double diff = newSize-viewportSize;
-					viewportStart += diff/2;
-					viewportSize -= diff;
-					if (diff < 0) {
-						// viewportStart must not be < minX
-						if (viewportStart < values[0].valueX) {
-							viewportStart = values[0].valueX;
-						}
+			scaleDetector = new ScaleGestureDetector(getContext(),
+					new ScaleGestureDetector.SimpleOnScaleGestureListener() {
+						@Override
+						public boolean onScale(ScaleGestureDetector detector) {
+							double newSize = viewportSize
+									* detector.getScaleFactor();
+							double diff = newSize - viewportSize;
+							viewportStart += diff / 2;
+							viewportSize -= diff;
+							if (diff < 0) {
+								// viewportStart must not be < minX
+								if (viewportStart < values[0].valueX) {
+									viewportStart = values[0].valueX;
+								}
 
-						// viewportStart + viewportSize must not be > maxX
-						double overlap = viewportStart + viewportSize - values[values.length-1].valueX;
-						if (overlap > 0) {
-							// scroll left
-							if (viewportStart-overlap > values[0].valueX) {
-								viewportStart -= overlap;
-							} else {
-								// maximal scale
-								viewportStart = values[0].valueX;
-								viewportSize = values[values.length-1].valueX - viewportStart;
+								// viewportStart + viewportSize must not be >
+								// maxX
+								double overlap = viewportStart + viewportSize
+										- values[values.length - 1].valueX;
+								if (overlap > 0) {
+									// scroll left
+									if (viewportStart - overlap > values[0].valueX) {
+										viewportStart -= overlap;
+									} else {
+										// maximal scale
+										viewportStart = values[0].valueX;
+										viewportSize = values[values.length - 1].valueX
+												- viewportStart;
+									}
+								}
 							}
+							verlabels = null;
+							horlabels = null;
+							numberformatter = null;
+							invalidate();
+							viewVerLabels.invalidate();
+							return true;
 						}
-					}
-					verlabels = null;
-					horlabels = null;
-					numberformatter = null;
-					invalidate();
-					viewVerLabels.invalidate();
-					return true;
-				}
-			});
+					});
 		}
 	}
 
 	/**
-	 * the user can scroll (horizontal) the graph. This is only useful if you use a viewport {@link #setViewPort(double, double)} which doesn't displays all data.
+	 * the user can scroll (horizontal) the graph. This is only useful if you
+	 * use a viewport {@link #setViewPort(double, double)} which doesn't
+	 * displays all data.
+	 * 
 	 * @param scrollable
 	 */
 	public void setScrollable(boolean scrollable) {
@@ -503,8 +572,10 @@ public class GraphView extends LinearLayout {
 	}
 
 	/**
-	 * set's the viewport for the graph.
-	 * @param start x-value
+	 * set's the Viewport for the graph.
+	 * 
+	 * @param start
+	 *            x-value
 	 * @param size
 	 */
 	public void setViewPort(double start, double size) {
