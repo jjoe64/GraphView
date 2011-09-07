@@ -263,6 +263,9 @@ abstract public class GraphView extends LinearLayout {
 	private boolean showLegend = false;
 	private float legendWidth = 120;
 	private LegendAlign legendAlign = LegendAlign.MIDDLE;
+	private boolean autoYaxis = true;
+	private double manualMaxYValue;
+	private double manualMinYValue;
 
 	/**
 	 *
@@ -427,14 +430,19 @@ abstract public class GraphView extends LinearLayout {
 	}
 
 	private double getMaxY() {
-		double largest = Integer.MIN_VALUE;
-		for (int i=0; i<graphSeries.size(); i++) {
-			GraphViewData[] values = _values(i);
-			for (int ii=0; ii<values.length; ii++)
-				if (values[ii].valueY > largest)
-					largest = values[ii].valueY;
+		if (!autoYaxis)
+		{return manualMaxYValue;}
+		else
+		{
+			double largest = Integer.MIN_VALUE;
+			for (int i=0; i<graphSeries.size(); i++) {
+				GraphViewData[] values = _values(i);
+				for (int ii=0; ii<values.length; ii++)
+					if (values[ii].valueY > largest)
+						largest = values[ii].valueY;
+			}
+			return largest;
 		}
-		return largest;
 	}
 
 	private double getMinX(boolean ignoreViewport) {
@@ -455,14 +463,31 @@ abstract public class GraphView extends LinearLayout {
 	}
 
 	private double getMinY() {
-		double smallest = Integer.MAX_VALUE;
-		for (int i=0; i<graphSeries.size(); i++) {
-			GraphViewData[] values = _values(i);
-			for (int ii=0; ii<values.length; ii++)
-				if (values[ii].valueY < smallest)
-					smallest = values[ii].valueY;
-		}
+		if (!autoYaxis)
+		{return manualMinYValue;}
+		else
+		{
+			double smallest = Integer.MAX_VALUE;
+			for (int i=0; i<graphSeries.size(); i++) {
+				GraphViewData[] values = _values(i);
+				for (int ii=0; ii<values.length; ii++)
+					if (values[ii].valueY < smallest)
+						smallest = values[ii].valueY;
+			}
 		return smallest;
+		}
+	}
+
+	public void setYAxisAuto(boolean auto)
+	{this.autoYaxis=auto;}
+
+	public boolean getYAxisAuto()
+	{return this.autoYaxis;}
+
+	public void setManualYAxisBounds(double max, double min)
+	{
+		this.manualMaxYValue=max;
+		this.manualMinYValue=min;
 	}
 
 	public boolean isScrollable() {
@@ -498,7 +523,7 @@ abstract public class GraphView extends LinearLayout {
 		if (scalable == true && scaleDetector == null) {
 			scrollable = true; // automatically forces this
 			scaleDetector = new ScaleGestureDetector(getContext(), new ScaleGestureDetector.SimpleOnScaleGestureListener() {
-				@Override
+				//@Override
 				public boolean onScale(ScaleGestureDetector detector) {
 					double newSize = viewportSize*detector.getScaleFactor();
 					double diff = newSize-viewportSize;
