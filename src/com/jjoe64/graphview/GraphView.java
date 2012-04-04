@@ -108,6 +108,9 @@ abstract public class GraphView extends LinearLayout {
 				for (int i=0; i<graphSeries.size(); i++) {
 					paint.setColor(graphSeries.get(i).color);
 					drawSeries(canvas, _values(i), graphwidth, graphheight, border, minX, minY, diffX, diffY, horstart);
+					if (selectHandler != null) {
+						selectHandler.setViewport(minX, diffX, horstart, graphwidth);
+					}
 				}
 
 				if (showLegend) drawLegend(canvas, height, width);
@@ -135,7 +138,7 @@ abstract public class GraphView extends LinearLayout {
 			}
 			invalidate();
 		}
-
+		
 		/**
 		 * @param event
 		 */
@@ -155,10 +158,16 @@ abstract public class GraphView extends LinearLayout {
 				// if not scaled, scroll
 				if ((event.getAction() & MotionEvent.ACTION_DOWN) == MotionEvent.ACTION_DOWN) {
 					handled = true;
+					if (selectHandler != null) {
+						selectHandler.handleSelect(event, false);
+					}
 				}
 				if ((event.getAction() & MotionEvent.ACTION_UP) == MotionEvent.ACTION_UP) {
 					lastTouchEventX = 0;
 					handled = true;
+					if (selectHandler != null) {
+						selectHandler.handleSelect(event, true);
+					}
 				}
 				if ((event.getAction() & MotionEvent.ACTION_MOVE) == MotionEvent.ACTION_MOVE) {
 					if (lastTouchEventX != 0) {
@@ -248,6 +257,100 @@ abstract public class GraphView extends LinearLayout {
 		}
 	}
 
+	// Class to handle select events
+	static public class OnSelectHandler {
+		MotionEvent event[]; // [0] - ACTION_DOWN, [1] - ACTION_UP
+		// Viewport parameters
+		double min;
+		double diff;
+		float start;
+		float width;
+		GraphViewData [] data;
+		
+		public OnSelectHandler() {
+			event = new MotionEvent[2];
+		}
+		
+		/*
+		 *  @param point - co-ordinate to transform
+		 *  @param min - minimum value of sample
+		 *  @param diff - difference between min and max of sample
+		 *  @param start - start in space of sample 
+		 *  @param width - width of co-ordinate space
+		 */
+		public void setViewport(double min, double diff, float start, float width) {
+			this.min = min;
+			this.diff = diff;
+			this.start = start;
+			this.width = width;
+		}
+		
+		/*
+		 * @param data - Data series to report while selecting
+		 */
+		public void setData(GraphViewData [] data) {
+			this.data = data;
+		}
+		
+		// Arguments are the event that occured and whether that finishes the select
+		private boolean handleSelect(MotionEvent inEvent, boolean finished) {
+			boolean retVal = false;
+			
+			if (finished) {
+				event[1] = inEvent;
+				// Compare and digest event
+				if ((event[1].getX() == event[0].getX()) && 
+						(event[1].getY() == event[0].getY())) {
+					int selectIndex = 0;
+					double selectSample = 0;
+					// Calculate nearest sample point
+					selectSample = transformPointToSample(event[1].getX());
+					for (GraphViewData i : data) {
+//						Log.d(getClass().getName(), "selector " + i.valueX + " == " + selectSample);
+						if (i.valueX >= selectSample) {
+							retVal = true;
+							break;
+						}
+						selectIndex++;
+					}
+					if (retVal == true) {
+						// Call overriden method
+						onSelect(selectIndex);
+					}
+				}
+			} else {
+				event[0] = inEvent;
+			}
+			
+			return retVal;
+		}
+		
+		/**
+		 *  Method to transform (x,y) to sample point
+		 * @return Transformed sample index
+		 */
+		
+		private double transformPointToSample(double point) {
+			double sample;
+			// Below code from LineGraphView which transforms the other way round
+//			double valX = valueX - minX;
+//			double ratX = valX / diffX;
+//			double x = graphwidth * ratX;
+//			float endX = (float) x + (horstart + 1);
+			
+			double x = (point - start - 1);
+			double ratX = x / width;
+			double valX = ratX * diff;
+			sample = valX + min;
+			return sample;
+		}
+		
+		// Function to call overridable user callback for select events
+		protected void onSelect(int selectIndex) {
+			
+		}
+	}
+	
 	protected final Paint paint;
 	private String[] horlabels;
 	private String[] verlabels;
@@ -266,6 +369,9 @@ abstract public class GraphView extends LinearLayout {
 	private boolean manualYAxis;
 	private double manualMaxYValue;
 	private double manualMinYValue;
+	
+	// Added for select handling
+	private OnSelectHandler selectHandler;
 
 	/**
 	 *
@@ -318,6 +424,10 @@ abstract public class GraphView extends LinearLayout {
 
 	public void addSeries(GraphViewSeries series) {
 		graphSeries.add(series);
+		if (selectHandler != null) {
+			// Add latest series to selector
+			selectHandler.setData(series.values);
+		}
 	}
 
 	public void removeSeries(int index)
@@ -620,5 +730,13 @@ abstract public class GraphView extends LinearLayout {
 	public void setViewPort(double start, double size) {
 		viewportStart = start;
 		viewportSize = size;
+	}
+	
+	/**
+	 * Set's the select handler class for 1st series in graph
+	 * @param Handler instance
+	 */
+	public void setSelectHandler(OnSelectHandler handle) {
+		selectHandler = handle;
 	}
 }
