@@ -9,7 +9,9 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Align;
+import android.graphics.Rect;
 import android.graphics.RectF;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -32,6 +34,7 @@ abstract public class GraphView extends LinearLayout {
 		static final float BORDER = 20;
 		static final float VERTICAL_LABEL_WIDTH = 100;
 		static final float HORIZONTAL_LABEL_HEIGHT = 80;
+		static final float LABEL_PADDING = 4;
 	}
 
 	private class GraphViewContentView extends View {
@@ -55,6 +58,7 @@ abstract public class GraphView extends LinearLayout {
 			paint.setStrokeWidth(0);
 
 			float border = GraphViewConfig.BORDER;
+			if (enableMultiLineXLabel) border *= 2; // Extra space for 1 more line
 			float horstart = 0;
 			float height = getHeight();
 			float width = getWidth() - 1;
@@ -95,7 +99,19 @@ abstract public class GraphView extends LinearLayout {
 				if (i==0)
 					paint.setTextAlign(Align.LEFT);
 				paint.setColor(Color.WHITE);
-				canvas.drawText(horlabels[i], x, height - 4, paint);
+				if (enableMultiLineXLabel) {
+					// Multiline X label support
+					String [] multiLine = horlabels[i].split(multiLineLabelSep);
+					float offsetY = height - (border / 2) + GraphViewConfig.LABEL_PADDING;
+					Rect rect = new Rect();
+					for (String str : multiLine) {
+						canvas.drawText(str, x, offsetY, paint);
+						paint.getTextBounds(str, 0, str.length(), rect);
+						offsetY += (rect.height() + GraphViewConfig.LABEL_PADDING);
+					}
+				} else {
+					canvas.drawText(horlabels[i], x, height - 4, paint);
+				}
 			}
 
 			paint.setTextAlign(Align.CENTER);
@@ -163,10 +179,14 @@ abstract public class GraphView extends LinearLayout {
 					}
 				}
 				if ((event.getAction() & MotionEvent.ACTION_UP) == MotionEvent.ACTION_UP) {
+					boolean hadMoved;
+					if (lastTouchEventX != 0) hadMoved = true;
+					else hadMoved = false;
+					
 					lastTouchEventX = 0;
 					handled = true;
 					if (selectHandler != null) {
-						selectHandler.handleSelect(event, true);
+						selectHandler.handleSelect(event, !hadMoved);
 					}
 				}
 				if ((event.getAction() & MotionEvent.ACTION_MOVE) == MotionEvent.ACTION_MOVE) {
@@ -239,6 +259,7 @@ abstract public class GraphView extends LinearLayout {
 			paint.setStrokeWidth(0);
 
 			float border = GraphViewConfig.BORDER;
+			if (enableMultiLineXLabel) border *= 2; // Extra space for 1 more line
 			float height = getHeight();
 			float graphheight = height - (2 * border);
 
@@ -372,6 +393,9 @@ abstract public class GraphView extends LinearLayout {
 	
 	// Added for select handling
 	private OnSelectHandler selectHandler;
+	// Added for multi-line X labels
+	private boolean enableMultiLineXLabel;
+	private String multiLineLabelSep;
 
 	/**
 	 *
@@ -738,5 +762,10 @@ abstract public class GraphView extends LinearLayout {
 	 */
 	public void setSelectHandler(OnSelectHandler handle) {
 		selectHandler = handle;
+	}
+	
+	public void setMultiLineXLabel(boolean enable, String sep) {
+		enableMultiLineXLabel = enable;
+		multiLineLabelSep = sep;
 	}
 }

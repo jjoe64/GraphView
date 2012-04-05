@@ -17,8 +17,10 @@ Tested on Android 1.6, 2.2, 2.3 and 3.0 (honeycomb, tablet).
 
 <h2>What's new in this fork?</h2>
 The following features have been added to GraphView in this fork.
+
 * A sample can be selected, triggerring a user-defined callback in the process.
 * Multi-line X axis labels support (in progress).
+
 These will hopefully be merged into the main GraphView repo maintained by jjoe64.
 
 <h2>Features</h2>
