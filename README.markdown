@@ -15,6 +15,12 @@ Tested on Android 1.6, 2.2, 2.3 and 3.0 (honeycomb, tablet).
 <img src="https://github.com/jjoe64/GraphView/raw/master/GVBar.png" height="200" />
 <img src="http://3.bp.blogspot.com/-BkLSSJSeCt8/TkD4xpeRyGI/AAAAAAAAA6M/sVC_1s_Bf-0/s1600/multi2.png" height="200" />
 
+<h2>What's new in this fork?</h2>
+The following features have been added to GraphView in this fork.
+* A sample can be selected, triggerring a user-defined callback in the process.
+* Multi-line X axis labels support (in progress).
+These will hopefully be merged into the main GraphView repo maintained by jjoe64.
+
 <h2>Features</h2>
 
 * Two chart types
