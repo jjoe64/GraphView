@@ -184,8 +184,8 @@ abstract public class GraphView extends LinearLayout {
 					
 					lastTouchEventX = 0;
 					handled = true;
-					if (selectHandler != null) {
-						selectHandler.handleSelect(event, !hadMoved);
+					if (selectHandler != null && !hadMoved) {
+						selectHandler.handleSelect(event, true);
 					}
 				}
 				if ((event.getAction() & MotionEvent.ACTION_MOVE) == MotionEvent.ACTION_MOVE) {
