@@ -11,6 +11,7 @@ import android.graphics.Paint;
 import android.graphics.Paint.Align;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -123,9 +124,9 @@ abstract public class GraphView extends LinearLayout {
 				for (int i=0; i<graphSeries.size(); i++) {
 					paint.setColor(graphSeries.get(i).color);
 					drawSeries(canvas, _values(i), graphwidth, graphheight, border, minX, minY, diffX, diffY, horstart);
-					if (selectHandler != null) {
-						selectHandler.setViewport(minX, diffX, horstart, graphwidth);
-					}
+//					if (selectHandler != null) {
+//						selectHandler.setViewport(minX, diffX, horstart, graphwidth);
+//					}
 				}
 
 				if (showLegend) drawLegend(canvas, height, width);
@@ -175,15 +176,17 @@ abstract public class GraphView extends LinearLayout {
 					handled = true;
 					if (selectHandler != null) {
 						selectHandler.handleSelect(event, false);
+						Log.d(getClass().getName(), "event down!" + event.getX());
 					}
 				}
 				if ((event.getAction() & MotionEvent.ACTION_UP) == MotionEvent.ACTION_UP) {
 					boolean hadMoved;
-					if (lastTouchEventX != 0) hadMoved = true;
+					if ((lastTouchEventX != 0) && (lastTouchEventX != event.getX())) hadMoved = true;
 					else hadMoved = false;
 					
 					lastTouchEventX = 0;
 					handled = true;
+					Log.d(getClass().getName(), "event down! moved? " + hadMoved + " " + event.getX());
 					if (selectHandler != null && !hadMoved) {
 						selectHandler.handleSelect(event, true);
 					}
@@ -194,6 +197,7 @@ abstract public class GraphView extends LinearLayout {
 					}
 					lastTouchEventX = event.getX();
 					handled = true;
+					Log.d(getClass().getName(), "event move!" + event.getX());
 				}
 			}
 			return handled;
@@ -278,7 +282,7 @@ abstract public class GraphView extends LinearLayout {
 	}
 
 	// Class to handle select events
-	static public class OnSelectHandler {
+	public class OnSelectHandler {
 		MotionEvent event[]; // [0] - ACTION_DOWN, [1] - ACTION_UP
 		// Viewport parameters
 		double min;
@@ -291,30 +295,14 @@ abstract public class GraphView extends LinearLayout {
 			event = new MotionEvent[2];
 		}
 		
-		/*
-		 *  @param point - co-ordinate to transform
-		 *  @param min - minimum value of sample
-		 *  @param diff - difference between min and max of sample
-		 *  @param start - start in space of sample 
-		 *  @param width - width of co-ordinate space
-		 */
-		public void setViewport(double min, double diff, float start, float width) {
-			this.min = min;
-			this.diff = diff;
-			this.start = start;
-			this.width = width;
-		}
-		
-		/*
-		 * @param data - Data series to report while selecting
-		 */
-		public void setData(GraphViewData [] data) {
-			this.data = data;
-		}
-		
 		// Arguments are the event that occured and whether that finishes the select
 		private boolean handleSelect(MotionEvent inEvent, boolean finished) {
 			boolean retVal = false;
+			data = _values(0);
+			min = getMinX(false);
+			diff = getMaxX(false) - getMinX(false);
+			start = 0;
+			width = getWidth() - 1;
 			
 			if (finished) {
 				event[1] = inEvent;
@@ -447,10 +435,6 @@ abstract public class GraphView extends LinearLayout {
 
 	public void addSeries(GraphViewSeries series) {
 		graphSeries.add(series);
-		if (selectHandler != null) {
-			// Add latest series to selector
-			selectHandler.setData(series.values);
-		}
 	}
 
 	public void removeSeries(int index)
