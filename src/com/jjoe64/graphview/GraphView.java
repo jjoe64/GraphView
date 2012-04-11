@@ -175,7 +175,7 @@ abstract public class GraphView extends LinearLayout {
 				if ((event.getAction() & MotionEvent.ACTION_DOWN) == MotionEvent.ACTION_DOWN) {
 					handled = true;
 					if (selectHandler != null) {
-						selectHandler.handleSelect(event, false);
+						selectHandler.handleSelect(event, false, GraphView.this);
 						Log.d(getClass().getName(), "event down!" + event.getX());
 					}
 				}
@@ -188,7 +188,7 @@ abstract public class GraphView extends LinearLayout {
 					handled = true;
 					Log.d(getClass().getName(), "event down! moved? " + hadMoved + " " + event.getX());
 					if (selectHandler != null && !hadMoved) {
-						selectHandler.handleSelect(event, true);
+						selectHandler.handleSelect(event, true, GraphView.this);
 					}
 				}
 				if ((event.getAction() & MotionEvent.ACTION_MOVE) == MotionEvent.ACTION_MOVE) {
@@ -282,27 +282,18 @@ abstract public class GraphView extends LinearLayout {
 	}
 
 	// Class to handle select events
-	public class OnSelectHandler {
-		MotionEvent event[]; // [0] - ACTION_DOWN, [1] - ACTION_UP
-		// Viewport parameters
-		double min;
-		double diff;
-		float start;
-		float width;
-		GraphViewData [] data;
+	abstract public class OnSelectHandler {
+		private MotionEvent event[]; // [0] - ACTION_DOWN, [1] - ACTION_UP
+		private GraphViewData [] data;
 		
 		public OnSelectHandler() {
 			event = new MotionEvent[2];
 		}
 		
 		// Arguments are the event that occured and whether that finishes the select
-		private boolean handleSelect(MotionEvent inEvent, boolean finished) {
+		private boolean handleSelect(MotionEvent inEvent, boolean finished, GraphView graph) {
 			boolean retVal = false;
 			data = _values(0);
-			min = getMinX(false);
-			diff = getMaxX(false) - getMinX(false);
-			start = 0;
-			width = getWidth() - 1;
 			
 			if (finished) {
 				event[1] = inEvent;
@@ -312,11 +303,25 @@ abstract public class GraphView extends LinearLayout {
 					int selectIndex = 0;
 					double selectSample = 0;
 					// Calculate nearest sample point
-					selectSample = transformPointToSample(event[1].getX());
+					selectSample = graph.transformPointToSample(event[1].getX());
 					for (GraphViewData i : data) {
-//						Log.d(getClass().getName(), "selector " + i.valueX + " == " + selectSample);
 						if (i.valueX >= selectSample) {
 							retVal = true;
+							// Compute if nearer to next point
+//							if (selectIndex > 0) {
+//								double distToNext = i.valueX - data[selectIndex - 1].valueX;
+//								double distFromCurr = i.valueX - selectSample;
+//								Log.d("tt" , "select = " + selectIndex 
+//										+ ", i = " + i.valueX
+//										+ ", i-1 = " + data[selectIndex - 1].valueX
+//										+ ", search = " + selectSample
+//										+ ", curr = " + distFromCurr
+//										+ ", next = " + (distToNext / 2));
+//
+//								if (distFromCurr > (distToNext / 2)) {
+//									selectIndex--;
+//								}
+//							}
 							break;
 						}
 						selectIndex++;
@@ -332,31 +337,9 @@ abstract public class GraphView extends LinearLayout {
 			
 			return retVal;
 		}
-		
-		/**
-		 *  Method to transform (x,y) to sample point
-		 * @return Transformed sample index
-		 */
-		
-		private double transformPointToSample(double point) {
-			double sample;
-			// Below code from LineGraphView which transforms the other way round
-//			double valX = valueX - minX;
-//			double ratX = valX / diffX;
-//			double x = graphwidth * ratX;
-//			float endX = (float) x + (horstart + 1);
-			
-			double x = (point - start - 1);
-			double ratX = x / width;
-			double valX = ratX * diff;
-			sample = valX + min;
-			return sample;
-		}
-		
+				
 		// Function to call overridable user callback for select events
-		protected void onSelect(int selectIndex) {
-			
-		}
+		abstract public void onSelect(int selectIndex);
 	}
 	
 	protected final Paint paint;
@@ -544,7 +527,7 @@ abstract public class GraphView extends LinearLayout {
 		return legendWidth;
 	}
 
-	private double getMaxX(boolean ignoreViewport) {
+	protected double getMaxX(boolean ignoreViewport) {
 		// if viewport is set, use this
 		if (!ignoreViewport && viewportSize != 0) {
 			return viewportStart+viewportSize;
@@ -581,7 +564,7 @@ abstract public class GraphView extends LinearLayout {
 		return largest;
 	}
 
-	private double getMinX(boolean ignoreViewport) {
+	protected double getMinX(boolean ignoreViewport) {
 		// if viewport is set, use this
 		if (!ignoreViewport && viewportSize != 0) {
 			return viewportStart;
@@ -751,4 +734,6 @@ abstract public class GraphView extends LinearLayout {
 		enableMultiLineXLabel = enable;
 		multiLineLabelSep = sep;
 	}
+	
+	abstract double transformPointToSample(double point);
 }

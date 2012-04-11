@@ -100,4 +100,23 @@ public class LineGraphView extends GraphView {
 	public void setDrawBackground(boolean drawBackground) {
 		this.drawBackground = drawBackground;
 	}
+
+	/**
+	 *  Method to transform (x,y) to sample point
+	 * @return Transformed sample index
+	 */
+	protected double transformPointToSample(double point) {
+		double sample;
+		// Below code from LineGraphView which transforms the other way round
+//		double valX = valueX - minX;
+//		double ratX = valX / diffX;
+//		double x = graphwidth * ratX;
+//		float endX = (float) x + (horstart + 1);
+		double horstart = 0;
+		double x = (point - horstart - 1);
+		double ratX = x / (getWidth() - 1);
+		double valX = ratX * (getMaxX(false) - getMinX(false));
+		sample = valX + getMinX(false);
+		return sample;
+	}
 }
