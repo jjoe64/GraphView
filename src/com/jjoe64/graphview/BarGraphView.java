@@ -26,4 +26,13 @@ public class BarGraphView extends GraphView {
 			canvas.drawRect((i * colwidth) + horstart, (border - y) + graphheight, ((i * colwidth) + horstart) + (colwidth - 1), graphheight + border - 1, paint);
 		}
 	}
+
+	@Override
+	protected double transformPointToSample(double point, float border, int numPoints) {
+		double horstart = 0;
+		float colwidth = ((getWidth() - 1) - (2 * border)) / numPoints;
+		double x = point - horstart;
+		x = Math.floor(x / colwidth);
+		return x;
+	}
 }

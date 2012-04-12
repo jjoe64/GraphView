@@ -11,7 +11,6 @@ import android.graphics.Paint;
 import android.graphics.Paint.Align;
 import android.graphics.Rect;
 import android.graphics.RectF;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -176,7 +175,6 @@ abstract public class GraphView extends LinearLayout {
 					handled = true;
 					if (selectHandler != null) {
 						selectHandler.handleSelect(event, false, GraphView.this);
-						Log.d(getClass().getName(), "event down!" + event.getX());
 					}
 				}
 				if ((event.getAction() & MotionEvent.ACTION_UP) == MotionEvent.ACTION_UP) {
@@ -186,7 +184,6 @@ abstract public class GraphView extends LinearLayout {
 					
 					lastTouchEventX = 0;
 					handled = true;
-					Log.d(getClass().getName(), "event down! moved? " + hadMoved + " " + event.getX());
 					if (selectHandler != null && !hadMoved) {
 						selectHandler.handleSelect(event, true, GraphView.this);
 					}
@@ -197,7 +194,6 @@ abstract public class GraphView extends LinearLayout {
 					}
 					lastTouchEventX = event.getX();
 					handled = true;
-					Log.d(getClass().getName(), "event move!" + event.getX());
 				}
 			}
 			return handled;
@@ -303,7 +299,7 @@ abstract public class GraphView extends LinearLayout {
 					int selectIndex = 0;
 					double selectSample = 0;
 					// Calculate nearest sample point
-					selectSample = graph.transformPointToSample(event[1].getX());
+					selectSample = graph.transformPointToSample(event[1].getX(), GraphViewConfig.BORDER, data.length);
 					for (GraphViewData i : data) {
 						if (i.valueX >= selectSample) {
 							retVal = true;
@@ -311,13 +307,6 @@ abstract public class GraphView extends LinearLayout {
 //							if (selectIndex > 0) {
 //								double distToNext = i.valueX - data[selectIndex - 1].valueX;
 //								double distFromCurr = i.valueX - selectSample;
-//								Log.d("tt" , "select = " + selectIndex 
-//										+ ", i = " + i.valueX
-//										+ ", i-1 = " + data[selectIndex - 1].valueX
-//										+ ", search = " + selectSample
-//										+ ", curr = " + distFromCurr
-//										+ ", next = " + (distToNext / 2));
-//
 //								if (distFromCurr > (distToNext / 2)) {
 //									selectIndex--;
 //								}
@@ -735,5 +724,5 @@ abstract public class GraphView extends LinearLayout {
 		multiLineLabelSep = sep;
 	}
 	
-	abstract double transformPointToSample(double point);
+	abstract double transformPointToSample(double point, float border, int len);
 }
