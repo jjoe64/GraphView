@@ -174,7 +174,7 @@ abstract public class GraphView extends LinearLayout {
 				if ((event.getAction() & MotionEvent.ACTION_DOWN) == MotionEvent.ACTION_DOWN) {
 					handled = true;
 					if (selectHandler != null) {
-						selectHandler.handleSelect(event, false, GraphView.this);
+						selectHandler.handleSelect(event, false);
 					}
 				}
 				if ((event.getAction() & MotionEvent.ACTION_UP) == MotionEvent.ACTION_UP) {
@@ -185,7 +185,7 @@ abstract public class GraphView extends LinearLayout {
 					lastTouchEventX = 0;
 					handled = true;
 					if (selectHandler != null && !hadMoved) {
-						selectHandler.handleSelect(event, true, GraphView.this);
+						selectHandler.handleSelect(event, true);
 					}
 				}
 				if ((event.getAction() & MotionEvent.ACTION_MOVE) == MotionEvent.ACTION_MOVE) {
@@ -287,7 +287,7 @@ abstract public class GraphView extends LinearLayout {
 		}
 		
 		// Arguments are the event that occured and whether that finishes the select
-		private boolean handleSelect(MotionEvent inEvent, boolean finished, GraphView graph) {
+		private boolean handleSelect(MotionEvent inEvent, boolean finished) {
 			boolean retVal = false;
 			data = _values(0);
 			
@@ -299,7 +299,7 @@ abstract public class GraphView extends LinearLayout {
 					int selectIndex = 0;
 					double selectSample = 0;
 					// Calculate nearest sample point
-					selectSample = graph.transformPointToSample(event[1].getX(), GraphViewConfig.BORDER, data.length);
+					selectSample = GraphView.this.transformPointToSample(event[1].getX(), GraphViewConfig.BORDER, data.length);
 					for (GraphViewData i : data) {
 						if (i.valueX >= selectSample) {
 							retVal = true;
