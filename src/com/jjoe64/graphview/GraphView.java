@@ -9,6 +9,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Align;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.view.MotionEvent;
 import android.view.View;
@@ -32,11 +33,14 @@ abstract public class GraphView extends LinearLayout {
 		static final float BORDER = 20;
 		static final float VERTICAL_LABEL_WIDTH = 100;
 		static final float HORIZONTAL_LABEL_HEIGHT = 80;
+		static final float LABEL_PADDING = 4;
 	}
 
 	private class GraphViewContentView extends View {
 		private float lastTouchEventX;
+		private float origDown;
 		private float graphwidth;
+		static final float RESIST_MOVE_THRESHOLD = 2.0f; // difference in X to not detect as move
 
 		/**
 		 * @param context
@@ -58,6 +62,7 @@ abstract public class GraphView extends LinearLayout {
 			paint.setStrokeWidth(0);
 
 			float border = GraphViewConfig.BORDER;
+			if (enableMultiLineXLabel) border *= 2; // Extra space for 1 more line
 			float horstart = 0;
 			float height = getHeight();
 			float width = getWidth() - 1;
@@ -98,7 +103,19 @@ abstract public class GraphView extends LinearLayout {
 				if (i==0)
 					paint.setTextAlign(Align.LEFT);
 				paint.setColor(Color.WHITE);
-				canvas.drawText(horlabels[i], x, height - 4, paint);
+				if (enableMultiLineXLabel) {
+					// Multiline X label support
+					String [] multiLine = horlabels[i].split(multiLineLabelSep);
+					float offsetY = height - (border / 2) + GraphViewConfig.LABEL_PADDING;
+					Rect rect = new Rect();
+					for (String str : multiLine) {
+						canvas.drawText(str, x, offsetY, paint);
+						paint.getTextBounds(str, 0, str.length(), rect);
+						offsetY += (rect.height() + GraphViewConfig.LABEL_PADDING);
+					}
+				} else {
+					canvas.drawText(horlabels[i], x, height - 4, paint);
+				}
 			}
 
 			paint.setTextAlign(Align.CENTER);
@@ -110,7 +127,10 @@ abstract public class GraphView extends LinearLayout {
 
 				for (int i=0; i<graphSeries.size(); i++) {
 					paint.setColor(graphSeries.get(i).color);
-					drawSeries(canvas, _values(i), graphwidth, graphheight, border, minX, minY, diffX, diffY, horstart);
+					drawSeries(canvas, _values(i, false), graphwidth, graphheight, border, minX, minY, diffX, diffY, horstart);
+//					if (selectHandler != null) {
+//						selectHandler.setViewport(minX, diffX, horstart, graphwidth);
+//					}
 				}
 
 				if (showLegend) drawLegend(canvas, height, width);
@@ -138,7 +158,7 @@ abstract public class GraphView extends LinearLayout {
 			}
 			invalidate();
 		}
-
+		
 		/**
 		 * @param event
 		 */
@@ -155,23 +175,46 @@ abstract public class GraphView extends LinearLayout {
 				handled = scaleDetector.isInProgress();
 			}
 			if (!handled) {
-				// if not scaled, scroll
-				if ((event.getAction() & MotionEvent.ACTION_DOWN) == MotionEvent.ACTION_DOWN) {
-					handled = true;
-				}
+				// Check actions in this priority, since DOWN appears with UP and MOVE also
+				// 1. Up - to capture the first DOWN correctly, before its overwritten
+				// 2. Move - to mask the duplicate DOWN that appears with it
+				// 3. Down - to capture the first DOWN in a MOVE in origDown
 				if ((event.getAction() & MotionEvent.ACTION_UP) == MotionEvent.ACTION_UP) {
+					boolean hadMoved;
+					if ((lastTouchEventX != 0) && !resistMove(origDown, event.getX())) hadMoved = true;
+					else hadMoved = false;
+					
 					lastTouchEventX = 0;
+					origDown = 0;
 					handled = true;
-				}
-				if ((event.getAction() & MotionEvent.ACTION_MOVE) == MotionEvent.ACTION_MOVE) {
+					if (selectHandler != null && !hadMoved) {
+						selectHandler.handleSelect(event, true);
+					}
+				} else if ((event.getAction() & MotionEvent.ACTION_MOVE) == MotionEvent.ACTION_MOVE) {
+					// if not scaled, scroll
 					if (lastTouchEventX != 0) {
 						onMoveGesture(event.getX() - lastTouchEventX);
 					}
 					lastTouchEventX = event.getX();
 					handled = true;
+				} else if ((event.getAction() & MotionEvent.ACTION_DOWN) == MotionEvent.ACTION_DOWN) {
+					handled = true;
+					if (selectHandler != null) {
+						selectHandler.handleSelect(event, false);
+					}
+					origDown = event.getX();
 				}
 			}
 			return handled;
+		}
+		
+		// Resist a move if movement is small
+		private boolean resistMove(float initX, float finalX) {
+			if (Math.abs(initX - finalX) > RESIST_MOVE_THRESHOLD) {
+				return false;
+			} else {
+				return true;
+			}
 		}
 	}
 
@@ -233,6 +276,7 @@ abstract public class GraphView extends LinearLayout {
 			paint.setStrokeWidth(0);
 
 			float border = GraphViewConfig.BORDER;
+			if (enableMultiLineXLabel) border *= 2; // Extra space for 1 more line
 			float height = getHeight();
 			float graphheight = height - (2 * border);
 
@@ -251,6 +295,52 @@ abstract public class GraphView extends LinearLayout {
 		}
 	}
 
+	// Class to handle select events
+	abstract public class OnSelectHandler {
+		private MotionEvent event[]; // [0] - ACTION_DOWN, [1] - ACTION_UP
+		private GraphViewData [] data;
+		
+		public OnSelectHandler() {
+			event = new MotionEvent[2];
+		}
+		
+		// Arguments are the event that occured and whether that finishes the select
+		private boolean handleSelect(MotionEvent inEvent, boolean finished) {
+			boolean retVal = false;
+			data = _values(0, true);
+			
+			if (finished) {
+				event[1] = inEvent;
+				// Compare and digest event
+				if ((event[1].getX() == event[0].getX()) && 
+						(event[1].getY() == event[0].getY())) {
+					int selectIndex = 0;
+					double selectSample = 0;
+					// Calculate nearest sample point
+					selectSample = GraphView.this.transformPointToSample(event[1].getX(), GraphViewConfig.BORDER, data.length);
+					for (GraphViewData i : data) {
+						if (i.valueX >= selectSample) {
+							retVal = true;
+							break;
+						}
+						selectIndex++;
+					}
+					if (retVal == true) {
+						// Call overriden method
+						onSelect(selectIndex);
+					}
+				}
+			} else {
+				event[0] = inEvent;
+			}
+			
+			return retVal;
+		}
+				
+		// Function to call overridable user callback for select events
+		abstract public void onSelect(int selectIndex);
+	}
+	
 	protected final Paint paint;
 	private String[] horlabels;
 	private String[] verlabels;
@@ -269,6 +359,12 @@ abstract public class GraphView extends LinearLayout {
 	private boolean manualYAxis;
 	private double manualMaxYValue;
 	private double manualMinYValue;
+	
+	// Added for select handling
+	private OnSelectHandler selectHandler;
+	// Added for multi-line X labels
+	private boolean enableMultiLineXLabel;
+	private String multiLineLabelSep;
 
 	/**
 	 *
@@ -292,9 +388,9 @@ abstract public class GraphView extends LinearLayout {
 		addView(new GraphViewContentView(context), new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT, 1));
 	}
 
-	private GraphViewData[] _values(int idxSeries) {
+	private GraphViewData[] _values(int idxSeries, boolean ignoreViewport) {
 		GraphViewData[] values = graphSeries.get(idxSeries).values;
-		if (viewportStart == 0 && viewportSize == 0) {
+		if ((viewportStart == 0 && viewportSize == 0) || ignoreViewport) {
 			// all data
 			return values;
 		} else {
@@ -430,7 +526,7 @@ abstract public class GraphView extends LinearLayout {
 		return legendWidth;
 	}
 
-	private double getMaxX(boolean ignoreViewport) {
+	protected double getMaxX(boolean ignoreViewport) {
 		// if viewport is set, use this
 		if (!ignoreViewport && viewportSize != 0) {
 			return viewportStart+viewportSize;
@@ -458,7 +554,7 @@ abstract public class GraphView extends LinearLayout {
 		} else {
 			largest = Integer.MIN_VALUE;
 			for (int i=0; i<graphSeries.size(); i++) {
-				GraphViewData[] values = _values(i);
+				GraphViewData[] values = _values(i, false);
 				for (int ii=0; ii<values.length; ii++)
 					if (values[ii].valueY > largest)
 						largest = values[ii].valueY;
@@ -467,7 +563,7 @@ abstract public class GraphView extends LinearLayout {
 		return largest;
 	}
 
-	private double getMinX(boolean ignoreViewport) {
+	protected double getMinX(boolean ignoreViewport) {
 		// if viewport is set, use this
 		if (!ignoreViewport && viewportSize != 0) {
 			return viewportStart;
@@ -495,7 +591,7 @@ abstract public class GraphView extends LinearLayout {
 		} else {
 			smallest = Integer.MAX_VALUE;
 			for (int i=0; i<graphSeries.size(); i++) {
-				GraphViewData[] values = _values(i);
+				GraphViewData[] values = _values(i, false);
 				for (int ii=0; ii<values.length; ii++)
 					if (values[ii].valueY < smallest)
 						smallest = values[ii].valueY;
@@ -624,4 +720,19 @@ abstract public class GraphView extends LinearLayout {
 		viewportStart = start;
 		viewportSize = size;
 	}
+	
+	/**
+	 * Set's the select handler class for 1st series in graph
+	 * @param Handler instance
+	 */
+	public void setSelectHandler(OnSelectHandler handle) {
+		selectHandler = handle;
+	}
+	
+	public void setMultiLineXLabel(boolean enable, String sep) {
+		enableMultiLineXLabel = enable;
+		multiLineLabelSep = sep;
+	}
+	
+	abstract double transformPointToSample(double point, float border, int len);
 }

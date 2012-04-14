@@ -15,6 +15,13 @@ import android.graphics.Paint;
 public class LineGraphView extends GraphView {
 	private final Paint paintBackground;
 	private boolean drawBackground;
+	
+	static public enum LineGraphPointStyle {
+		LINE_POINT_NONE, LINE_POINT_CIRCLE, LINE_POINT_CROSS
+	}
+	
+	private LineGraphPointStyle pointStyle;
+	static final private int POINT_CIRCLE_RADIUS = 4;
 
 	public LineGraphView(Context context, String title) {
 		super(context, title);
@@ -22,6 +29,8 @@ public class LineGraphView extends GraphView {
 		paintBackground = new Paint();
 		paintBackground.setARGB(255, 20, 40, 60);
 		paintBackground.setStrokeWidth(4);
+		
+		pointStyle = LineGraphPointStyle.LINE_POINT_NONE;
 	}
 
 	@Override
@@ -84,6 +93,10 @@ public class LineGraphView extends GraphView {
 				float endY = (float) (border - y) + graphheight;
 
 				canvas.drawLine(startX, startY, endX, endY, paint);
+				
+				if (pointStyle == LineGraphPointStyle.LINE_POINT_CIRCLE) {
+					canvas.drawCircle(endX, endY, POINT_CIRCLE_RADIUS, paint);
+				}
 			}
 			lastEndY = y;
 			lastEndX = x;
@@ -99,5 +112,28 @@ public class LineGraphView extends GraphView {
 	 */
 	public void setDrawBackground(boolean drawBackground) {
 		this.drawBackground = drawBackground;
+	}
+
+	/**
+	 *  Method to transform (x,y) to sample point
+	 * @return Transformed sample index
+	 */
+	protected double transformPointToSample(double point, float border, int numPoints) {
+		double sample;
+		// Below code from LineGraphView which transforms the other way round
+//		double valX = valueX - minX;
+//		double ratX = valX / diffX;
+//		double x = graphwidth * ratX;
+//		float endX = (float) x + (horstart + 1);
+		double horstart = 0;
+		double x = (point - horstart - 1);
+		double ratX = x / (getWidth() - 1);
+		double valX = ratX * (getMaxX(false) - getMinX(false));
+		sample = valX + getMinX(false);
+		return sample;
+	}
+	
+	public void setPointStyle(LineGraphPointStyle style) {
+		pointStyle = style;
 	}
 }
