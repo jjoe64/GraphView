@@ -38,7 +38,9 @@ abstract public class GraphView extends LinearLayout {
 
 	private class GraphViewContentView extends View {
 		private float lastTouchEventX;
+		private float origDown;
 		private float graphwidth;
+		static final float RESIST_MOVE_THRESHOLD = 2.0f; // difference in X to not detect as move
 
 		/**
 		 * @param context
@@ -122,7 +124,7 @@ abstract public class GraphView extends LinearLayout {
 
 				for (int i=0; i<graphSeries.size(); i++) {
 					paint.setColor(graphSeries.get(i).color);
-					drawSeries(canvas, _values(i), graphwidth, graphheight, border, minX, minY, diffX, diffY, horstart);
+					drawSeries(canvas, _values(i, false), graphwidth, graphheight, border, minX, minY, diffX, diffY, horstart);
 //					if (selectHandler != null) {
 //						selectHandler.setViewport(minX, diffX, horstart, graphwidth);
 //					}
@@ -170,33 +172,46 @@ abstract public class GraphView extends LinearLayout {
 				handled = scaleDetector.isInProgress();
 			}
 			if (!handled) {
-				// if not scaled, scroll
-				if ((event.getAction() & MotionEvent.ACTION_DOWN) == MotionEvent.ACTION_DOWN) {
-					handled = true;
-					if (selectHandler != null) {
-						selectHandler.handleSelect(event, false);
-					}
-				}
+				// Check actions in this priority, since DOWN appears with UP and MOVE also
+				// 1. Up - to capture the first DOWN correctly, before its overwritten
+				// 2. Move - to mask the duplicate DOWN that appears with it
+				// 3. Down - to capture the first DOWN in a MOVE in origDown
 				if ((event.getAction() & MotionEvent.ACTION_UP) == MotionEvent.ACTION_UP) {
 					boolean hadMoved;
-					if ((lastTouchEventX != 0) && (lastTouchEventX != event.getX())) hadMoved = true;
+					if ((lastTouchEventX != 0) && !resistMove(origDown, event.getX())) hadMoved = true;
 					else hadMoved = false;
 					
 					lastTouchEventX = 0;
+					origDown = 0;
 					handled = true;
 					if (selectHandler != null && !hadMoved) {
 						selectHandler.handleSelect(event, true);
 					}
-				}
-				if ((event.getAction() & MotionEvent.ACTION_MOVE) == MotionEvent.ACTION_MOVE) {
+				} else if ((event.getAction() & MotionEvent.ACTION_MOVE) == MotionEvent.ACTION_MOVE) {
+					// if not scaled, scroll
 					if (lastTouchEventX != 0) {
 						onMoveGesture(event.getX() - lastTouchEventX);
 					}
 					lastTouchEventX = event.getX();
 					handled = true;
+				} else if ((event.getAction() & MotionEvent.ACTION_DOWN) == MotionEvent.ACTION_DOWN) {
+					handled = true;
+					if (selectHandler != null) {
+						selectHandler.handleSelect(event, false);
+					}
+					origDown = event.getX();
 				}
 			}
 			return handled;
+		}
+		
+		// Resist a move if movement is small
+		private boolean resistMove(float initX, float finalX) {
+			if (Math.abs(initX - finalX) > RESIST_MOVE_THRESHOLD) {
+				return false;
+			} else {
+				return true;
+			}
 		}
 	}
 
@@ -289,7 +304,7 @@ abstract public class GraphView extends LinearLayout {
 		// Arguments are the event that occured and whether that finishes the select
 		private boolean handleSelect(MotionEvent inEvent, boolean finished) {
 			boolean retVal = false;
-			data = _values(0);
+			data = _values(0, true);
 			
 			if (finished) {
 				event[1] = inEvent;
@@ -303,14 +318,6 @@ abstract public class GraphView extends LinearLayout {
 					for (GraphViewData i : data) {
 						if (i.valueX >= selectSample) {
 							retVal = true;
-							// Compute if nearer to next point
-//							if (selectIndex > 0) {
-//								double distToNext = i.valueX - data[selectIndex - 1].valueX;
-//								double distFromCurr = i.valueX - selectSample;
-//								if (distFromCurr > (distToNext / 2)) {
-//									selectIndex--;
-//								}
-//							}
 							break;
 						}
 						selectIndex++;
@@ -378,9 +385,9 @@ abstract public class GraphView extends LinearLayout {
 		addView(new GraphViewContentView(context), new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT, 1));
 	}
 
-	private GraphViewData[] _values(int idxSeries) {
+	private GraphViewData[] _values(int idxSeries, boolean ignoreViewport) {
 		GraphViewData[] values = graphSeries.get(idxSeries).values;
-		if (viewportStart == 0 && viewportSize == 0) {
+		if ((viewportStart == 0 && viewportSize == 0) || ignoreViewport) {
 			// all data
 			return values;
 		} else {
@@ -544,7 +551,7 @@ abstract public class GraphView extends LinearLayout {
 		} else {
 			largest = Integer.MIN_VALUE;
 			for (int i=0; i<graphSeries.size(); i++) {
-				GraphViewData[] values = _values(i);
+				GraphViewData[] values = _values(i, false);
 				for (int ii=0; ii<values.length; ii++)
 					if (values[ii].valueY > largest)
 						largest = values[ii].valueY;
@@ -581,7 +588,7 @@ abstract public class GraphView extends LinearLayout {
 		} else {
 			smallest = Integer.MAX_VALUE;
 			for (int i=0; i<graphSeries.size(); i++) {
-				GraphViewData[] values = _values(i);
+				GraphViewData[] values = _values(i, false);
 				for (int ii=0; ii<values.length; ii++)
 					if (values[ii].valueY < smallest)
 						smallest = values[ii].valueY;
