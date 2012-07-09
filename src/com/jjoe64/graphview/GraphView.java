@@ -356,6 +356,11 @@ abstract public class GraphView extends LinearLayout {
 		graphSeries.remove(series);
 	}
 	
+	public int getSeriesCount()
+	{
+		return graphSeries.size();
+	}
+	
 	protected void drawLegend(Canvas canvas, float height, float width) {
 		int shapeSize = 15;
 
