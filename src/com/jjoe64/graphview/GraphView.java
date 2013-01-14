@@ -114,7 +114,7 @@ abstract public class GraphView extends LinearLayout {
 			paint.setStrokeCap(Paint.Cap.ROUND);
 
 			for (int i=0; i<graphSeries.size(); i++) {
-				drawSeries(canvas, _values(i), graphwidth, graphheight, border, minX, minY, diffX, diffY, horstart, graphSeries.get(i).style);
+				drawSeries(canvas, graphSeries.get(i), graphwidth, graphheight, border, minX, minY, diffX, diffY, horstart);
 			}
 
 			if (showLegend) drawLegend(canvas, height, width);
@@ -183,6 +183,7 @@ abstract public class GraphView extends LinearLayout {
 	/**
 	 * one data set for a graph series
 	 */
+	/*
 	static public class GraphViewData {
 		public final double valueX;
 		public final double valueY;
@@ -192,7 +193,7 @@ abstract public class GraphView extends LinearLayout {
 			this.valueY = valueY;
 		}
 	}
-
+*/
 	public enum LegendAlign {
 		TOP, MIDDLE, BOTTOM
 	}
@@ -285,33 +286,6 @@ abstract public class GraphView extends LinearLayout {
 		graphViewStyle = style;
 	}
 
-	private GraphViewData[] _values(int idxSeries) {
-		GraphViewData[] values = graphSeries.get(idxSeries).values;
-		if (viewportStart == 0 && viewportSize == 0) {
-			// all data
-			return values;
-		} else {
-			// viewport
-			List<GraphViewData> listData = new ArrayList<GraphViewData>();
-			for (int i=0; i<values.length; i++) {
-				if (values[i].valueX >= viewportStart) {
-					if (values[i].valueX > viewportStart+viewportSize) {
-						listData.add(values[i]); // one more for nice scrolling
-						break;
-					} else {
-						listData.add(values[i]);
-					}
-				} else {
-					if (listData.isEmpty()) {
-						listData.add(values[i]);
-					}
-					listData.set(0, values[i]); // one before, for nice scrolling
-				}
-			}
-			return listData.toArray(new GraphViewData[listData.size()]);
-		}
-	}
-
 	public void addSeries(GraphViewSeries series) {
 		series.addGraphView(this);
 		graphSeries.add(series);
@@ -350,7 +324,8 @@ abstract public class GraphView extends LinearLayout {
 		}
 	}
 
-	abstract public void drawSeries(Canvas canvas, GraphViewData[] values, float graphwidth, float graphheight, float border, double minX, double minY, double diffX, double diffY, float horstart, GraphViewSeriesStyle style);
+	abstract public void drawSeries(Canvas canvas, GraphViewSeries series, float graphwidth, float graphheight, float border, double minX, double minY, double diffX, double diffY, float horstart);
+//	abstract public void drawSeries(Canvas canvas, GraphViewSeries series, float graphwidth, float graphheight, float border, double minX, double minY, double diffX, double diffY, float horstart, GraphViewSeriesStyle style);
 
 	/**
 	 * formats the label
@@ -429,42 +404,30 @@ abstract public class GraphView extends LinearLayout {
 			return viewportStart+viewportSize;
 		} else {
 			// otherwise use the max x value
-			// values must be sorted by x, so the last value has the largest X value
-			double highest = 0;
-			if (graphSeries.size() > 0)
-			{
-				GraphViewData[] values = graphSeries.get(0).values;
-				if (values.length == 0) {
-					highest = 0;
-				} else {
-					highest = values[values.length-1].valueX;
-					for (int i=1; i<graphSeries.size(); i++) {
-						values = graphSeries.get(i).values;
-						highest = Math.max(highest, values[values.length-1].valueX);
-					}
-				}
-			}
+			float highest = Float.MIN_VALUE;
+			for (int i=0; i<graphSeries.size(); i++) {
+				float mm = graphSeries.get(i).getMaxX();
+				if (mm>highest) highest = mm;
+			} // for
 			return highest;
-		}
-	}
+		} // else
+	} // end
 
 	/**
 	 * returns the maximal Y value of all data.
 	 *
-	 * warning: only override this, if you really know want you're doing!
+	 * warning: only override this, if you really know what you're doing!
 	 */
 	protected double getMaxY() {
-		double largest;
+		float largest;
 		if (manualYAxis) {
-			largest = manualMaxYValue;
+			return manualMaxYValue;
 		} else {
-			largest = Integer.MIN_VALUE;
+			largest = Float.MIN_VALUE;
 			for (int i=0; i<graphSeries.size(); i++) {
-				GraphViewData[] values = _values(i);
-				for (int ii=0; ii<values.length; ii++)
-					if (values[ii].valueY > largest)
-						largest = values[ii].valueY;
-			}
+				float mm = graphSeries.get(i).getMaxY();
+				if (mm>largest) largest = mm;
+			} // for i
 		}
 		return largest;
 	}
@@ -482,23 +445,13 @@ abstract public class GraphView extends LinearLayout {
 			return viewportStart;
 		} else {
 			// otherwise use the min x value
-			// values must be sorted by x, so the first value has the smallest X value
-			double lowest = 0;
-			if (graphSeries.size() > 0)
-			{
-				GraphViewData[] values = graphSeries.get(0).values;
-				if (values.length == 0) {
-					lowest = 0;
-				} else {
-					lowest = values[0].valueX;
-					for (int i=1; i<graphSeries.size(); i++) {
-						values = graphSeries.get(i).values;
-						lowest = Math.min(lowest, values[0].valueX);
-					}
-				}
-			}
+			float lowest = Float.MAX_VALUE;
+			for (int i=0; i<graphSeries.size(); i++) {
+				float mm = graphSeries.get(i).getMinX();
+				if (mm<lowest) lowest = mm;
+			} // for
 			return lowest;
-		}
+		} // else
 	}
 
 	/**
@@ -507,18 +460,17 @@ abstract public class GraphView extends LinearLayout {
 	 * warning: only override this, if you really know want you're doing!
 	 */
 	protected double getMinY() {
-		double smallest;
+		float smallest;
 		if (manualYAxis) {
-			smallest = manualMinYValue;
+			return manualMinYValue;
 		} else {
-			smallest = Integer.MAX_VALUE;
+	    	smallest = Float.MAX_VALUE;
 			for (int i=0; i<graphSeries.size(); i++) {
-				GraphViewData[] values = _values(i);
-				for (int ii=0; ii<values.length; ii++)
-					if (values[ii].valueY < smallest)
-						smallest = values[ii].valueY;
-			}
-		}
+				float mm = graphSeries.get(i).getMinY();
+				if (mm<smallest) smallest = mm;
+			} // for
+			
+		} // else
 		return smallest;
 	}
 

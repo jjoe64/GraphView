@@ -1,7 +1,6 @@
 package com.jjoe64.graphview;
 
-import com.jjoe64.graphview.GraphView.GraphViewData;
-
 public interface ValueDependentColor {
-	public int get(GraphViewData data);
+//	public int get(GraphViewData data);
+	public int get(float x, float y);
 }

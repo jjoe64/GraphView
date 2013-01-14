@@ -4,8 +4,6 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 
-import com.jjoe64.graphview.GraphViewSeries.GraphViewSeriesStyle;
-
 /**
  * Line Graph View. This draws a line chart.
  * @author jjoe64 - jonas gehring - http://www.jjoe64.com
@@ -13,6 +11,9 @@ import com.jjoe64.graphview.GraphViewSeries.GraphViewSeriesStyle;
  * Copyright (C) 2011 Jonas Gehring
  * Licensed under the GNU Lesser General Public License (LGPL)
  * http://www.gnu.org/licenses/lgpl.html
+ * 
+ * Modifications using float array for better real-time performance
+ * Otto 2013
  */
 public class LineGraphView extends GraphView {
 	private final Paint paintBackground;
@@ -27,18 +28,23 @@ public class LineGraphView extends GraphView {
 	}
 
 	@Override
-	public void drawSeries(Canvas canvas, GraphViewData[] values, float graphwidth, float graphheight, float border, double minX, double minY, double diffX, double diffY, float horstart, GraphViewSeriesStyle style) {
+//	public void drawSeries(Canvas canvas, float[] xvalues, float[] yvalues, float graphwidth, float graphheight, float border, double minX, double minY, double diffX, double diffY, float horstart, GraphViewSeriesStyle style) {
+	public void drawSeries(Canvas canvas, GraphViewSeries series, float graphwidth, float graphheight, float border, double minX, double minY, double diffX, double diffY, float horstart)
+	{
 		// draw background
 		double lastEndY = 0;
 		double lastEndX = 0;
+		int len = series.seriesLength;
+		float[] xs = series.xvalues;
+		float[] ys = series.yvalues;
 		if (drawBackground) {
 			float startY = graphheight + border;
-			for (int i = 0; i < values.length; i++) {
-				double valY = values[i].valueY - minY;
+			for (int i = 0; i < len; i++) {
+				double valY = ys[i] - minY;
 				double ratY = valY / diffY;
 				double y = graphheight * ratY;
 
-				double valX = values[i].valueX - minX;
+				double valX = xs[i] - minX;
 				double ratX = valX / diffX;
 				double x = graphwidth * ratX;
 
@@ -68,17 +74,17 @@ public class LineGraphView extends GraphView {
 		}
 
 		// draw data
-		paint.setStrokeWidth(style.thickness);
-		paint.setColor(style.color);
+		paint.setStrokeWidth(series.style.thickness);
+		paint.setColor(series.style.color);
 
 		lastEndY = 0;
 		lastEndX = 0;
-		for (int i = 0; i < values.length; i++) {
-			double valY = values[i].valueY - minY;
+		for (int i = 0; i <len; i++) {
+			double valY = ys[i] - minY;
 			double ratY = valY / diffY;
 			double y = graphheight * ratY;
 
-			double valX = values[i].valueX - minX;
+			double valX = xs[i] - minX;
 			double ratX = valX / diffX;
 			double x = graphwidth * ratX;
 

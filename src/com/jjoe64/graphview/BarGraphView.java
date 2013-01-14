@@ -15,23 +15,25 @@ public class BarGraphView extends GraphView {
 	}
 
 	@Override
-	public void drawSeries(Canvas canvas, GraphViewData[] values, float graphwidth, float graphheight,
-			float border, double minX, double minY, double diffX, double diffY,
-			float horstart, GraphViewSeriesStyle style) {
-		float colwidth = (graphwidth - (2 * border)) / values.length;
+	public void drawSeries(Canvas canvas, GraphViewSeries series, float graphwidth, float graphheight, float border, double minX, double minY, double diffX, double diffY, float horstart)
+	{
+//	public void drawSeries(Canvas canvas, GraphViewData[] values, float graphwidth, float graphheight,
+//			float border, double minX, double minY, double diffX, double diffY,
+//			float horstart, GraphViewSeriesStyle style) {
+		float colwidth = (graphwidth - (2 * border)) / series.seriesLength;
 
-		paint.setStrokeWidth(style.thickness);
-		paint.setColor(style.color);
+		paint.setStrokeWidth(series.style.thickness);
+		paint.setColor(series.style.color);
 
 		// draw data
-		for (int i = 0; i < values.length; i++) {
-			float valY = (float) (values[i].valueY - minY);
+		for (int i = 0; i < series.seriesLength; i++) {
+			float valY = (float) (series.yvalues[i] - minY);
 			float ratY = (float) (valY / diffY);
 			float y = graphheight * ratY;
 
 			// hook for value dependent color
-			if (style.getValueDependentColor() != null) {
-				paint.setColor(style.getValueDependentColor().get(values[i]));
+			if (series.style.getValueDependentColor() != null) {
+				paint.setColor(series.style.getValueDependentColor().get(series.xvalues[i],series.yvalues[i]));
 			}
 
 			canvas.drawRect((i * colwidth) + horstart, (border - y) + graphheight, ((i * colwidth) + horstart) + (colwidth - 1), graphheight + border - 1, paint);
