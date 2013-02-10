@@ -6,7 +6,6 @@
 package com.jjoe64.graphview;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class GraphViewSeries {
@@ -39,8 +38,8 @@ public class GraphViewSeries {
 	// Change by Otto:
 	// The following change was made specifically for fast updating of 
 	// realtime graphs with high sampling rates (>10Hz)
-	// Graphs with static data are not going to benifit much from these changes unless 
-	// you habe a very large data set (10 000's of points)
+	// Graphs with static data are not going to benefit much from these changes unless 
+	// you have a very large data set (10 000's of points)
 	// Data used to be stored as x,y coordinates in an object and an 
 	// array of objects was used to store all data points.
 	// Changed to store data in float arrays.
@@ -60,12 +59,13 @@ public class GraphViewSeries {
 	// If there is no space a new array object is created with extra space for future use.
 	float[]  xvalues,yvalues;
 	// this is the number of valid graph points in the series. Do not use  
-	// the array length since it contains some invalid data at the end.
+	// the array length since the array might contain some invalid data at the end.
 	int      seriesLength = 0;   
 	
 	private final List<GraphView> graphViews = new ArrayList<GraphView>();
 
 	public GraphViewSeries(float[] xvalues,float[] yvalues) {
+		super();
 		description = null;
 		style = new GraphViewSeriesStyle();
 		this.xvalues = xvalues;
@@ -133,8 +133,6 @@ public class GraphViewSeries {
 		return largest;
 	}
 
-
-	
 	
 	/**
 	 * this graphview will be redrawn if data changes

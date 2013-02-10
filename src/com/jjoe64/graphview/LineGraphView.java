@@ -27,8 +27,12 @@ public class LineGraphView extends GraphView {
 		paintBackground.setStrokeWidth(4);
 	}
 
+	/**
+	 * Draw the series on the canvas.
+	 * Note that it is assumed that the x values array is from smallest to largest value (increasing series)
+	 * 
+	 */
 	@Override
-//	public void drawSeries(Canvas canvas, float[] xvalues, float[] yvalues, float graphwidth, float graphheight, float border, double minX, double minY, double diffX, double diffY, float horstart, GraphViewSeriesStyle style) {
 	public void drawSeries(Canvas canvas, GraphViewSeries series, float graphwidth, float graphheight, float border, double minX, double minY, double diffX, double diffY, float horstart)
 	{
 		// draw background
@@ -51,6 +55,13 @@ public class LineGraphView extends GraphView {
 				float endX = (float) x + (horstart + 1);
 				float endY = (float) (border - y) + graphheight +2;
 
+				if (xs[i] < minX) {  // skip if it is not on the display window
+					lastEndY = endY;
+					lastEndX = endX;
+					continue; 
+				}
+				
+				
 				if (i > 0) {
 					// fill space between last and current point
 					int numSpace = (int) ((endX - lastEndX) / 3f) +1;
@@ -68,6 +79,8 @@ public class LineGraphView extends GraphView {
 					}
 				}
 
+				if (xs[i] > minX+diffX) break; // skip the rest if it is not in the display window
+				
 				lastEndY = endY;
 				lastEndX = endX;
 			}
@@ -87,6 +100,12 @@ public class LineGraphView extends GraphView {
 			double valX = xs[i] - minX;
 			double ratX = valX / diffX;
 			double x = graphwidth * ratX;
+			if (xs[i] < minX) {  // skip if it is not on the display window
+				lastEndY = y;
+				lastEndX = x;
+				continue; 
+			}
+			
 
 			if (i > 0) {
 				float startX = (float) lastEndX + (horstart + 1);
@@ -96,6 +115,7 @@ public class LineGraphView extends GraphView {
 
 				canvas.drawLine(startX, startY, endX, endY, paint);
 			}
+			if (xs[i] > minX+diffX) break; // skip the rest if it is not in the display window
 			lastEndY = y;
 			lastEndX = x;
 		}
