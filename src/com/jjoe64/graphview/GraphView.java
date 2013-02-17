@@ -32,11 +32,13 @@ import com.jjoe64.graphview.GraphViewSeries.GraphViewSeriesStyle;
  * http://www.gnu.org/licenses/lgpl.html
  * 
  * Modifications by OttoES Jan 2013
- * Changed data array
- * Removed views within a linear layout to a single view.
- * Modifications by OttoES Feb 2013
- * Changed scrolling
- * Changed pinch gesture
+ *   Changed data array storage to allow faster access
+ *   Removed views within a linear layout to a single view.
+ * Modifications by OttoES 2 Feb 2013
+ *   Changed scrolling
+ *   Changed pinch gesture
+ * Modifications by OttoES 17 Feb 2013
+ *   Added zoom in y direction
  */
 abstract public class GraphView extends View  {
 	static final private class GraphViewConfig {
@@ -56,6 +58,7 @@ abstract public class GraphView extends View  {
 		private float viewportStart;
 		private float viewportSize;
 		private boolean scalable;
+		private boolean yScalable = true;
 		private final NumberFormat[] numberformatter = new NumberFormat[2];
 		private final List<GraphViewSeries> graphSeries;
 		private boolean showLegend = false;
@@ -181,7 +184,7 @@ abstract public class GraphView extends View  {
 				break;
 			default:
 				lTop = height - GraphViewConfig.BORDER - legendHeight -10;
-			}
+			} // switch
 			float lRight = lLeft+legendWidth;
 			float lBottom = lTop+legendHeight;
 			canvas.drawRoundRect(new RectF(lLeft, lTop, lRight, lBottom), 8, 8, paint);
@@ -194,7 +197,7 @@ abstract public class GraphView extends View  {
 					paint.setTextAlign(Align.LEFT);
 					canvas.drawText(graphSeries.get(i).description, lLeft+5+shapeSize+5, lTop+shapeSize+(i*(shapeSize+5)), paint);
 				}
-			}
+			} // for i
 		}
 
 		abstract public void drawSeries(Canvas canvas, GraphViewSeries series, float graphwidth, float graphheight, float border, double minX, double minY, double diffX, double diffY, float horstart);
@@ -538,17 +541,21 @@ abstract public class GraphView extends View  {
     // TOUCH events functions =========================================================== 	
 	// these values keep track of the touch.
 	private float lastTouchEventX;
-	private float touchx,touchy;
+	private float touchDownX1,touchDownY1;
     private float touchDownX2,touchDownY2;
+    private float graphDownY1,graphDownY2;
     
     private float refViewportSize = 1f;   // viewport size at start of zoom
+    private float refYviewportSize = 1f;   // viewport size in Y direction at start of zoom
+//    private float 
 	private float moveDist;
 	
 	
-	// OttoES: The original gesture detectors are preferable it does not quite work out
+	// OttoES: The original gesture detectors are preferable but it does not quite work out
 	// if you want to use different methods to scroll horizontal (a single graph)
 	// and vertically (vertical scroll must be passed on so that you can scroll vertically if the 
 	// graph is embedded in a vertical scroller)
+	// A very customized gesture detector is therefore implemented.
     private float   speedAnimDx = 0f;
     private boolean graphScrollingBusy = false;
     
@@ -620,11 +627,12 @@ abstract public class GraphView extends View  {
     }
 
     public void onResetLocation() {
-        lastTouchEventX = touchx;
+        lastTouchEventX = touchDownX1;
 	    moveDist=0;
         invalidate();
     }
 
+    
     /**
      * 
      * @param newViewportSize  the new size of the viewport
@@ -678,9 +686,22 @@ abstract public class GraphView extends View  {
         invalidate();
 	} // end onScale
     
+	
+	private float mapYCoordScr2Graph(float screenY) 
+	{
+		float height = getHeight();
+	    float sdiff = height - (2 * GraphViewConfig.BORDER);
+		float maxY  = getMaxY();
+		float minY  = getMinY();
+	    float rdiff = maxY-minY;
+	    float rel   = (screenY-GraphViewConfig.BORDER)/ sdiff;
+	    return maxY - rdiff*rel;
+	} // end mapY
+	
 	// keep track of the state of the touch events
     enum TouchState_t { TS_NONE, TS_SCROLL,TS_FLING,TS_ZOOM,TS_PASS_TO_NEXT,TS_CANCEL };
     TouchState_t    touchState = TouchState_t.TS_NONE;
+    // TODO:
     // last time a fling took place - to be used to determine fly wheel effect on fling
 	long lastFlingTime = 0;
     
@@ -700,23 +721,25 @@ abstract public class GraphView extends View  {
 			touchState = TouchState_t.TS_SCROLL;   // assume scroll state on first touch
 			graphScrollingBusy = false;   // have to stop any current fling animation
 			
-			touchx = motionEvent.getX();
-		    touchy = motionEvent.getY();
-		    lastTouchEventX = touchx;
+			touchDownX1 = motionEvent.getX();
+		    touchDownY1 = motionEvent.getY();
+		    lastTouchEventX = touchDownX1;
 		    moveDist=0;
 			Log.v("DOWN", "onTouch up"+Float.toString(moveDist));
 		    break;
 		case MotionEvent.ACTION_POINTER_DOWN:
 			if (this.scrollable == false) break;
 			touchState = TouchState_t.TS_ZOOM;  // a second touch event - this is a pinch action
-//		    lastTouchEventX = touchx;
-			touchx = motionEvent.getX(0);
-		    touchy = motionEvent.getY(0);
+			touchDownX1 = motionEvent.getX(0);
 			touchDownX2 = motionEvent.getX(1);
+		    touchDownY1 = motionEvent.getY(0);
 			touchDownY2 = motionEvent.getY(1);
 	        //if (touchx>touchDownX2) { float t = touchx; touchx = touchDownX2; touchDownX2 = t;  }
 			refViewportSize = (float) viewportSize;
-			Log.v("DOWN", "onTouch pointer down x1= "+Float.toString(touchx)+ "x2= " +Float.toString(touchDownX2));
+			refYviewportSize = (float) getMaxY() - getMinY();
+			graphDownY1 = mapYCoordScr2Graph(touchDownY1);
+			graphDownY2 = mapYCoordScr2Graph(touchDownY2);
+			Log.v("DOWN", "onTouch pointer down x1= "+Float.toString(touchDownX1)+ "x2= " +Float.toString(touchDownX2));
 			// store the 2nd finger position
 			break;
 		case MotionEvent.ACTION_POINTER_UP:
@@ -731,7 +754,7 @@ abstract public class GraphView extends View  {
 			    // check if it is a vertical movement (and not in zoom mode)
 			    // if it is, pass the event on to the next view
 			    float y =  motionEvent.getY();
-			    float dy = y-touchy;
+			    float dy = y-touchDownY1;
 				if ((dy> 50) || (dy< -50) ) { // give up touch control to parent
 					getParent().requestDisallowInterceptTouchEvent(false);
 					touchState = TouchState_t.TS_PASS_TO_NEXT;
@@ -741,14 +764,30 @@ abstract public class GraphView extends View  {
 				Log.v("MOVE", "dx= "+Float.toString(moveDist));
 		    } // if touchState
 		    else if (touchState == TouchState_t.TS_ZOOM) {
-		    	// zooming is done manually and not using the scale gesture detector
-		    	float x1=0f,y1=0f,x2=0f,y2=0f;
 			    if (motionEvent.getPointerCount() < 2) break;
+		    	// zoom in the y direction if enabled
+		    	if (this.yScalable) {
+		    		// scale so that the touch positions stay at the same graph coordinates
+			    	float y1=0f,y2=0f;
+	    			y1 = motionEvent.getY(0);
+	    			y2 = motionEvent.getY(1);
+	    			//float dd = Math.abs(y2-y1); 
+	    			//if (dd < 2f) dd = 1f; ;  // difference is to small and we risk overflow below
+	    			float height  = getHeight();
+	    		    float sdiff   = height - (2 * GraphViewConfig.BORDER);
+	    			float rel1    = (y1-GraphViewConfig.BORDER)/sdiff;
+	    			float rdiff   = (graphDownY1-graphDownY2)*sdiff/(y2-y1);
+	    			float newmaxy =  graphDownY1 + rdiff* rel1;
+	    			float newminy =  -rdiff + newmaxy;
+			        setManualYAxisBounds(newmaxy,newminy);
+		    	} // if yScaleable
+		    	// zooming is done manually and not using the scale gesture detector
+		    	float x1=0f,x2=0f;
     			x1 = motionEvent.getX(0);
     			x2 = motionEvent.getX(1);
     			float dd = Math.abs(x2-x1); 
     			if (dd < 2f) break;  // difference is to small and we risk overflow below
-		        float  scale =  Math.abs(touchDownX2-touchx)/dd ; 
+		        float  scale =  Math.abs(touchDownX2-touchDownX1)/dd ; 
 		        onScaleGraph(refViewportSize*scale,(x1+x2)/2,-moveDist);
 	            Log.d("ZOOM:"," x= "+ Float.toString(x1) + " x2= "+ Float.toString(x2) );
 		    } // else if
