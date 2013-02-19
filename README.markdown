@@ -41,8 +41,12 @@ The touch have 3 different functions depending on the action:
 
 <h4>16 February 2013 </h4>
 Add y axis zoom. You can now zoom in on the x axis as well as in the y-axis direction. You canalso scroll in both axes while you have 2 fingers on the screen.
-Note that with only on efinger on the screen a y axis movement will be passe don to a y acis scroller (if present) and you ca scroll the page with multiple graphs up or down.
+Note that with only one finger on the screen a y axis movement will be passed on to a y axis scroller (if present) and you can scroll the page with multiple graphs up or down.
 
+<h4>19 February 2013 </h4>
+Fixed some bugs in the y scroller.
+Added a function to auto scale the y-axis nicely. If you are on a graph a long touch will autoscale the y axis.
+A double touch will take you back to the x origin of the graph.
 
 <h2>Original text: What is GraphView</h2>
 

@@ -39,6 +39,9 @@ import com.jjoe64.graphview.GraphViewSeries.GraphViewSeriesStyle;
  *   Changed pinch gesture
  * Modifications by OttoES 17 Feb 2013
  *   Added zoom in y direction
+ * Modifications by OttoES 18 Feb 2013
+ *   Added a function that can determine a nice limits, e.g. if the max 
+ *   is 8.9 and min is 0.2 it should choose 0 and 10 
  */
 abstract public class GraphView extends View  {
 	static final private class GraphViewConfig {
@@ -57,7 +60,7 @@ abstract public class GraphView extends View  {
 		private boolean scrollable;
 		private float viewportStart;
 		private float viewportSize;
-		private boolean scalable;
+		private boolean xScalable ;
 		private boolean yScalable = true;
 		private final NumberFormat[] numberformatter = new NumberFormat[2];
 		private final List<GraphViewSeries> graphSeries;
@@ -92,19 +95,18 @@ abstract public class GraphView extends View  {
 		@Override
 		protected void onDraw(Canvas canvas) {
             paint.setAntiAlias(true);
-			// normal
 			paint.setStrokeWidth(0);
-			float border = GraphViewConfig.BORDER;
+			float border   = GraphViewConfig.BORDER;
 			float horstart = GraphViewConfig.LEFT_BORDER;
-			float height = getHeight();
-			float width = getWidth() - 1-horstart;
-			float maxY = getMaxY();
-			float minY = getMinY();
-			float maxX = getMaxX(false);
-			float minX = getMinX(false);
-			float diffX = maxX - minX;
+			float height   = getHeight();
+			float width    = getWidth() - 1-horstart;
+			float maxY     = getMaxY();
+			float minY     = getMinY();
+			float maxX     = getMaxX(false);
+			float minX     = getMinX(false);
+			float diffX    = maxX - minX;
 			float graphheight = height - (2 * border);
-			graphwidth = width-border;
+			graphwidth        = width-border;
 
 			if (horlabels == null) {
 				horlabels = generateHorlabels(graphwidth);
@@ -512,6 +514,10 @@ abstract public class GraphView extends View  {
 		manualMaxYValue = (float) max;
 		manualMinYValue = (float) min;
 		manualYAxis = true;
+		verlabels = null; // make sure the lables ar regenerated
+//		horlabels = null;
+//		numberformatter[0] = null;
+//		numberformatter[1] = null;
 	}
 
 	
@@ -537,6 +543,49 @@ abstract public class GraphView extends View  {
 		viewportSize = (float) size;
 	}
 	
+	// Nice scaling of axes and lables
+	/**
+	 * 
+	 * @param minv     the min value
+	 * @param maxv     the maximum value
+	 * @param nrSteps  the number of divisions that would be nice
+	 * @return         array of 3 values minValue, maxValue, step
+	 */
+	 //private 
+	 public static float[] calcNiceStep(float minv, float maxv, int nrSteps)
+	 {
+		    // check if the min should be zero
+		    // if min in lower 20% of max range we want to start at 0.0 
+		    if (minv > 0f)  if (minv <= maxv*0.2f) minv = 0.0f;  
+		    float diff = maxv - minv;
+	        // initial guess of step size
+	        double estimatedStep = diff/nrSteps;
+
+	        double stpMag = Math.floor(Math.log10(estimatedStep));
+	        double stpPow = Math.pow(10, stpMag);
+
+	        double stpMsd = (estimatedStep/stpPow);
+
+	        double stp = 1;
+	        if (stpMsd > 5.0)
+	            stp = 10.0;
+	        else if (stpMsd > 2.0)
+	            stp = 5.0;
+	        else if (stpMsd > 1.0)
+	            stp = 2.0;
+	        Log.d("ESTM","diff="+Double.toString(diff)+" mag="+Double.toString(stpMag)+" pwr"+Double.toString(stpPow)+
+		        	  " stp="+Double.toString(stp)+" est="+Double.toString(estimatedStep));	
+	        estimatedStep = stp*stpPow;
+	        float[] res = new float[3];
+	        int pm   = (int)(maxv / estimatedStep + 0.99);
+	        maxv     = (float)(pm*estimatedStep);
+	        int pmin   = (int)(minv / estimatedStep - 0.99);
+	        minv     = (float)(pmin*estimatedStep);
+	        res[0] = minv;
+	        res[1] = maxv;
+	        res[2] = (float)estimatedStep;
+	        return res;
+	} // end calcNiceStep
 	
     // TOUCH events functions =========================================================== 	
 	// these values keep track of the touch.
@@ -567,7 +616,7 @@ abstract public class GraphView extends View  {
 	 */
 	
 	synchronized public void setScalable(boolean scalable) {
-		this.scalable = scalable;
+		this.xScalable = scalable;
 		// at this point scrollable must be on to scale
 		if (scalable) setScrollable(true);
 	}
@@ -682,7 +731,7 @@ abstract public class GraphView extends View  {
 				viewportStart = minX;
 				viewportSize = maxX - viewportStart;
 			}
-		}
+		} // if overlap
         invalidate();
 	} // end onScale
     
@@ -780,16 +829,20 @@ abstract public class GraphView extends View  {
 	    			float newmaxy =  graphDownY1 + rdiff* rel1;
 	    			float newminy =  -rdiff + newmaxy;
 			        setManualYAxisBounds(newmaxy,newminy);
+			        invalidate();
+			        //redrawAll();
 		    	} // if yScaleable
 		    	// zooming is done manually and not using the scale gesture detector
-		    	float x1=0f,x2=0f;
-    			x1 = motionEvent.getX(0);
-    			x2 = motionEvent.getX(1);
-    			float dd = Math.abs(x2-x1); 
-    			if (dd < 2f) break;  // difference is to small and we risk overflow below
-		        float  scale =  Math.abs(touchDownX2-touchDownX1)/dd ; 
-		        onScaleGraph(refViewportSize*scale,(x1+x2)/2,-moveDist);
-	            Log.d("ZOOM:"," x= "+ Float.toString(x1) + " x2= "+ Float.toString(x2) );
+		    	if (this.xScalable) {
+			    	float x1=0f,x2=0f;
+	    			x1 = motionEvent.getX(0);
+	    			x2 = motionEvent.getX(1);
+	    			float dd = Math.abs(x2-x1); 
+	    			if (dd < 2f) break;  // difference is to small and we risk overflow below
+			        float  scale =  Math.abs(touchDownX2-touchDownX1)/dd ; 
+			        onScaleGraph(refViewportSize*scale,(x1+x2)/2,-moveDist);
+		            Log.d("ZOOM:"," x= "+ Float.toString(x1) + " x2= "+ Float.toString(x2) );
+		    	} // if
 		    } // else if
 		    break;}
 		case MotionEvent.ACTION_UP: {
@@ -840,6 +893,10 @@ abstract public class GraphView extends View  {
 		@Override
 		public void onLongPress(MotionEvent e) {
 			Log.v(DEBUG_TAG, "onLongPress");
+			manualYAxis = false;  // if true the old min-max values will be returned
+			float[] r = GraphView.calcNiceStep(getMinY(),getMaxY(), 10);
+	        setManualYAxisBounds(r[1],r[0]);
+			invalidate();
 		}
 
 		@Override
