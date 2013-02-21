@@ -48,6 +48,9 @@ Fixed some bugs in the y scroller.
 Added a function to auto scale the y-axis nicely. If you are on a graph a long touch will autoscale the y axis.
 A double touch will take you back to the x origin of the graph.
 
+<h4>21 February 2013 </h4>
+Added manual configuration of y axis increments. This will no work with the autoscale as well.
+
 <h2>Original text: What is GraphView</h2>
 
 GraphView is a library for Android to programmatically create flexible and nice-looking diagramms. It is easy to understand, to integrate and to customize it.

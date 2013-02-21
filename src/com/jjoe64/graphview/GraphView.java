@@ -40,7 +40,7 @@ import com.jjoe64.graphview.GraphViewSeries.GraphViewSeriesStyle;
  * Modifications by OttoES 17 Feb 2013
  *   Added zoom in y direction
  * Modifications by OttoES 18 Feb 2013
- *   Added a function that can determine a nice limits, e.g. if the max 
+ *   Added a function that can determine nice limits, e.g. if the max 
  *   is 8.9 and min is 0.2 it should choose 0 and 10 
  */
 abstract public class GraphView extends View  {
@@ -70,6 +70,7 @@ abstract public class GraphView extends View  {
 		private boolean manualYAxis;
 		private float manualMaxYValue;
 		private float manualMinYValue;
+		private float manualYincrementSize;
 		private GraphViewStyle graphViewStyle;
 
 		/**
@@ -340,7 +341,6 @@ abstract public class GraphView extends View  {
 
 	synchronized private String[] generateVerlabels(float graphheight) {
 		int numLabels = (int) (graphheight/GraphViewConfig.HORIZONTAL_LABEL_HEIGHT);
-		String[] labels = new String[numLabels+1];
 		double min = getMinY();
 		double max = getMaxY();
 		if (max == min) {
@@ -348,6 +348,9 @@ abstract public class GraphView extends View  {
 			max = max*1.05d;
 			min = min*0.95d;
 		}
+		if (this.manualYAxis && (manualYincrementSize != 0)) 
+			 numLabels = (int) ((max-min)/manualYincrementSize+0.1f); 
+		String[] labels = new String[numLabels+1];
 
 		for (int i=0; i<=numLabels; i++) {
 			labels[numLabels-i] = formatLabel(min + ((max-min)*i/numLabels), false);
@@ -513,12 +516,25 @@ abstract public class GraphView extends View  {
 	public void setManualYAxisBounds(double max, double min) {
 		manualMaxYValue = (float) max;
 		manualMinYValue = (float) min;
+		manualYincrementSize = 0;
 		manualYAxis = true;
-		verlabels = null; // make sure the lables ar regenerated
-//		horlabels = null;
-//		numberformatter[0] = null;
-//		numberformatter[1] = null;
-	}
+		verlabels = null; // make sure the labels are regenerated
+	}   // end setManualYAxisBounds
+
+	/**
+	 * Set manual Y axis limits and scale increment. This function is preferable 
+	 * to setManualYAxisBounds that will only set the min and max. Also note that the 
+	 * sequence of arguments min and max is different for the 2 functions. 
+	 * @param max
+	 * @param min
+	 */
+	public void setManualYAxisScales(float min, float max, float increment) {
+		manualMaxYValue      = max;
+		manualMinYValue      = min;
+		manualYincrementSize = increment;
+		manualYAxis          = true;
+		verlabels            = null; // make sure the labels are regenerated
+	}   // end setManualYAxisScales
 
 	
 	public void setShowLegend(boolean showLegend) {
@@ -544,22 +560,33 @@ abstract public class GraphView extends View  {
 	}
 	
 	// Nice scaling of axes and lables
-	/**
+	/**Get nice max, min and step size for axis.
+	 * NOte that it is assumed that maxv > minv.
 	 * 
-	 * @param minv     the min value
-	 * @param maxv     the maximum value
-	 * @param nrSteps  the number of divisions that would be nice
-	 * @return         array of 3 values minValue, maxValue, step
+	 * @param minv             the min value
+	 * @param maxv             the maximum value
+	 * @param prefferdNrSteps  the number of divisions that would be nice
+	 * @return                 array of 3 values minValue, maxValue, step
 	 */
 	 //private 
-	 public static float[] calcNiceStep(float minv, float maxv, int nrSteps)
+	 public static float[] calcNiceLimitsAndStep(float minv, float maxv, int prefferdNrSteps)
 	 {
 		    // check if the min should be zero
 		    // if min in lower 20% of max range we want to start at 0.0 
-		    if (minv > 0f)  if (minv <= maxv*0.2f) minv = 0.0f;  
+		    if (minv > 0f)  if (minv <= maxv*0.2f) minv = 0.0f;
+		    // if min and max should be symetrical around 0
+		    if ((minv < 0f) && (maxv>0f))  {
+			    float diff = maxv - minv;
+			    float sumv = maxv+minv;
+		    	if (Math.abs(sumv) <= diff*0.2f) 
+		    		if (sumv > 0) minv = - maxv;
+		    		else maxv = -minv;
+		    } // if
+		    
+		    // using double for most calculations because round-off can cause problems in some cases
 		    float diff = maxv - minv;
 	        // initial guess of step size
-	        double estimatedStep = diff/nrSteps;
+	        double estimatedStep = diff/prefferdNrSteps;
 
 	        double stpMag = Math.floor(Math.log10(estimatedStep));
 	        double stpPow = Math.pow(10, stpMag);
@@ -610,17 +637,25 @@ abstract public class GraphView extends View  {
     
     private GestureDetector gestureDetector;
 	/**
-	 * this forces scrollable = true
-	 * 
+	 * This will set the x-axis/horizontal to be scalable or not. Currently this will also set the 
+	 * x-axis t=o be scrollable. 
 	 * @param scalable
 	 */
-	
 	synchronized public void setScalable(boolean scalable) {
 		this.xScalable = scalable;
 		// at this point scrollable must be on to scale
 		if (scalable) setScrollable(true);
 	}
 
+	/**
+	 * This will set the y-axis/vertical to be scalable or not.
+	 * I am not sure if y-axis will be scalable if scrollable is off? 
+	 * @param scalable
+	 */
+	synchronized public void setYaxisScalable(boolean scalable) {
+		this.yScalable = scalable;
+	} // end
+	
 	/**
 	 * the user can scroll (horizontal) the graph. This is only useful if you use a viewport {@link #setViewPort(double, double)} which doesn't displays all data.
 	 * @param scrollable
@@ -672,7 +707,6 @@ abstract public class GraphView extends View  {
 	    moveDist = dx;
 		Log.v("MOVE", "dx= "+Float.toString(moveDist)+ " dy= "+Float.toString(dy));
 		onMoveGesture(moveDist);
-//        invalidate();
     }
 
     public void onResetLocation() {
@@ -691,14 +725,7 @@ abstract public class GraphView extends View  {
 	public void onScaleGraph(float newViewportSize, float zoomCentreX, float scrollX) {
 		float border = GraphViewConfig.BORDER;
 		float horstart = GraphViewConfig.LEFT_BORDER;
-//		float height = getHeight();
 		float width = getWidth() - 1-horstart;
-//		double maxY = getMaxY();
-//		double minY = getMinY();
-//		double maxX = getMaxX(false);
-//		double minX = getMinX(false);
-//		double diffX = maxX - minX;
-//		float graphheight = height - (2 * border);
 		graphwidth = width-border;
 		if (newViewportSize != 0f) {
 			// recalculate the zoom centre position
@@ -752,7 +779,7 @@ abstract public class GraphView extends View  {
     TouchState_t    touchState = TouchState_t.TS_NONE;
     // TODO:
     // last time a fling took place - to be used to determine fly wheel effect on fling
-	long lastFlingTime = 0;
+	private long lastFlingTime = 0;
     
 	/**
 			// the touch have 3 different functions depending on the action
@@ -894,8 +921,9 @@ abstract public class GraphView extends View  {
 		public void onLongPress(MotionEvent e) {
 			Log.v(DEBUG_TAG, "onLongPress");
 			manualYAxis = false;  // if true the old min-max values will be returned
-			float[] r = GraphView.calcNiceStep(getMinY(),getMaxY(), 10);
-	        setManualYAxisBounds(r[1],r[0]);
+			float[] r = GraphView.calcNiceLimitsAndStep(getMinY(),getMaxY(), 10);
+//	        setManualYAxisBounds(r[1],r[0]);
+	        setManualYAxisScales(r[0],r[1],r[2]);
 			invalidate();
 		}
 
