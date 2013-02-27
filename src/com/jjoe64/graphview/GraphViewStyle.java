@@ -76,7 +76,7 @@ public class GraphViewStyle {
 		this.hLabelsFontSize = fs;
 	}
 
-	public void setLabelsTypeFace(Typeface labelsTypeFace) {
-		this.labelsTypeFace = labelsTypeFace;
+	public void setLabelsTypeFace(Typeface tf) {
+		this.labelsTypeFace = tf;
 	}
 }
