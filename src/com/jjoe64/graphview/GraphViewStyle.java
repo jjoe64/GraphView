@@ -1,6 +1,7 @@
 package com.jjoe64.graphview;
 
 import android.graphics.Color;
+import android.graphics.Paint.Align;
 import android.graphics.Typeface;
 
 /**
@@ -15,6 +16,7 @@ public class GraphViewStyle {
 	private float vLabelsFontSize;
 	private float hLabelsFontSize;
 	private Typeface labelsTypeFace;
+	private Align vLabelsAlign;
 
 	public GraphViewStyle() {
 		vLabelsColor = Color.WHITE;
@@ -23,6 +25,7 @@ public class GraphViewStyle {
 		vLabelsFontSize = 12f;
 		hLabelsFontSize = 12f;
 		labelsTypeFace = null;
+		vLabelsAlign = Align.LEFT;
 	}
 
 	public GraphViewStyle(int vLabelsColor, int hLabelsColor, int gridColor) {
@@ -56,6 +59,10 @@ public class GraphViewStyle {
 		return labelsTypeFace;
 	}
 
+	public Align getVerticalLabelsAlign() {
+		return vLabelsAlign;
+	}
+	
 	public void setVerticalLabelsColor(int c) {
 		vLabelsColor = c;
 	}
@@ -76,7 +83,12 @@ public class GraphViewStyle {
 		this.hLabelsFontSize = fs;
 	}
 
-	public void setLabelsTypeFace(Typeface tf) {
-		this.labelsTypeFace = tf;
+	public void setLabelsTypeFace(Typeface labelsTypeFace) {
+		this.labelsTypeFace = labelsTypeFace;
+	}
+
+
+	public void setVerticalLabelsAlign(Align a) {
+		this.vLabelsAlign = a;
 	}
 }

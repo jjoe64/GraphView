@@ -218,6 +218,7 @@ abstract public class GraphView extends LinearLayout {
 
 			float border = GraphViewConfig.BORDER;
 			float height = getHeight();
+			float width = 0;
 			float graphheight = height - (2 * border);
 
 			if (verlabels == null) {
@@ -225,14 +226,23 @@ abstract public class GraphView extends LinearLayout {
 			}
 
 			// vertical labels
-			paint.setTextAlign(Align.LEFT);
+			paint.setTextAlign(graphViewStyle.getVerticalLabelsAlign());
+			
+			if(graphViewStyle.getVerticalLabelsAlign() == Align.RIGHT){				
+				width = getWidth() - 2;
+			} else if(graphViewStyle.getVerticalLabelsAlign() == Align.CENTER) {
+				width = (width / 2);
+			} else {
+				width = 0;
+			}
+			
 			int vers = verlabels.length - 1;
 			for (int i = 0; i < verlabels.length; i++) {
 				float y = ((graphheight / vers) * i) + border;
 				paint.setColor(graphViewStyle.getVerticalLabelsColor());
 				paint.setTextSize(graphViewStyle.getVerticalLabelsFontSize());
 				paint.setTypeface(graphViewStyle.getLabelsTypeFace());
-				canvas.drawText(verlabels[i], 0, y, paint);
+				canvas.drawText(verlabels[i], width, y, paint);
 			}
 		}
 	}
