@@ -35,7 +35,7 @@ public class GraphViewSeries {
 
 	final String description;
 	final GraphViewSeriesStyle style;
-	GraphViewData[] values;
+	public GraphViewData[] values;
 	private final List<GraphView> graphViews = new ArrayList<GraphView>();
 
 	public GraphViewSeries(GraphViewData[] values) {
