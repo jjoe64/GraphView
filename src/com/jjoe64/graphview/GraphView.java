@@ -44,7 +44,7 @@ abstract public class GraphView extends RelativeLayout {
 		 */
 		public GraphViewContentView(Context context) {
 			super(context);
-			this.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+			setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 		}
 
 		/**
@@ -270,28 +270,28 @@ abstract public class GraphView extends RelativeLayout {
 	public GraphView(Context context) {
 		super(context);
 
-		this.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-		this.title = "";
+		setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+		title = "";
 
-		this.graphViewStyle = new GraphViewStyle();
+		graphViewStyle = new GraphViewStyle();
 
-		this.paint = new Paint();
-		this.graphSeries = new ArrayList<GraphViewSeries>();
+		paint = new Paint();
+		graphSeries = new ArrayList<GraphViewSeries>();
 
-		this.viewVerLabels = new VerLabelsView(context);
-		this.viewVerLabels.setId(1);
+		viewVerLabels = new VerLabelsView(context);
+		viewVerLabels.setId(1);
 
 		GraphViewContentView graphContent = new GraphViewContentView(context);
 		graphContent.setId(2);
 
 		LayoutParams verLabelsLayout = new LayoutParams(50, LayoutParams.MATCH_PARENT);
 		verLabelsLayout.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-		this.addView(this.viewVerLabels, verLabelsLayout);
+		addView(viewVerLabels, verLabelsLayout);
 
 		LayoutParams graphContentLayout = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT);
 		graphContentLayout.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-		graphContentLayout.addRule(RelativeLayout.RIGHT_OF, this.viewVerLabels.getId());
-		this.addView(graphContent, graphContentLayout);
+		graphContentLayout.addRule(RelativeLayout.RIGHT_OF, viewVerLabels.getId());
+		addView(graphContent, graphContentLayout);
 	}
 
 	/**
@@ -300,9 +300,8 @@ abstract public class GraphView extends RelativeLayout {
 	 * @param title [optional]
 	 */
 	public GraphView(Context context, String title) {
-		super(context);
-		setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
 		this(context);
+		setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
 		if (title == null) {
 			this.title = "";
@@ -328,8 +327,8 @@ abstract public class GraphView extends RelativeLayout {
 			// viewport
 			List<GraphViewData> listData = new ArrayList<GraphViewData>();
 			for (GraphViewData value : values) {
-				if (value.valueX >= this.viewportStart) {
-					if (value.valueX > (this.viewportStart + this.viewportSize)) {
+				if (value.valueX >= viewportStart) {
+					if (value.valueX > (viewportStart + viewportSize)) {
 						listData.add(value); // one more for nice scrolling
 						break;
 					} else {
