@@ -32,7 +32,7 @@ public class GraphViewSeries {
 
 	final String description;
 	final GraphViewSeriesStyle style;
-	public GraphViewData[] values;
+	GraphViewData[] values;
 	private final List<GraphView> graphViews = new ArrayList<GraphView>();
 
 	public GraphViewSeries(GraphViewData[] values) {

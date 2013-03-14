@@ -29,10 +29,10 @@ import com.jjoe64.graphview.compatible.ScaleGestureDetector;
  * http://www.gnu.org/licenses/lgpl.html
  */
 abstract public class GraphView extends RelativeLayout {
-	static final protected class GraphViewConfig {
-		public static final float BORDER = 20;
-		public static final float VERTICAL_LABEL_WIDTH = 150;
-		public static final float HORIZONTAL_LABEL_HEIGHT = 80;
+	static final private class GraphViewConfig {
+		static final float BORDER = 20;
+		static final float VERTICAL_LABEL_WIDTH = 100;
+		static final float HORIZONTAL_LABEL_HEIGHT = 80;
 	}
 
 	private class GraphViewContentView extends View {
@@ -258,7 +258,7 @@ abstract public class GraphView extends RelativeLayout {
 	private ScaleGestureDetector scaleDetector;
 	private boolean scalable;
 	private final NumberFormat[] numberformatter = new NumberFormat[2];
-	protected final List<GraphViewSeries> graphSeries;
+	private final List<GraphViewSeries> graphSeries;
 	private boolean showLegend = false;
 	private float legendWidth = 120;
 	private LegendAlign legendAlign = LegendAlign.MIDDLE;
@@ -413,7 +413,7 @@ abstract public class GraphView extends RelativeLayout {
 		return numberformatter[i].format(value);
 	}
 
-	protected String[] generateHorlabels(float graphwidth) {
+	private String[] generateHorlabels(float graphwidth) {
 		int numLabels = (int) (graphwidth/GraphViewConfig.VERTICAL_LABEL_WIDTH);
 		String[] labels = new String[numLabels+1];
 		double min = getMinX(false);
