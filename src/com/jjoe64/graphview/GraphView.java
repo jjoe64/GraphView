@@ -12,7 +12,7 @@ import android.graphics.Paint.Align;
 import android.graphics.RectF;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 import com.jjoe64.graphview.GraphViewSeries.GraphViewSeriesStyle;
 import com.jjoe64.graphview.compatible.ScaleGestureDetector;
@@ -28,11 +28,11 @@ import com.jjoe64.graphview.compatible.ScaleGestureDetector;
  * Licensed under the GNU Lesser General Public License (LGPL)
  * http://www.gnu.org/licenses/lgpl.html
  */
-abstract public class GraphView extends LinearLayout {
-	static final private class GraphViewConfig {
-		static final float BORDER = 20;
-		static final float VERTICAL_LABEL_WIDTH = 100;
-		static final float HORIZONTAL_LABEL_HEIGHT = 80;
+abstract public class GraphView extends RelativeLayout {
+	static final protected class GraphViewConfig {
+		public static final float BORDER = 20;
+		public static final float VERTICAL_LABEL_WIDTH = 150;
+		public static final float HORIZONTAL_LABEL_HEIGHT = 80;
 	}
 
 	private class GraphViewContentView extends View {
@@ -44,7 +44,7 @@ abstract public class GraphView extends LinearLayout {
 		 */
 		public GraphViewContentView(Context context) {
 			super(context);
-			setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+			setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 		}
 
 		/**
@@ -188,6 +188,7 @@ abstract public class GraphView extends LinearLayout {
 	static public class GraphViewData {
 		public final double valueX;
 		public final double valueY;
+
 		public GraphViewData(double valueX, double valueY) {
 			super();
 			this.valueX = valueX;
@@ -205,7 +206,6 @@ abstract public class GraphView extends LinearLayout {
 		 */
 		public VerLabelsView(Context context) {
 			super(context);
-			setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT, 10));
 		}
 
 		/**
@@ -231,7 +231,7 @@ abstract public class GraphView extends LinearLayout {
 			if(graphViewStyle.getVerticalLabelsAlign() == Align.RIGHT){				
 				width = getWidth() - 2;
 			} else if(graphViewStyle.getVerticalLabelsAlign() == Align.CENTER) {
-				width = (width / 2);
+				width = (getWidth() / 2);
 			} else {
 				width = 0;
 			}
@@ -258,7 +258,7 @@ abstract public class GraphView extends LinearLayout {
 	private ScaleGestureDetector scaleDetector;
 	private boolean scalable;
 	private final NumberFormat[] numberformatter = new NumberFormat[2];
-	private final List<GraphViewSeries> graphSeries;
+	protected final List<GraphViewSeries> graphSeries;
 	private boolean showLegend = false;
 	private float legendWidth = 120;
 	private LegendAlign legendAlign = LegendAlign.MIDDLE;
@@ -267,19 +267,11 @@ abstract public class GraphView extends LinearLayout {
 	private double manualMinYValue;
 	private GraphViewStyle graphViewStyle;
 
-	/**
-	 *
-	 * @param context
-	 * @param title [optional]
-	 */
-	public GraphView(Context context, String title) {
+	public GraphView(Context context) {
 		super(context);
-		setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
 
-		if (title == null)
-			title = "";
-		else
-			this.title = title;
+		setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+		title = "";
 
 		graphViewStyle = new GraphViewStyle();
 
@@ -287,8 +279,35 @@ abstract public class GraphView extends LinearLayout {
 		graphSeries = new ArrayList<GraphViewSeries>();
 
 		viewVerLabels = new VerLabelsView(context);
-		addView(viewVerLabels);
-		addView(new GraphViewContentView(context), new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT, 1));
+		viewVerLabels.setId(1);
+
+		GraphViewContentView graphContent = new GraphViewContentView(context);
+		graphContent.setId(2);
+
+		LayoutParams verLabelsLayout = new LayoutParams(50, LayoutParams.MATCH_PARENT);
+		verLabelsLayout.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+		addView(viewVerLabels, verLabelsLayout);
+
+		LayoutParams graphContentLayout = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT);
+		graphContentLayout.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+		graphContentLayout.addRule(RelativeLayout.RIGHT_OF, viewVerLabels.getId());
+		addView(graphContent, graphContentLayout);
+	}
+
+	/**
+	 *
+	 * @param context
+	 * @param title [optional]
+	 */
+	public GraphView(Context context, String title) {
+		this(context);
+		setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+
+		if (title == null) {
+			this.title = "";
+		} else {
+			this.title = title;
+		}
 	}
 
 	public GraphViewStyle getGraphViewStyle() {
@@ -307,19 +326,19 @@ abstract public class GraphView extends LinearLayout {
 		} else {
 			// viewport
 			List<GraphViewData> listData = new ArrayList<GraphViewData>();
-			for (int i=0; i<values.length; i++) {
-				if (values[i].valueX >= viewportStart) {
-					if (values[i].valueX > viewportStart+viewportSize) {
-						listData.add(values[i]); // one more for nice scrolling
+			for (GraphViewData value : values) {
+				if (value.valueX >= viewportStart) {
+					if (value.valueX > (viewportStart + viewportSize)) {
+						listData.add(value); // one more for nice scrolling
 						break;
 					} else {
-						listData.add(values[i]);
+						listData.add(value);
 					}
 				} else {
 					if (listData.isEmpty()) {
-						listData.add(values[i]);
+						listData.add(value);
 					}
-					listData.set(0, values[i]); // one before, for nice scrolling
+					listData.set(0, value); // one before, for nice scrolling
 				}
 			}
 			return listData.toArray(new GraphViewData[listData.size()]);
@@ -394,7 +413,7 @@ abstract public class GraphView extends LinearLayout {
 		return numberformatter[i].format(value);
 	}
 
-	private String[] generateHorlabels(float graphwidth) {
+	protected String[] generateHorlabels(float graphwidth) {
 		int numLabels = (int) (graphwidth/GraphViewConfig.VERTICAL_LABEL_WIDTH);
 		String[] labels = new String[numLabels+1];
 		double min = getMinX(false);

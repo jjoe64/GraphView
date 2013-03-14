@@ -1,10 +1,7 @@
 package com.jjoe64.graphview;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-
-import android.annotation.TargetApi;
 
 import com.jjoe64.graphview.GraphView.GraphViewData;
 
@@ -35,7 +32,7 @@ public class GraphViewSeries {
 
 	final String description;
 	final GraphViewSeriesStyle style;
-	GraphViewData[] values;
+	public GraphViewData[] values;
 	private final List<GraphView> graphViews = new ArrayList<GraphView>();
 
 	public GraphViewSeries(GraphViewData[] values) {
