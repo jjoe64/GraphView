@@ -231,7 +231,7 @@ abstract public class GraphView extends RelativeLayout {
 			if(graphViewStyle.getVerticalLabelsAlign() == Align.RIGHT){				
 				width = getWidth() - 2;
 			} else if(graphViewStyle.getVerticalLabelsAlign() == Align.CENTER) {
-				width = (width / 2);
+				width = (getWidth() / 2);
 			} else {
 				width = 0;
 			}
