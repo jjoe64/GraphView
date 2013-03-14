@@ -12,7 +12,7 @@ import android.graphics.Paint.Align;
 import android.graphics.RectF;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 import com.jjoe64.graphview.GraphViewSeries.GraphViewSeriesStyle;
 import com.jjoe64.graphview.compatible.ScaleGestureDetector;
@@ -28,7 +28,7 @@ import com.jjoe64.graphview.compatible.ScaleGestureDetector;
  * Licensed under the GNU Lesser General Public License (LGPL)
  * http://www.gnu.org/licenses/lgpl.html
  */
-abstract public class GraphView extends LinearLayout {
+abstract public class GraphView extends RelativeLayout {
 	static final protected class GraphViewConfig {
 		public static final float BORDER = 20;
 		public static final float VERTICAL_LABEL_WIDTH = 150;
@@ -44,7 +44,7 @@ abstract public class GraphView extends LinearLayout {
 		 */
 		public GraphViewContentView(Context context) {
 			super(context);
-			setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+			this.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 		}
 
 		/**
@@ -188,6 +188,7 @@ abstract public class GraphView extends LinearLayout {
 	static public class GraphViewData {
 		public final double valueX;
 		public final double valueY;
+
 		public GraphViewData(double valueX, double valueY) {
 			super();
 			this.valueX = valueX;
@@ -205,7 +206,6 @@ abstract public class GraphView extends LinearLayout {
 		 */
 		public VerLabelsView(Context context) {
 			super(context);
-			setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT, 10));
 		}
 
 		/**
@@ -267,6 +267,33 @@ abstract public class GraphView extends LinearLayout {
 	private double manualMinYValue;
 	private GraphViewStyle graphViewStyle;
 
+	public GraphView(Context context) {
+		super(context);
+
+		this.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+		this.title = "";
+
+		this.graphViewStyle = new GraphViewStyle();
+
+		this.paint = new Paint();
+		this.graphSeries = new ArrayList<GraphViewSeries>();
+
+		this.viewVerLabels = new VerLabelsView(context);
+		this.viewVerLabels.setId(1);
+
+		GraphViewContentView graphContent = new GraphViewContentView(context);
+		graphContent.setId(2);
+
+		LayoutParams verLabelsLayout = new LayoutParams(50, LayoutParams.MATCH_PARENT);
+		verLabelsLayout.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+		this.addView(this.viewVerLabels, verLabelsLayout);
+
+		LayoutParams graphContentLayout = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT);
+		graphContentLayout.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+		graphContentLayout.addRule(RelativeLayout.RIGHT_OF, this.viewVerLabels.getId());
+		this.addView(graphContent, graphContentLayout);
+	}
+
 	/**
 	 *
 	 * @param context
@@ -275,20 +302,13 @@ abstract public class GraphView extends LinearLayout {
 	public GraphView(Context context, String title) {
 		super(context);
 		setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+		this(context);
 
-		if (title == null)
-			title = "";
-		else
+		if (title == null) {
+			this.title = "";
+		} else {
 			this.title = title;
-
-		graphViewStyle = new GraphViewStyle();
-
-		paint = new Paint();
-		graphSeries = new ArrayList<GraphViewSeries>();
-
-		viewVerLabels = new VerLabelsView(context);
-		addView(viewVerLabels);
-		addView(new GraphViewContentView(context), new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT, 1));
+		}
 	}
 
 	public GraphViewStyle getGraphViewStyle() {
@@ -307,19 +327,19 @@ abstract public class GraphView extends LinearLayout {
 		} else {
 			// viewport
 			List<GraphViewData> listData = new ArrayList<GraphViewData>();
-			for (int i=0; i<values.length; i++) {
-				if (values[i].valueX >= viewportStart) {
-					if (values[i].valueX > viewportStart+viewportSize) {
-						listData.add(values[i]); // one more for nice scrolling
+			for (GraphViewData value : values) {
+				if (value.valueX >= this.viewportStart) {
+					if (value.valueX > (this.viewportStart + this.viewportSize)) {
+						listData.add(value); // one more for nice scrolling
 						break;
 					} else {
-						listData.add(values[i]);
+						listData.add(value);
 					}
 				} else {
 					if (listData.isEmpty()) {
-						listData.add(values[i]);
+						listData.add(value);
 					}
-					listData.set(0, values[i]); // one before, for nice scrolling
+					listData.set(0, value); // one before, for nice scrolling
 				}
 			}
 			return listData.toArray(new GraphViewData[listData.size()]);
