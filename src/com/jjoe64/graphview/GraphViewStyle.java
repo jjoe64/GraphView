@@ -16,7 +16,7 @@ public class GraphViewStyle {
 	private float vLabelsFontSize;
 	private float hLabelsFontSize;
 	private Typeface labelsTypeFace;
-	private Align vLabelsAlign;
+	private Align vLabelsTextAlign;
 
 	public GraphViewStyle() {
 		vLabelsColor = Color.WHITE;
@@ -25,7 +25,7 @@ public class GraphViewStyle {
 		vLabelsFontSize = 12f;
 		hLabelsFontSize = 12f;
 		labelsTypeFace = null;
-		vLabelsAlign = Align.LEFT;
+		vLabelsTextAlign = Align.LEFT;
 	}
 
 	public GraphViewStyle(int vLabelsColor, int hLabelsColor, int gridColor) {
@@ -59,8 +59,8 @@ public class GraphViewStyle {
 		return labelsTypeFace;
 	}
 
-	public Align getVerticalLabelsAlign() {
-		return vLabelsAlign;
+	public Align getVerticalLabelsTextAlign() {
+		return vLabelsTextAlign;
 	}
 	
 	public void setVerticalLabelsColor(int c) {
@@ -89,6 +89,6 @@ public class GraphViewStyle {
 
 
 	public void setVerticalLabelsAlign(Align a) {
-		this.vLabelsAlign = a;
+		this.vLabelsTextAlign = a;
 	}
 }
