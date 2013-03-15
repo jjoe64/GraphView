@@ -73,4 +73,5 @@ Here is a list of functionalities/changes that i've implemented based on jjoe64/
 <li>Use of RelativeLayout instead of LinearLayout as GraphView parent so surrounding elements (like vertical/horizontal labels, title, etc.) can be freely placed
 relative to the main graph component.</li>
 <li>More graph style options (text labels font type and size definition, text labels alignment, etc.) </li>
+<li>Inverted Bar Graph implementation (useful to represent rainfall)</li>
 </ul>
