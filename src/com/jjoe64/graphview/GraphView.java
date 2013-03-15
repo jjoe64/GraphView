@@ -286,13 +286,12 @@ abstract public class GraphView extends RelativeLayout {
 	protected final Paint paint;
 	private String[] horlabels;
 	private String[] verlabels;
-	private String title;
 	private boolean scrollable;
 	private double viewportStart;
 	private double viewportSize;
 	private final View viewVerLabels;
 	private final View viewHorLabels;
-	private final View viewTitle;
+	private View viewTitle;
 	private ScaleGestureDetector scaleDetector;
 	private boolean scalable;
 	private final NumberFormat[] numberformatter = new NumberFormat[2];
@@ -309,7 +308,6 @@ abstract public class GraphView extends RelativeLayout {
 		super(context);
 
 		setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-		title = "";
 
 		graphViewStyle = new GraphViewStyle();
 
@@ -322,6 +320,7 @@ abstract public class GraphView extends RelativeLayout {
 		viewHorLabels = new HorLabelsView(context);
 		viewHorLabels.setId(2);
 		
+		String title = "";
 		TextView textView = new TextView(context);
 		textView.setId(3);
 		textView.setText(title);
@@ -377,13 +376,12 @@ abstract public class GraphView extends RelativeLayout {
 	 */
 	public GraphView(Context context, String title) {
 		this(context);
-		if (title == null) {
-			this.title = "";
-		} else {
-			this.title = title;
-		}
-		
 		((TextView) viewTitle).setText(title);
+	}
+	
+	public GraphView(Context context, View title) {
+		this(context);
+		viewTitle = title;
 	}
 
 	public GraphViewStyle getGraphViewStyle() {
