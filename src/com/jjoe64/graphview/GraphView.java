@@ -487,7 +487,10 @@ abstract public class GraphView extends RelativeLayout {
 		return numberformatter[i].format(value);
 	}
 
-	private String[] generateHorlabels(float graphwidth) {
+	 /**
+	 * warning: only override this, if you really know want you're doing!
+	 */
+	protected String[] generateHorlabels(float graphwidth) {
 		int numLabels = (int) (graphwidth/GraphViewConfig.VERTICAL_LABEL_SPACEMENT);
 		String[] labels = new String[numLabels+1];
 		double min = getMinX(false);
@@ -498,7 +501,10 @@ abstract public class GraphView extends RelativeLayout {
 		return labels;
 	}
 
-	synchronized private String[] generateVerlabels(float graphheight) {
+	 /**
+	 * warning: only override this, if you really know want you're doing!
+	 */
+	synchronized protected String[] generateVerlabels(float graphheight) {
 		int numLabels = (int) (graphheight/GraphViewConfig.HORIZONTAL_LABEL_SPACEMENT);
 		String[] labels = new String[numLabels+1];
 		double min = getMinY();
