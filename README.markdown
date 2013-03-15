@@ -67,3 +67,10 @@ See GraphView-Demos for examples.
 <a href="https://github.com/jjoe64/GraphView-Demos">https://github.com/jjoe64/GraphView-Demos<br/>
 <a href="http://www.jjoe64.com/p/graphview-library.html">View GraphView page http://www.jjoe64.com/p/graphview-library.html</a>
 
+<h2>Kalem's extra functionalities</h2>
+Here is a list of functionalities/changes that i've implemented based on jjoe64/GraphView master branch and hope some day to be part it.
+<ul>
+<li>Use of RelativeLayout instead of LinearLayout as GraphView parent so surrounding elements (like vertical/horizontal labels, title, etc.) can be freely placed
+relative to the main graph component.</li>
+<li>More graph style options (text labels font type and size definition, text labels alignment, etc.) </li>
+</ul>
