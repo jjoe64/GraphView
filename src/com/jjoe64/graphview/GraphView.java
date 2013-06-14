@@ -9,10 +9,14 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Align;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.RotateAnimation;
 import android.widget.LinearLayout;
 
 import com.jjoe64.graphview.GraphViewSeries.GraphViewSeriesStyle;
@@ -89,19 +93,30 @@ abstract public class GraphView extends LinearLayout {
 
 			// horizontal labels + lines
 			int hors = horlabels.length - 1;
-			for (int i = 0; i < horlabels.length; i++) {
-				paint.setColor(graphViewStyle.getGridColor());
-				float x = ((graphwidth / hors) * i) + horstart;
-				canvas.drawLine(x, height - border, x, border, paint);
-				paint.setTextAlign(Align.CENTER);
-				if (i==horlabels.length-1)
-					paint.setTextAlign(Align.RIGHT);
-				if (i==0)
-					paint.setTextAlign(Align.LEFT);
-				paint.setColor(graphViewStyle.getHorizontalLabelsColor());
-				canvas.drawText(horlabels[i], x, height - 4, paint);
+			if(hors==0){
+				for (int i = 0; i < horlabels.length; i++) {
+					paint.setColor(graphViewStyle.getGridColor());
+					float x = (graphwidth / 2f);
+					canvas.drawLine(x, height - border, x, border, paint);
+					paint.setTextAlign(Align.CENTER);
+					paint.setColor(graphViewStyle.getHorizontalLabelsColor());
+					canvas.drawText(horlabels[i], x, height - 4, paint);
+				}
 			}
-
+			else {
+				for (int i = 0; i < horlabels.length; i++) {
+					paint.setColor(graphViewStyle.getGridColor());
+					float x = ((graphwidth / hors) * i) + horstart;
+					canvas.drawLine(x, height - border, x, border, paint);
+					paint.setTextAlign(Align.CENTER);
+					if (i==horlabels.length-1)
+					paint.setTextAlign(Align.RIGHT);
+					if (i==0)
+						paint.setTextAlign(Align.LEFT);
+					paint.setColor(graphViewStyle.getHorizontalLabelsColor());
+					canvas.drawText(horlabels[i], x, height - 4, paint);
+				}
+			}
 			paint.setTextAlign(Align.CENTER);
 			canvas.drawText(title, (graphwidth / 2) + horstart, border - 4, paint);
 
@@ -226,10 +241,24 @@ abstract public class GraphView extends LinearLayout {
 			// vertical labels
 			paint.setTextAlign(Align.LEFT);
 			int vers = verlabels.length - 1;
-			for (int i = 0; i < verlabels.length; i++) {
-				float y = ((graphheight / vers) * i) + border;
-				paint.setColor(graphViewStyle.getVerticalLabelsColor());
-				canvas.drawText(verlabels[i], 0, y, paint);
+			//only one vertical label - NAME of axis, then it's rotated by -90
+			if(vers == 0) {
+				for (int i = 0; i < verlabels.length; i++) {
+					float y = (graphheight / 2f);
+					paint.setColor(graphViewStyle.getVerticalLabelsColor());
+					Rect rect = new Rect();
+					paint.getTextBounds(verlabels[i], 0, verlabels[i].length(), rect);
+					canvas.rotate(-90, 10 + rect.exactCenterX(),y + rect.exactCenterY());
+					canvas.drawText(verlabels[i], 0, y, paint);
+				}
+			}
+			//regular label set
+			else {
+				for (int i = 0; i < verlabels.length; i++) {
+					float y = ((graphheight / vers) * i) + border;
+					paint.setColor(graphViewStyle.getVerticalLabelsColor());
+					canvas.drawText(verlabels[i], 0, y, paint);
+				}
 			}
 		}
 	}
@@ -280,10 +309,15 @@ abstract public class GraphView extends LinearLayout {
 
 		paint = new Paint();
 		graphSeries = new ArrayList<GraphViewSeries>();
-
 		viewVerLabels = new VerLabelsView(context);
 		addView(viewVerLabels);
 		addView(new GraphViewContentView(context), new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT, 1));
+	}
+	
+	public void rotateVerticalLabel(){
+		Animation rotate = new RotateAnimation(0, 90);
+		rotate.setFillAfter(true);
+		viewVerLabels.setAnimation(rotate);
 	}
 
 	public GraphViewStyle getGraphViewStyle() {
