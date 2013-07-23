@@ -225,10 +225,10 @@ abstract public class GraphView extends LinearLayout {
 
 			// vertical labels
 			paint.setTextAlign(Align.LEFT);
+			paint.setColor(graphViewStyle.getVerticalLabelsColor());
 			int vers = verlabels.length - 1;
 			for (int i = 0; i < verlabels.length; i++) {
 				float y = ((graphheight / vers) * i) + border;
-				paint.setColor(graphViewStyle.getVerticalLabelsColor());
 				canvas.drawText(verlabels[i], 0, y, paint);
 			}
 		}
