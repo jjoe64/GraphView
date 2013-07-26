@@ -45,7 +45,7 @@ abstract public class GraphView extends LinearLayout {
 		 */
 		public GraphViewContentView(Context context) {
 			super(context);
-			setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+			setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 		}
 
 		/**
@@ -54,7 +54,7 @@ abstract public class GraphView extends LinearLayout {
 		@Override
 		protected void onDraw(Canvas canvas) {
 
-            paint.setAntiAlias(true);
+            		paint.setAntiAlias(true);
 
 			// normal
 			paint.setStrokeWidth(0);
@@ -210,7 +210,7 @@ abstract public class GraphView extends LinearLayout {
 		 */
 		public VerLabelsView(Context context) {
 			super(context);
-			setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT, 10));
+			setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, 10));
 		}
 
 		/**
@@ -231,10 +231,10 @@ abstract public class GraphView extends LinearLayout {
 
 			// vertical labels
 			paint.setTextAlign(Align.LEFT);
+			paint.setColor(graphViewStyle.getVerticalLabelsColor());
 			int vers = verlabels.length - 1;
 			for (int i = 0; i < verlabels.length; i++) {
 				float y = ((graphheight / vers) * i) + border;
-				paint.setColor(graphViewStyle.getVerticalLabelsColor());
 				canvas.drawText(verlabels[i], 0, y, paint);
 			}
 		}
@@ -265,10 +265,6 @@ abstract public class GraphView extends LinearLayout {
 
 	public GraphView(Context context, AttributeSet attrs) {
 		this(context, attrs.getAttributeValue(null, "title"));
-
-		int width = attrs.getAttributeIntValue("android", "layout_width", LayoutParams.MATCH_PARENT);
-		int height = attrs.getAttributeIntValue("android", "layout_height", LayoutParams.MATCH_PARENT);
-		setLayoutParams(new LayoutParams(width, height));
 	}
 
 	/**
@@ -281,7 +277,7 @@ abstract public class GraphView extends LinearLayout {
 		setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
 
 		if (title == null)
-			title = "";
+			this.title = "";
 		else
 			this.title = title;
 
@@ -293,7 +289,7 @@ abstract public class GraphView extends LinearLayout {
 		viewVerLabels = new VerLabelsView(context);
 		addView(viewVerLabels);
 		graphViewContentView = new GraphViewContentView(context);
-		addView(graphViewContentView, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT, 1));
+		addView(graphViewContentView, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, 1));
 	}
 
 	private GraphViewData[] _values(int idxSeries) {
