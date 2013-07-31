@@ -3,19 +3,21 @@ package com.jjoe64.graphview;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.Map;
+import android.R.integer;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Align;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
-
 import com.jjoe64.graphview.GraphViewSeries.GraphViewSeriesStyle;
 import com.jjoe64.graphview.compatible.ScaleGestureDetector;
 
@@ -52,6 +54,7 @@ abstract public class GraphView extends LinearLayout {
 		/**
 		 * @param canvas
 		 */
+		@SuppressLint("DrawAllocation")
 		@Override
 		protected void onDraw(Canvas canvas) {
 
@@ -78,7 +81,9 @@ abstract public class GraphView extends LinearLayout {
 			if (verlabels == null) {
 				verlabels = generateVerlabels(graphheight);
 			}
-
+			if (refLines == null) 
+				refLines = new ReferenceLine[]{};
+			
 			// vertical lines
 			paint.setTextAlign(Align.LEFT);
 			int vers = verlabels.length - 1;
@@ -101,6 +106,41 @@ abstract public class GraphView extends LinearLayout {
 					paint.setTextAlign(Align.LEFT);
 				paint.setColor(graphViewStyle.getHorizontalLabelsColor());
 				canvas.drawText(horlabels[i], x, height - 4, paint);
+			}
+
+			// horizontal reference lines + labels
+			int offset = 2;
+			Rect bounds = new Rect();
+			for (int i = 0; i < refLines.length; i++) {
+				ReferenceLine ref = refLines[i];
+				
+				//reference line;
+				paint.setColor(ref.getColor());
+				float valY = (float) (ref.getValue() - minY);
+				float ratY = (float) (valY / (maxY - minY));
+				float y = graphheight * ratY;
+				float yRes = (border - y) + graphheight;
+				canvas.drawLine(horstart, yRes, width, yRes, paint);
+				
+				//reference label;
+				paint.setTextAlign(Align.LEFT);
+				paint.setColor(graphViewStyle.getHorizontalLabelsColor());
+				String label = ref.getLabel();
+				int txtHeight = Math.abs(bounds.height());
+				paint.getTextBounds(label, 0, label.length(), bounds);
+				float yTxt = yRes;
+				switch (ref.getAlign()) {
+				case TOP:
+					yTxt -= offset;
+					break;
+				case MIDDLE:
+					yTxt += txtHeight/2;
+					break;
+				case BOTTOM:
+					yTxt += txtHeight + offset;
+					break;
+				}
+				canvas.drawText(label, horstart + offset, yTxt, paint);
 			}
 
 			paint.setTextAlign(Align.CENTER);
@@ -244,6 +284,7 @@ abstract public class GraphView extends LinearLayout {
 	protected final Paint paint;
 	private String[] horlabels;
 	private String[] verlabels;
+	private ReferenceLine[] refLines;
 	private String title;
 	private boolean scrollable;
 	private boolean disableTouch;
@@ -646,6 +687,11 @@ abstract public class GraphView extends LinearLayout {
 		this.horlabels = horlabels;
 	}
 
+	public void setRefLines(ReferenceLine[] refLines) {
+		this.refLines = refLines;
+		redrawAll();
+	}
+	
 	public void setLegendAlign(LegendAlign legendAlign) {
 		this.legendAlign = legendAlign;
 	}
