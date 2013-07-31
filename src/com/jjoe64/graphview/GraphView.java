@@ -14,6 +14,7 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
 
 import com.jjoe64.graphview.GraphViewSeries.GraphViewSeriesStyle;
 import com.jjoe64.graphview.compatible.ScaleGestureDetector;
@@ -277,6 +278,17 @@ abstract public class GraphView extends LinearLayout {
 	 * @param title [optional]
 	 */
 	public GraphView(Context context, String title) {
+		this(context, title, null);
+	}
+
+	/**
+	 * Instantiates a new graph view.
+	 *
+	 * @param context the context
+	 * @param title [optional]
+	 * @param gvStyle the GraphViewStyle
+	 */
+	public GraphView(Context context, String title, GraphViewStyle gvStyle) {
 		super(context);
 		setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
 
@@ -285,7 +297,10 @@ abstract public class GraphView extends LinearLayout {
 		else
 			this.title = title;
 
-		graphViewStyle = new GraphViewStyle();
+		if (gvStyle == null)
+			graphViewStyle = new GraphViewStyle();
+		else
+			graphViewStyle = gvStyle;
 
 		paint = new Paint();
 		graphSeries = new ArrayList<GraphViewSeries>();
