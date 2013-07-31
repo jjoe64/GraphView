@@ -7,18 +7,46 @@ import android.util.AttributeSet;
 import com.jjoe64.graphview.GraphViewSeries.GraphViewSeriesStyle;
 
 /**
- * Draws a Bar Chart
+ * Draws a Bar Chart.
+ *
  * @author Muhammad Shahab Hameed
  */
 public class BarGraphView extends GraphView {
+	
+	/**
+	 * Instantiates a new bar graph view.
+	 *
+	 * @param context the context
+	 * @param attrs the attrs
+	 */
 	public BarGraphView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 	}
 	
+	/**
+	 * Instantiates a new bar graph view.
+	 *
+	 * @param context the context
+	 * @param title
+	 */
 	public BarGraphView(Context context, String title) {
 		super(context, title);
 	}
 
+	/**
+	 * Instantiates a new bar graph view.
+	 *
+	 * @param context the context
+	 * @param title
+	 * @param gvStyle the GraphViewStyle
+	 */
+	public BarGraphView(Context context, String title, GraphViewStyle gvStyle) {
+		super(context, title, gvStyle);
+	}
+
+	/* (non-Javadoc)
+	 * @see com.jjoe64.graphview.GraphView#drawSeries(android.graphics.Canvas, com.jjoe64.graphview.GraphView.GraphViewData[], float, float, float, double, double, double, double, float, com.jjoe64.graphview.GraphViewSeries.GraphViewSeriesStyle)
+	 */
 	@Override
 	public void drawSeries(Canvas canvas, GraphViewData[] values, float graphwidth, float graphheight,
 			float border, double minX, double minY, double diffX, double diffY,
