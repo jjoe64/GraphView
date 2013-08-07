@@ -3,6 +3,7 @@ package com.jjoe64.graphview;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Paint.Align;
 import android.util.AttributeSet;
 
 import com.jjoe64.graphview.GraphViewSeries.GraphViewSeriesStyle;
@@ -71,6 +72,9 @@ public class LineGraphView extends GraphView {
 	 */
 	@Override
 	public void drawSeries(Canvas canvas, GraphViewData[] values, float graphwidth, float graphheight, float border, double minX, double minY, double diffX, double diffY, float horstart, GraphViewSeriesStyle style) {
+		GraphViewStyle graphStyle = getGraphViewStyle();
+		Paint vpaint = new Paint();
+		
 		// draw background
 		double lastEndY = 0;
 		double lastEndX = 0;
@@ -125,17 +129,32 @@ public class LineGraphView extends GraphView {
 			double ratX = valX / diffX;
 			double x = graphwidth * ratX;
 
+			float startX = (float) lastEndX + (horstart + 1);
+			float startY = (float) (border - lastEndY) + graphheight;
+			float endX = (float) x + (horstart + 1);
+			float endY = (float) (border - y) + graphheight;
 			if (i > 0) {
-				float startX = (float) lastEndX + (horstart + 1);
-				float startY = (float) (border - lastEndY) + graphheight;
-				float endX = (float) x + (horstart + 1);
-				float endY = (float) (border - y) + graphheight;
-
-				canvas.drawLine(startX, startY, endX, endY, paint);
+				canvas.drawLine(startX, startY, endX, endY, paint);	
 			}
+			
+			// horizontal labels + lines
+			if (!graphStyle.getvLinesDraw()) {
+				vpaint.setColor(graphStyle.getGridColor());
+				//canvas.drawLine(endX, (float) graphheight, endX, border, vpaint);
+				canvas.drawLine(endX, (float) (graphheight + border), endX, border, vpaint);
+				vpaint.setTextAlign(Align.CENTER);
+				if (i==values.length-1)
+					vpaint.setTextAlign(Align.RIGHT);
+				if (i==0)
+					vpaint.setTextAlign(Align.LEFT);
+				vpaint.setColor(graphStyle.getHorizontalLabelsColor());
+				String label = formatLabel(valX, true);
+				canvas.drawText(label, endX, graphheight + 2 * border - 4, vpaint);
+			}		
+
 			lastEndY = y;
 			lastEndX = x;
-		}
+		}		
 	}
 
 	/**

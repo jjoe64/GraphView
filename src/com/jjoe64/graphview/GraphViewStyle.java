@@ -11,6 +11,7 @@ public class GraphViewStyle {
 	private int vLabelsColor;
 	private int hLabelsColor;
 	private int gridColor;
+	private boolean vLinesDraw = true;
 
 	public GraphViewStyle() {
 		vLabelsColor = Color.WHITE;
@@ -46,5 +47,13 @@ public class GraphViewStyle {
 
 	public void setGridColor(int c) {
 		gridColor = c;
+	}
+	
+	public void setvLinesDraw(boolean vLinesDraw) {
+		this.vLinesDraw = vLinesDraw;
+	}
+	
+	public boolean getvLinesDraw() {
+		return vLinesDraw;
 	}
 }

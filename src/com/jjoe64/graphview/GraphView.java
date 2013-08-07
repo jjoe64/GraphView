@@ -91,18 +91,28 @@ abstract public class GraphView extends LinearLayout {
 			}
 
 			// horizontal labels + lines
-			int hors = horlabels.length - 1;
-			for (int i = 0; i < horlabels.length; i++) {
+			if (graphViewStyle.getvLinesDraw()) {
+				int hors = horlabels.length - 1;
+				for (int i = 0; i < horlabels.length; i++) {
+					paint.setColor(graphViewStyle.getGridColor());
+					float x = ((graphwidth / hors) * i) + horstart;
+					canvas.drawLine(x, height - border, x, border, paint);
+					paint.setTextAlign(Align.CENTER);
+					if (i==horlabels.length-1)
+						paint.setTextAlign(Align.RIGHT);
+					if (i==0)
+						paint.setTextAlign(Align.LEFT);
+					paint.setColor(graphViewStyle.getHorizontalLabelsColor());
+					canvas.drawText(horlabels[i], x, height - 4, paint);
+				}
+			} else {
 				paint.setColor(graphViewStyle.getGridColor());
-				float x = ((graphwidth / hors) * i) + horstart;
+				float x = horstart;
 				canvas.drawLine(x, height - border, x, border, paint);
-				paint.setTextAlign(Align.CENTER);
-				if (i==horlabels.length-1)
-					paint.setTextAlign(Align.RIGHT);
-				if (i==0)
-					paint.setTextAlign(Align.LEFT);
+				paint.setTextAlign(Align.LEFT);
 				paint.setColor(graphViewStyle.getHorizontalLabelsColor());
-				canvas.drawText(horlabels[i], x, height - 4, paint);
+				//Start point;
+				canvas.drawText("", x, height - 4, paint);
 			}
 
 			// horizontal reference lines + labels
@@ -451,6 +461,7 @@ abstract public class GraphView extends LinearLayout {
 		return numberformatter[i].format(value);
 	}
 
+	
 	private String[] generateHorlabels(float graphwidth) {
 		int numLabels = (int) (graphwidth/GraphViewConfig.VERTICAL_LABEL_WIDTH);
 		String[] labels = new String[numLabels+1];
@@ -461,7 +472,7 @@ abstract public class GraphView extends LinearLayout {
 		}
 		return labels;
 	}
-
+	
 	synchronized private String[] generateVerlabels(float graphheight) {
 		int numLabels = (int) (graphheight/GraphViewConfig.HORIZONTAL_LABEL_HEIGHT);
 		String[] labels = new String[numLabels+1];

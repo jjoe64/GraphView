@@ -93,4 +93,12 @@ public class GraphViewSeries {
 			g.redrawAll();
 		}
 	}
+	
+	public int getSize() {
+		return values.length;
+	}
+	
+	public GraphViewData[] getGraphData() {
+		return values;
+	}
 }
