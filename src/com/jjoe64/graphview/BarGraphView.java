@@ -92,7 +92,7 @@ public class BarGraphView extends GraphView {
 					vpaint.setTextAlign(Align.LEFT);
 				*/
 				vpaint.setColor(graphStyle.getHorizontalLabelsColor());
-				String label = formatLabel(valX, true);
+				String label = formatLabel(values[i].valueX, true);
 				//canvas.drawText(label, middle, graphheight + border - 4, vpaint);
 				canvas.drawText(label, middle, graphheight + 2* border - 4, vpaint);
 			}		

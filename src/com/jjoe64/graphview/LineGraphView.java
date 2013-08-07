@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Paint.Align;
 import android.util.AttributeSet;
+import android.util.Log;
 
 import com.jjoe64.graphview.GraphViewSeries.GraphViewSeriesStyle;
 
@@ -148,7 +149,7 @@ public class LineGraphView extends GraphView {
 				if (i==0)
 					vpaint.setTextAlign(Align.LEFT);
 				vpaint.setColor(graphStyle.getHorizontalLabelsColor());
-				String label = formatLabel(valX, true);
+				String label = formatLabel(values[i].valueX, true);
 				canvas.drawText(label, endX, graphheight + 2 * border - 4, vpaint);
 			}		
 
