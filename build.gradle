@@ -1,11 +1,11 @@
 buildscript {
-  repositories {
-    mavenCentral()
-  }
+    repositories {
+        mavenCentral()
+    }
 
-  dependencies {
-    classpath 'com.android.tools.build:gradle:0.5.+'
-  }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:0.5.+'
+    }
 }
 
 apply plugin: 'android-library'
