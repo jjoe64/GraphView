@@ -31,7 +31,6 @@ import android.graphics.Paint.Align;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -197,7 +196,7 @@ abstract public class GraphView extends LinearLayout {
 				handled = scaleDetector.isInProgress();
 			}
 			if (!handled) {
-				Log.d("GraphView", "on touch event scale not handled+"+lastTouchEventX);
+				//Log.d("GraphView", "on touch event scale not handled+"+lastTouchEventX);
 				// if not scaled, scroll
 				if ((event.getAction() & MotionEvent.ACTION_DOWN) == MotionEvent.ACTION_DOWN) {
 					scrollingStarted = true;
