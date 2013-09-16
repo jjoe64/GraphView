@@ -23,6 +23,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.MotionEvent;
 
 public class ScaleGestureDetector {
@@ -55,7 +56,7 @@ public class ScaleGestureDetector {
 			realScaleGestureDetector = constructor.newInstance(context, this, simpleOnScaleGestureListener);
 		} catch (Exception e) {
 			// not available
-			//Log.w("com.jjoe64.graphview", "*** WARNING *** No scaling available for graphs. Exception:");
+			Log.w("com.jjoe64.graphview", "*** WARNING *** No scaling available for graphs. Exception:");
 			e.printStackTrace();
 		}
 	}
