@@ -268,6 +268,8 @@ abstract public class GraphView extends LinearLayout {
 	}
 
 	private class VerLabelsView extends View {
+		private static final int RIGHT_ALIGNMENT_PIXEL_OFFSET = 5;
+
 		/**
 		 * @param context
 		 */
@@ -324,7 +326,8 @@ abstract public class GraphView extends LinearLayout {
 				drawLeftAlignedLabels(canvas, border, graphheight);
 				break;
 			case RIGHT:
-				drawRightAlignedLabels(canvas, border, graphheight,verLabelTextWidth);
+				drawRightAlignedLabels(canvas, border, graphheight,
+						verLabelTextWidth);
 				break;
 			default:
 				throw new IllegalArgumentException("Alignment not Supported:"
@@ -334,13 +337,14 @@ abstract public class GraphView extends LinearLayout {
 		}
 
 		private void drawRightAlignedLabels(Canvas canvas, float border,
-				float graphheight,int xPosition) {
+				float graphheight, int xPosition) {
 			paint.setTextAlign(Align.RIGHT);
 			int vers = verlabels.length - 1;
 			for (int i = 0; i < verlabels.length; i++) {
 				float y = ((graphheight / vers) * i) + border;
 				paint.setColor(graphViewStyle.getVerticalLabelsColor());
-				canvas.drawText(verlabels[i], xPosition, y, paint);
+				canvas.drawText(verlabels[i], xPosition
+						+ RIGHT_ALIGNMENT_PIXEL_OFFSET, y, paint);
 			}
 		}
 
