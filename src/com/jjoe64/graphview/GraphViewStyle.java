@@ -19,12 +19,15 @@
 
 package com.jjoe64.graphview;
 
+import java.util.EnumSet;
+
 import android.graphics.Color;
+import android.graphics.Paint.Align;
 
 /**
- * Styles for the GraphView
- * Important: Use GraphViewSeries.GraphViewSeriesStyle for series-specify styling
- *
+ * Styles for the GraphView Important: Use GraphViewSeries.GraphViewSeriesStyle
+ * for series-specify styling
+ * 
  */
 public class GraphViewStyle {
 	private int verticalLabelsColor;
@@ -35,6 +38,13 @@ public class GraphViewStyle {
 	private int numVerticalLabels;
 	private int numHorizontalLabels;
 
+	private Align verticalLabelAlign = Align.LEFT;
+	// Constraints for setters
+	private static EnumSet<Align> VERTICAL_ALIGN_CONTRAINT = EnumSet.of(
+			Align.LEFT, Align.RIGHT);
+
+	// private static final EnumSet<Align> VERTICAL_ALIGN_CONTRAINT =
+	// EnumSet<Align>();
 	public GraphViewStyle() {
 		verticalLabelsColor = Color.WHITE;
 		horizontalLabelsColor = Color.WHITE;
@@ -84,14 +94,16 @@ public class GraphViewStyle {
 	}
 
 	/**
-	 * @param numHorizontalLabels 0 = auto
+	 * @param numHorizontalLabels
+	 *            0 = auto
 	 */
 	public void setNumHorizontalLabels(int numHorizontalLabels) {
 		this.numHorizontalLabels = numHorizontalLabels;
 	}
 
 	/**
-	 * @param numVerticalLabels 0 = auto
+	 * @param numVerticalLabels
+	 *            0 = auto
 	 */
 	public void setNumVerticalLabels(int numVerticalLabels) {
 		this.numVerticalLabels = numVerticalLabels;
@@ -106,9 +118,33 @@ public class GraphViewStyle {
 	}
 
 	/**
-	 * @param verticalLabelsWidth 0 = auto
+	 * @param verticalLabelsWidth
+	 *            0 = auto
 	 */
 	public void setVerticalLabelsWidth(int verticalLabelsWidth) {
 		this.verticalLabelsWidth = verticalLabelsWidth;
+	}
+
+	/**
+	 * Sets the Alignment of the vertical label
+	 * 
+	 * @param align
+	 */
+	public void setVerticalLabelAlignment(Align align) {
+		if (!VERTICAL_ALIGN_CONTRAINT.contains(align)) {
+			throw new IllegalArgumentException(
+					"Vertical Label Alignment wrong:" + align + ", use Any of:"
+							+ VERTICAL_ALIGN_CONTRAINT.toString());
+		}
+		verticalLabelAlign = align;
+	}
+
+	/**
+	 * 
+	 * @return {@link Align}
+	 * @see #setVerticalLabelAlignment(Align)
+	 */
+	public Align getVericalAlignment() {
+		return verticalLabelAlign;
 	}
 }
