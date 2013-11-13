@@ -661,7 +661,9 @@ abstract public class GraphView extends LinearLayout {
 	public void redrawAll() {
 		if (!staticVerticalLabels) verlabels = null;
 		if (!staticHorizontalLabels) horlabels = null;
-		customLabelFormatter.clearBounds();
+		if (customLabelFormatter != null) {
+			customLabelFormatter.clearBounds();
+		}
 		labelTextHeight = null;
 		horLabelTextWidth = null;
 		verLabelTextWidth = null;
