@@ -19,6 +19,7 @@
 
 package com.jjoe64.graphview;
 
+
 /**
  * if you want to show different labels,
  * you can use this label formatter.
@@ -47,8 +48,13 @@ public interface CustomLabelFormatter {
 	 * will be called when the labels were generated
 	 * @param value the raw input value (x or y)
 	 * @param isValueX true if value is a x-value, false if otherwise
+	 * @param highestvalue the highest x or y value that is viewable
+	 * @param lowestvalue the lowest x or y value that is viewable
 	 * @return the string that will be displayed. return null if you want graphview to generate the label for you.
 	 */
+	boolean needsBounds(boolean isValueX);
+	void clearBounds();
+	void setBounds(double highestvalue, double lowestvalue, boolean isValueX);
 	String formatLabel(double value, boolean isValueX);
-
+	
 }
