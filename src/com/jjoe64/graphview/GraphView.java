@@ -19,7 +19,6 @@
 
 package com.jjoe64.graphview;
 
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -319,7 +318,6 @@ abstract public class GraphView extends LinearLayout {
 	private final View viewVerLabels;
 	private ScaleGestureDetector scaleDetector;
 	private boolean scalable;
-	private final NumberFormat[] numberformatter = new NumberFormat[2];
 	private final List<GraphViewSeries> graphSeries;
 	private boolean showLegend = false;
 	private float legendWidth = 120;
@@ -454,30 +452,16 @@ abstract public class GraphView extends LinearLayout {
 	 */
 	@Deprecated
 	protected String formatLabel(double value, boolean isValueX) {
-		if (customLabelFormatter != null) {
-			String label = customLabelFormatter.formatLabel(value, isValueX);
-			if (label != null) {
-				return label;
-			}
+		if (customLabelFormatter == null) {
+			customLabelFormatter = new CustomLabelFormatter.Default();
 		}
-		int i = isValueX ? 1 : 0;
-		if (numberformatter[i] == null) {
-			numberformatter[i] = NumberFormat.getNumberInstance();
+		if (customLabelFormatter.needsBounds(isValueX)) {
 			double highestvalue = isValueX ? getMaxX(false) : getMaxY();
 			double lowestvalue = isValueX ? getMinX(false) : getMinY();
-			if (highestvalue - lowestvalue < 0.1) {
-				numberformatter[i].setMaximumFractionDigits(6);
-			} else if (highestvalue - lowestvalue < 1) {
-				numberformatter[i].setMaximumFractionDigits(4);
-			} else if (highestvalue - lowestvalue < 20) {
-				numberformatter[i].setMaximumFractionDigits(3);
-			} else if (highestvalue - lowestvalue < 100) {
-				numberformatter[i].setMaximumFractionDigits(1);
-			} else {
-				numberformatter[i].setMaximumFractionDigits(0);
-			}
+			customLabelFormatter.setBounds(highestvalue, lowestvalue, isValueX);
 		}
-		return numberformatter[i].format(value);
+		String label = customLabelFormatter.formatLabel(value, isValueX);
+		return label;
 	}
 
 	private String[] generateHorlabels(float graphwidth) {
@@ -677,8 +661,7 @@ abstract public class GraphView extends LinearLayout {
 	public void redrawAll() {
 		if (!staticVerticalLabels) verlabels = null;
 		if (!staticHorizontalLabels) horlabels = null;
-		numberformatter[0] = null;
-		numberformatter[1] = null;
+		customLabelFormatter.clearBounds();
 		labelTextHeight = null;
 		horLabelTextWidth = null;
 		verLabelTextWidth = null;
