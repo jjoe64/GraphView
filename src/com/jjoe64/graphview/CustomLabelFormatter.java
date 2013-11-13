@@ -43,7 +43,7 @@ import java.text.NumberFormat;
 		});
  * }
  */
-public interface CustomLabelFormatter {
+public abstract class CustomLabelFormatter {
 
 	/**
 	 * will be called when the labels were generated
@@ -53,12 +53,21 @@ public interface CustomLabelFormatter {
 	 * @param lowestvalue the lowest x or y value that is viewable
 	 * @return the string that will be displayed. return null if you want graphview to generate the label for you.
 	 */
-	boolean needsBounds(boolean isValueX);
-	void clearBounds();
-	void setBounds(double highestvalue, double lowestvalue, boolean isValueX);
-	String formatLabel(double value, boolean isValueX);
+	boolean needsBounds(boolean isValueX) {
+		return false;
+	}
 	
-	class Default implements CustomLabelFormatter {
+	void clearBounds() {
+		
+	}
+	
+	void setBounds(double highestvalue, double lowestvalue, boolean isValueX) {
+		
+	}
+	
+	abstract String formatLabel(double value, boolean isValueX);
+	
+	public static class Default extends CustomLabelFormatter {
 		private final NumberFormat[] numberformatter = new NumberFormat[2];
 		
 		@Override
@@ -96,7 +105,7 @@ public interface CustomLabelFormatter {
 		}
 	}
 	
-	class IntegerOnly implements CustomLabelFormatter {
+	public static class IntegerOnly extends CustomLabelFormatter {
 		private final NumberFormat[] numberformatter = new NumberFormat[2];
 		
 		@Override
