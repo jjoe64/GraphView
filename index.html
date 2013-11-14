@@ -1,7 +1,9 @@
 <!doctype html>
 <html>
 	<head>
-		<title>Android GraphView</title>
+		<title>Android GraphView - official Project Homepage</title>
+		<meta name="description" content="This is the official project homepage of the open source android graphing framework Android GraphView by jjoe64. Download GraphView or see tutorials." />
+		<meta name="keywords" content="GraphView, Android, charts, framework, opensource" /> 
 		<link rel="stylesheet" type="text/css" href="style.css" />
 		<link href="http://alexgorbatchev.com/pub/sh/current/styles/shCore.css" rel="stylesheet" type="text/css" />
 		<link href="http://alexgorbatchev.com/pub/sh/current/styles/shThemeDefault.css" rel="stylesheet" type="text/css" />
@@ -94,16 +96,16 @@
 					</div>
 					<div id="showcase-content">
 						<div id="showcase-content-1">
-							<img src="showcase/simple-line.jpg" width="200" />
-							<img src="showcase/simple-bar.png" width="200" />
+							<img alt="Simple Line Graph" src="showcase/simple-line.jpg" width="200" />
+							<img alt="Simple Bar Graph" src="showcase/simple-bar.png" width="200" />
 						</div>
 						<div id="showcase-content-2">
-							<img src="showcase/multi1.png" width="300" /><br/>
-							<img src="showcase/multi2.png" width="300" />
+							<img alt="Multiple Series Line Graph" src="showcase/multi1.png" width="300" /><br/>
+							<img alt="Multiple Series Graph" src="showcase/multi2.png" width="300" />
 						</div>
 						<div id="showcase-content-3">
-							<img src="showcase/styles1.png" width="300" /><br/>
-							<img src="showcase/styles2.png" width="300" />
+							<img alt="Styles on GraphView" src="showcase/styles1.png" width="300" /><br/>
+							<img alt="Styles on GraphView" src="showcase/styles2.png" width="300" />
 						</div>
 						<div id="showcase-content-4">
 							<iframe width="480" height="360" src="http://www.youtube.com/embed/UpYOV_dq00g?rel=0" frameborder="0" allowfullscreen></iframe>
@@ -187,7 +189,7 @@ layout.addView(graphView);
 					If you use the class BarGraphView instead of LineGraphView you will get a Bar Chart.
 				</p>
 				<div class="image-container">
-					<img class="doc-image" src="showcase/simple-bar.png" width="200" />
+					<img alt="Example of Bar Graph" class="doc-image" src="showcase/simple-bar.png" width="200" />
 				</div>
 			</div>
 			
@@ -210,7 +212,7 @@ layout.addView(graphView);
 graphView.setVerticalLabels(new String[] {"high", "middle", "low"});
 </pre>
 				<div class="image-container">
-					<img class="doc-image" src="showcase/labels.png" width="300" />
+					<img alt="GraphView with labels" class="doc-image" src="showcase/labels.png" width="300" />
 				</div>
 				<p><strong>Note:</strong> Static labels were overwritten, when you use scaling or scrolling.</p>
 				<h3>Custom label formatter</h3>
@@ -269,13 +271,13 @@ graphView.getGraphViewStyle().setVerticalLabelsWidth(300);
 					It's also possible to set a explicit viewport size, so the user can only the a part of the series. The use can then scroll (with the touch move gesture) the graph.
 				</p>
 				<div class="image-container">
-					<img class="doc-image" src="showcase/scrolling.png" width="400" />
+					<img alt="GraphView Scrolling Example" class="doc-image" src="showcase/scrolling.png" width="400" />
 				</div>
 				<p>
 					It's also possible (since Android 2.3) to let the user scaling / zoom the viewport with the two-fingers touch scale gesture (Multi-touch).
 				</p>
 				<div class="image-container">
-					<img class="doc-image" src="showcase/scrolling2.png" width="400" />
+					<img class="doc-image" alt="GraphView Scrolling Example" src="showcase/scrolling2.png" width="400" />
 				</div>
 				<p>How to implement:</p>
 				<pre class="brush: java">// draw sin curve
@@ -370,7 +372,7 @@ layout = (LinearLayout) findViewById(R.id.layout);
 layout.addView(graphView);
 </pre>
 				<div class="image-container">
-					<img class="doc-image" src="showcase/multi1.png" width="300" />
+					<img alt="Multiple Series GraphView" class="doc-image" src="showcase/multi1.png" width="300" />
 				</div>
 			</div>
 			
@@ -388,7 +390,7 @@ graphView.setLegendAlign(LegendAlign.BOTTOM);
 graphView.setLegendWidth(200);
 </pre>
 				<div class="image-container">
-					<img class="doc-image" src="showcase/multi2.png" width="300" />
+					<img alt="Graph Legend" class="doc-image" src="showcase/multi2.png" width="300" />
 				</div>
 			</div>
 			
@@ -442,7 +444,7 @@ exampleSeries2 = new GraphViewSeries("aaa", seriesStyle, new GraphViewData[] {
 &nbsp;&nbsp;&nbsp;&nbsp;, new GraphViewData(5, 3.0d)
 });</pre>
 				<div class="image-container">
-					<img class="doc-image" src="showcase/styles1.png" width="300" />
+					<img alt="Styles GraphView" class="doc-image" src="showcase/styles1.png" width="300" />
 				</div>
 			</div>
 
@@ -463,7 +465,7 @@ graphView.getGraphViewStyle().setNumVerticalLabels(4);
 graphView.getGraphViewStyle().setVerticalLabelsWidth(300);
 </pre>
 				<div class="image-container">
-					<img class="doc-image" src="showcase/styles2.png" width="300" />
+					<img alt="Labels GraphView" class="doc-image" src="showcase/styles2.png" width="300" />
 				</div>
 			</div>
 
