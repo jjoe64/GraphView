@@ -891,6 +891,9 @@ abstract public class GraphView extends LinearLayout {
 	 * @param size
 	 */
 	public void setViewPort(double start, double size) {
+		if (size<0) {
+			throw new IllegalArgumentException("Viewport size must be greater than 0!");
+		}
 		viewportStart = start;
 		viewportSize = size;
 	}
