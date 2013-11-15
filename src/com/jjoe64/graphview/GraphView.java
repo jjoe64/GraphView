@@ -31,6 +31,7 @@ import android.graphics.Paint.Align;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -322,7 +323,6 @@ abstract public class GraphView extends LinearLayout {
 	private final NumberFormat[] numberformatter = new NumberFormat[2];
 	private final List<GraphViewSeries> graphSeries;
 	private boolean showLegend = false;
-	private float legendWidth = 120;
 	private LegendAlign legendAlign = LegendAlign.MIDDLE;
 	private boolean manualYAxis;
 	private double manualMaxYValue;
@@ -409,22 +409,28 @@ abstract public class GraphView extends LinearLayout {
 	}
 
 	protected void drawLegend(Canvas canvas, float height, float width) {
-		int shapeSize = 15;
+		float textSize = paint.getTextSize();
+		int spacing = getGraphViewStyle().getLegendSpacing();
+		int border = getGraphViewStyle().getLegendBorder();
+		int legendWidth = getGraphViewStyle().getLegendWidth();
+
+		int shapeSize = (int) (textSize*0.8d);
+		Log.d("GraphView", "draw legend size: "+paint.getTextSize());
 
 		// rect
 		paint.setARGB(180, 100, 100, 100);
-		float legendHeight = (shapeSize+5)*graphSeries.size() +5;
-		float lLeft = width-legendWidth - 10;
+		float legendHeight = (shapeSize+spacing)*graphSeries.size() +2*border -spacing;
+		float lLeft = width-legendWidth - border*2;
 		float lTop;
 		switch (legendAlign) {
 		case TOP:
-			lTop = 10;
+			lTop = 0;
 			break;
 		case MIDDLE:
 			lTop = height/2 - legendHeight/2;
 			break;
 		default:
-			lTop = height - GraphViewConfig.BORDER - legendHeight -10;
+			lTop = height - GraphViewConfig.BORDER - legendHeight;
 		}
 		float lRight = lLeft+legendWidth;
 		float lBottom = lTop+legendHeight;
@@ -432,11 +438,11 @@ abstract public class GraphView extends LinearLayout {
 
 		for (int i=0; i<graphSeries.size(); i++) {
 			paint.setColor(graphSeries.get(i).style.color);
-			canvas.drawRect(new RectF(lLeft+5, lTop+5+(i*(shapeSize+5)), lLeft+5+shapeSize, lTop+((i+1)*(shapeSize+5))), paint);
+			canvas.drawRect(new RectF(lLeft+border, lTop+border+(i*(shapeSize+spacing)), lLeft+border+shapeSize, lTop+border+(i*(shapeSize+spacing))+shapeSize), paint);
 			if (graphSeries.get(i).description != null) {
 				paint.setColor(Color.WHITE);
 				paint.setTextAlign(Align.LEFT);
-				canvas.drawText(graphSeries.get(i).description, lLeft+5+shapeSize+5, lTop+shapeSize+(i*(shapeSize+5)), paint);
+				canvas.drawText(graphSeries.get(i).description, lLeft+border+shapeSize+spacing, lTop+border+shapeSize+(i*(shapeSize+spacing)), paint);
 			}
 		}
 	}
@@ -446,7 +452,7 @@ abstract public class GraphView extends LinearLayout {
 	/**
 	 * formats the label
 	 * use #setCustomLabelFormatter or static labels if you want custom labels
-	 * 
+	 *
 	 * @param value x and y values
 	 * @param isValueX if false, value y wants to be formatted
 	 * @deprecated use {@link #setCustomLabelFormatter(CustomLabelFormatter)}
@@ -545,9 +551,11 @@ abstract public class GraphView extends LinearLayout {
 
 	/**
 	 * @return legend width
+	 * @deprecated use {@link GraphViewStyle#getLegendWidth()}
 	 */
+	@Deprecated
 	public float getLegendWidth() {
-		return legendWidth;
+		return getGraphViewStyle().getLegendWidth();
 	}
 
 	/**
@@ -713,7 +721,7 @@ abstract public class GraphView extends LinearLayout {
 
 	/**
 	 * removes series
-	 * @param index 
+	 * @param index
 	 */
 	public void removeSeries(int index) {
 		if (index < 0 || index >= graphSeries.size()) {
@@ -779,9 +787,11 @@ abstract public class GraphView extends LinearLayout {
 	/**
 	 * legend width
 	 * @param legendWidth
+	 * @deprecated use {@link GraphViewStyle#setLegendWidth(int)}
 	 */
+	@Deprecated
 	public void setLegendWidth(float legendWidth) {
-		this.legendWidth = legendWidth;
+		getGraphViewStyle().setLegendWidth((int)legendWidth);
 	}
 
 	/**

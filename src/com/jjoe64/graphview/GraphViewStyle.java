@@ -30,18 +30,20 @@ public class GraphViewStyle {
 	private int verticalLabelsColor;
 	private int horizontalLabelsColor;
 	private int gridColor;
-	private float textSize = 30f;
+	private float textSize;
 	private int verticalLabelsWidth;
 	private int numVerticalLabels;
 	private int numHorizontalLabels;
+	private int legendWidth;
+	private int legendBorder;
+	private int legendSpacing;
 
 	public GraphViewStyle() {
-		verticalLabelsColor = Color.WHITE;
-		horizontalLabelsColor = Color.WHITE;
-		gridColor = Color.DKGRAY;
+		setDefaults();
 	}
 
 	public GraphViewStyle(int vLabelsColor, int hLabelsColor, int gridColor) {
+		setDefaults();
 		this.verticalLabelsColor = vLabelsColor;
 		this.horizontalLabelsColor = hLabelsColor;
 		this.gridColor = gridColor;
@@ -53,6 +55,18 @@ public class GraphViewStyle {
 
 	public int getHorizontalLabelsColor() {
 		return horizontalLabelsColor;
+	}
+
+	public int getLegendBorder() {
+		return legendBorder;
+	}
+
+	public int getLegendSpacing() {
+		return legendSpacing;
+	}
+
+	public int getLegendWidth() {
+		return legendWidth;
 	}
 
 	public int getNumHorizontalLabels() {
@@ -75,12 +89,34 @@ public class GraphViewStyle {
 		return verticalLabelsWidth;
 	}
 
+	private void setDefaults() {
+		verticalLabelsColor = Color.WHITE;
+		horizontalLabelsColor = Color.WHITE;
+		gridColor = Color.DKGRAY;
+		textSize = 30f;
+		legendWidth = 120;
+		legendBorder = 10;
+		legendSpacing = 10;
+	}
+
 	public void setGridColor(int c) {
 		gridColor = c;
 	}
 
 	public void setHorizontalLabelsColor(int c) {
 		horizontalLabelsColor = c;
+	}
+
+	public void setLegendBorder(int legendBorder) {
+		this.legendBorder = legendBorder;
+	}
+
+	public void setLegendSpacing(int legendSpacing) {
+		this.legendSpacing = legendSpacing;
+	}
+
+	public void setLegendWidth(int legendWidth) {
+		this.legendWidth = legendWidth;
 	}
 
 	/**
