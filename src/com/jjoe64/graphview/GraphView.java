@@ -359,6 +359,7 @@ abstract public class GraphView extends LinearLayout {
 			this.title = title;
 
 		graphViewStyle = new GraphViewStyle();
+		graphViewStyle.useTextColorFromTheme(context);
 
 		paint = new Paint();
 		graphSeries = new ArrayList<GraphViewSeries>();

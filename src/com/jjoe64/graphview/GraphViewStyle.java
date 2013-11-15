@@ -19,7 +19,10 @@
 
 package com.jjoe64.graphview;
 
+import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Color;
+import android.view.ContextThemeWrapper;
 
 /**
  * Styles for the GraphView
@@ -146,5 +149,20 @@ public class GraphViewStyle {
 	 */
 	public void setVerticalLabelsWidth(int verticalLabelsWidth) {
 		this.verticalLabelsWidth = verticalLabelsWidth;
+	}
+
+	/**
+	 * tries to get the theme's font color and use it for labels
+	 * @param context must be instance of ContextThemeWrapper
+	 */
+	public void useTextColorFromTheme(Context context) {
+		if (context instanceof ContextThemeWrapper) {
+			TypedArray array = ((ContextThemeWrapper) context).getTheme().obtainStyledAttributes(new int[] {android.R.attr.textColorPrimary});
+			int color = array.getColor(0, getVerticalLabelsColor());
+			array.recycle();
+
+			setVerticalLabelsColor(color);
+			setHorizontalLabelsColor(color);
+		}
 	}
 }
