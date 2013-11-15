@@ -23,6 +23,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.util.AttributeSet;
 
 import com.jjoe64.graphview.GraphViewSeries.GraphViewSeriesStyle;
@@ -40,6 +41,7 @@ public class LineGraphView extends GraphView {
 		paintBackground = new Paint();
 		paintBackground.setColor(Color.rgb(20, 40, 60));
 		paintBackground.setStrokeWidth(4);
+		paintBackground.setAlpha(128);
 	}
 
 	public LineGraphView(Context context, String title) {
@@ -48,6 +50,7 @@ public class LineGraphView extends GraphView {
 		paintBackground = new Paint();
 		paintBackground.setColor(Color.rgb(20, 40, 60));
 		paintBackground.setStrokeWidth(4);
+		paintBackground.setAlpha(128);
 	}
 
 	@Override
@@ -55,48 +58,20 @@ public class LineGraphView extends GraphView {
 		// draw background
 		double lastEndY = 0;
 		double lastEndX = 0;
-		if (drawBackground) {
-			float startY = graphheight + border;
-			for (int i = 0; i < values.length; i++) {
-				double valY = values[i].getY() - minY;
-				double ratY = valY / diffY;
-				double y = graphheight * ratY;
-
-				double valX = values[i].getX() - minX;
-				double ratX = valX / diffX;
-				double x = graphwidth * ratX;
-
-				float endX = (float) x + (horstart + 1);
-				float endY = (float) (border - y) + graphheight +2;
-
-				if (i > 0) {
-					// fill space between last and current point
-					double numSpace = ((endX - lastEndX) / 3f) +1;
-					for (int xi=0; xi<numSpace; xi++) {
-						float spaceX = (float) (lastEndX + ((endX-lastEndX)*xi/(numSpace-1)));
-						float spaceY = (float) (lastEndY + ((endY-lastEndY)*xi/(numSpace-1)));
-
-						// start => bottom edge
-						float startX = spaceX;
-
-						// do not draw over the left edge
-						if (startX-horstart > 1) {
-							canvas.drawLine(startX, startY, spaceX, spaceY, paintBackground);
-						}
-					}
-				}
-
-				lastEndY = endY;
-				lastEndX = endX;
-			}
-		}
 
 		// draw data
 		paint.setStrokeWidth(style.thickness);
 		paint.setColor(style.color);
 
+
+		Path bgPath = null;
+		if (drawBackground) {
+			bgPath = new Path();
+		}
+
 		lastEndY = 0;
 		lastEndX = 0;
+		float firstX = 0;
 		for (int i = 0; i < values.length; i++) {
 			double valY = values[i].getY() - minY;
 			double ratY = valY / diffY;
@@ -113,9 +88,24 @@ public class LineGraphView extends GraphView {
 				float endY = (float) (border - y) + graphheight;
 
 				canvas.drawLine(startX, startY, endX, endY, paint);
+				if (bgPath != null) {
+					if (i==1) {
+						firstX = startX;
+						bgPath.moveTo(startX, startY);
+					}
+					bgPath.lineTo(endX, endY);
+				}
 			}
 			lastEndY = y;
 			lastEndX = x;
+		}
+
+		if (bgPath != null) {
+			// end / close path
+			bgPath.lineTo((float) lastEndX, graphheight + border);
+			bgPath.lineTo(firstX, graphheight + border);
+			bgPath.close();
+			canvas.drawPath(bgPath, paintBackground);
 		}
 	}
 
