@@ -506,6 +506,9 @@ abstract public class GraphView extends LinearLayout {
 		int numLabels = getGraphViewStyle().getNumVerticalLabels()-1;
 		if (numLabels < 0) {
 			numLabels = (int) (graphheight/(labelTextHeight*3));
+			if (numLabels == 0) {
+				Log.w("GraphView", "Height of Graph is smaller than the label text height, so no vertical labels were shown!");
+			}
 		}
 		String[] labels = new String[numLabels+1];
 		double min = getMinY();
