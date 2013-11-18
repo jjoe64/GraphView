@@ -32,6 +32,8 @@ import com.jjoe64.graphview.GraphViewSeries.GraphViewSeriesStyle;
  * Line Graph View. This draws a line chart.
  */
 public class LineGraphView extends GraphView {
+	private Bitmap bitmap;
+    	private Canvas bitmapCanvas;
 	private final Paint paintBackground;
 	private boolean drawBackground;
 
@@ -105,7 +107,16 @@ public class LineGraphView extends GraphView {
 			bgPath.lineTo((float) lastEndX, graphheight + border);
 			bgPath.lineTo(firstX, graphheight + border);
 			bgPath.close();
-			canvas.drawPath(bgPath, paintBackground);
+			// draw bitmap to render within limit
+			bitmap = Bitmap.createBitmap(this.getMeasuredWidth(), this.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
+	        	bitmapCanvas = new Canvas(bitmap);
+	        	bitmapCanvas.save();
+	        	bitmapCanvas.translate(0, 0);
+	        	bitmapCanvas.drawColor(0x00f9f9f9);
+	        	bitmapCanvas.drawPath(bgPath, paintBackground);
+	        	bitmapCanvas.restore();
+	        
+	        	canvas.drawBitmap(bitmap, 0, 0, paintBackground);
 		}
 	}
 
