@@ -299,13 +299,23 @@ abstract public class GraphView extends LinearLayout {
 			}
 
 			// vertical labels
-			paint.setTextAlign(Align.LEFT);
+			paint.setTextAlign(getGraphViewStyle().getVerticalLabelsAlign());
+			int labelsWidth = getWidth();
+			int labelsOffset = 0;
+			if (getGraphViewStyle().getVerticalLabelsAlign() == Align.RIGHT) {
+				labelsOffset = labelsWidth;
+			} else if (getGraphViewStyle().getVerticalLabelsAlign() == Align.CENTER) {
+				labelsOffset = labelsWidth / 2;
+			}
 			int vers = verlabels.length - 1;
 			for (int i = 0; i < verlabels.length; i++) {
 				float y = ((graphheight / vers) * i) + border;
 				paint.setColor(graphViewStyle.getVerticalLabelsColor());
-				canvas.drawText(verlabels[i], 0, y, paint);
+				canvas.drawText(verlabels[i], labelsOffset, y, paint);
 			}
+
+			// reset
+			paint.setTextAlign(Align.LEFT);
 		}
 	}
 

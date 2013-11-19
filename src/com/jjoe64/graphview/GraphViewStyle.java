@@ -22,6 +22,7 @@ package com.jjoe64.graphview;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
+import android.graphics.Paint.Align;
 import android.view.ContextThemeWrapper;
 
 /**
@@ -40,6 +41,7 @@ public class GraphViewStyle {
 	private int legendWidth;
 	private int legendBorder;
 	private int legendSpacing;
+	private Align verticalLabelsAlign;
 
 	public GraphViewStyle() {
 		setDefaults();
@@ -84,6 +86,10 @@ public class GraphViewStyle {
 		return textSize;
 	}
 
+	public Align getVerticalLabelsAlign() {
+		return verticalLabelsAlign;
+	}
+
 	public int getVerticalLabelsColor() {
 		return verticalLabelsColor;
 	}
@@ -100,6 +106,7 @@ public class GraphViewStyle {
 		legendWidth = 120;
 		legendBorder = 10;
 		legendSpacing = 10;
+		verticalLabelsAlign = Align.LEFT;
 	}
 
 	public void setGridColor(int c) {
@@ -138,6 +145,10 @@ public class GraphViewStyle {
 
 	public void setTextSize(float textSize) {
 		this.textSize = textSize;
+	}
+
+	public void setVerticalLabelsAlign(Align verticalLabelsAlign) {
+		this.verticalLabelsAlign = verticalLabelsAlign;
 	}
 
 	public void setVerticalLabelsColor(int c) {
