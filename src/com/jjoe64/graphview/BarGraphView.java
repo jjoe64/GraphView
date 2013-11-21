@@ -21,6 +21,7 @@ package com.jjoe64.graphview;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint.Align;
 import android.util.AttributeSet;
 
@@ -31,6 +32,9 @@ import com.jjoe64.graphview.GraphViewSeries.GraphViewSeriesStyle;
  * @author Muhammad Shahab Hameed
  */
 public class BarGraphView extends GraphView {
+	private boolean drawValuesOnTop;
+	private int valuesOnTopColor = Color.WHITE;
+
 	public BarGraphView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 	}
@@ -61,6 +65,7 @@ public class BarGraphView extends GraphView {
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void drawSeries(Canvas canvas, GraphViewDataInterface[] values, float graphwidth, float graphheight,
 			float border, double minX, double minY, double diffX, double diffY,
@@ -68,7 +73,6 @@ public class BarGraphView extends GraphView {
 		float colwidth = graphwidth / (values.length);
 
 		paint.setStrokeWidth(style.thickness);
-		paint.setColor(style.color);
 
 		float offset = 0;
 
@@ -81,10 +85,39 @@ public class BarGraphView extends GraphView {
 			// hook for value dependent color
 			if (style.getValueDependentColor() != null) {
 				paint.setColor(style.getValueDependentColor().get(values[i]));
+			} else {
+				paint.setColor(style.color);
 			}
 
-			canvas.drawRect((i * colwidth) + horstart -offset, (border - y) + graphheight, ((i * colwidth) + horstart) + (colwidth - 1) -offset, graphheight + border - 1, paint);
+			float left = (i * colwidth) + horstart -offset;
+			float top = (border - y) + graphheight;
+			float right = ((i * colwidth) + horstart) + (colwidth - 1) -offset;
+			canvas.drawRect(left, top, right, graphheight + border - 1, paint);
+
+			// -----Set values on top of graph---------
+			if (drawValuesOnTop) {
+				top -= 4;
+				if (top<=border) top+=border+4;
+				paint.setTextAlign(Align.CENTER);
+				paint.setColor(valuesOnTopColor );
+				canvas.drawText(formatLabel(values[i].getY(), false), (left+right)/2, top, paint);
+			}
 		}
 	}
 
+	public int getValuesOnTopColor() {
+		return valuesOnTopColor;
+	}
+
+	public boolean isDrawValuesOnTop() {
+		return drawValuesOnTop;
+	}
+
+	public void setDrawValuesOnTop(boolean drawValuesOnTop) {
+		this.drawValuesOnTop = drawValuesOnTop;
+	}
+
+	public void setValuesOnTopColor(int valuesOnTopColor) {
+		this.valuesOnTopColor = valuesOnTopColor;
+	}
 }
