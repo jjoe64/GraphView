@@ -34,6 +34,8 @@ import com.jjoe64.graphview.GraphViewSeries.GraphViewSeriesStyle;
 public class LineGraphView extends GraphView {
 	private final Paint paintBackground;
 	private boolean drawBackground;
+	private boolean drawDataPoints;
+	private float dataPointsRadius = 10f;
 
 	public LineGraphView(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -87,6 +89,11 @@ public class LineGraphView extends GraphView {
 				float endX = (float) x + (horstart + 1);
 				float endY = (float) (border - y) + graphheight;
 
+				// draw data point
+				if (drawDataPoints) {
+					canvas.drawCircle(startX, startY, dataPointsRadius, paint);
+				}
+
 				canvas.drawLine(startX, startY, endX, endY, paint);
 				if (bgPath != null) {
 					if (i==1) {
@@ -113,13 +120,25 @@ public class LineGraphView extends GraphView {
 		return paintBackground.getColor();
 	}
 
+	public float getDataPointsRadius() {
+		return dataPointsRadius;
+	}
+
 	public boolean getDrawBackground() {
 		return drawBackground;
+	}
+
+	public boolean getDrawDataPoints() {
+		return drawDataPoints;
 	}
 
 	@Override
 	public void setBackgroundColor(int color) {
 		paintBackground.setColor(color);
+	}
+
+	public void setDataPointsRadius(float dataPointsRadius) {
+		this.dataPointsRadius = dataPointsRadius;
 	}
 
 	/**
@@ -128,4 +147,9 @@ public class LineGraphView extends GraphView {
 	public void setDrawBackground(boolean drawBackground) {
 		this.drawBackground = drawBackground;
 	}
+
+	public void setDrawDataPoints(boolean drawDataPoints) {
+		this.drawDataPoints = drawDataPoints;
+	}
+
 }
