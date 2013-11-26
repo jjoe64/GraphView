@@ -186,7 +186,8 @@ abstract public class GraphView extends LinearLayout {
 			if (!handled) {
 				//Log.d("GraphView", "on touch event scale not handled+"+lastTouchEventX);
 				// if not scaled, scroll
-				if ((event.getAction() & MotionEvent.ACTION_DOWN) == MotionEvent.ACTION_DOWN) {
+				if ((event.getAction() & MotionEvent.ACTION_DOWN) == MotionEvent.ACTION_DOWN &&
+						(event.getAction() & MotionEvent.ACTION_MOVE) == 0) {
 					scrollingStarted = true;
 					handled = true;
 				}
