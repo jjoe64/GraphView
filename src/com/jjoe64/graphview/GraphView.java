@@ -856,6 +856,9 @@ abstract public class GraphView extends LinearLayout {
 
 					// viewportStart + viewportSize must not be > maxX
 					double maxX = getMaxX(true);
+					if (viewportSize == 0) {
+						viewportSize = maxX;
+					}
 					double overlap = viewportStart + viewportSize - maxX;
 					if (overlap > 0) {
 						// scroll left
