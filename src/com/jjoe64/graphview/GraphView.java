@@ -759,9 +759,9 @@ abstract public class GraphView extends LinearLayout {
 		if (!scrollable) throw new IllegalStateException("This GraphView is not scrollable.");
 		double max = getMaxX(true);
 		viewportStart = max-viewportSize;
-        invalidate();
-        viewVerLabels.invalidate();
-        graphViewContentView.invalidate();
+		invalidate();
+		viewVerLabels.invalidate();
+		graphViewContentView.invalidate();
 	}
 
 	/**
