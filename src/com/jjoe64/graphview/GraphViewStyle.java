@@ -41,6 +41,7 @@ public class GraphViewStyle {
 	private int legendWidth;
 	private int legendBorder;
 	private int legendSpacing;
+	private int legendMarginBottom;
 	private Align verticalLabelsAlign;
 
 	public GraphViewStyle() {
@@ -72,6 +73,10 @@ public class GraphViewStyle {
 
 	public int getLegendWidth() {
 		return legendWidth;
+	}
+
+	public int getLegendMarginBottom() {
+		return legendMarginBottom;
 	}
 
 	public int getNumHorizontalLabels() {
@@ -106,6 +111,7 @@ public class GraphViewStyle {
 		legendWidth = 120;
 		legendBorder = 10;
 		legendSpacing = 10;
+		legendMarginBottom = 0;
 		verticalLabelsAlign = Align.LEFT;
 	}
 
@@ -127,6 +133,10 @@ public class GraphViewStyle {
 
 	public void setLegendWidth(int legendWidth) {
 		this.legendWidth = legendWidth;
+	}
+
+	public void setLegendMarginBottom(int legendMarginBottom) {
+		this.legendMarginBottom = legendMarginBottom;
 	}
 
 	/**

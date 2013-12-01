@@ -447,7 +447,7 @@ abstract public class GraphView extends LinearLayout {
 			lTop = height/2 - legendHeight/2;
 			break;
 		default:
-			lTop = height - GraphViewConfig.BORDER - legendHeight;
+			lTop = height - GraphViewConfig.BORDER - legendHeight - getGraphViewStyle().getLegendMarginBottom();
 		}
 		float lRight = lLeft+legendWidth;
 		float lBottom = lTop+legendHeight;
