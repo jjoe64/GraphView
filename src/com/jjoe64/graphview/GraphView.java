@@ -352,7 +352,7 @@ abstract public class GraphView extends LinearLayout {
 		setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
 
 		if (title == null)
-			title = "";
+			this.title = "";
 		else
 			this.title = title;
 
