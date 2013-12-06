@@ -152,6 +152,8 @@
 						<li><a href="#doc_background">LineChart: drawBackground</a></li>
 						<li><a href="#doc_realtime">Realtime/Live Graph</a></li>
 						<li><a href="#doc_valuecolor">BarChart: Value dependent color</a></li>
+						<li><a href="#doc_valuesontop">BarChart: Values on top</a></li>
+						<li><a href="#doc_datapoints">LineChart: Data Points</a></li>
 						<li><a href="#doc_styles">More Styles...</a></li>
 					</ul>
 				</p>
@@ -166,8 +168,16 @@
 					<h2>How to create a simple graph</h2>
 				</div>
 				<p>
-					See how easy it is, to create a simple graph:
+					See how easy it is, to create a simple graph. First define an empty LinearLayout with fixed width and height in your layout.xml file and then attach the GraphView to it.
 				</p>
+				<pre class="brush: xml">&lt;LinearLayout
+&nbsp;&nbsp;&nbsp;android:orientation="vertical"
+&nbsp;&nbsp;&nbsp;android:layout_width="fill_parent"
+&nbsp;&nbsp;&nbsp;android:layout_height="250dip"
+&nbsp;&nbsp;&nbsp;android:id="@+id/graph1" /&gt;
+</pre>
+				</pre>
+				<p>In your activity class:</p>
 				<pre class="brush: java">// init example series data
 GraphViewSeries exampleSeries = new GraphViewSeries(new GraphViewData[] {
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;new GraphViewData(1, 2.0d)
@@ -182,7 +192,7 @@ GraphView graphView = new LineGraphView(
 );
 graphView.addSeries(exampleSeries); // data
 
-LinearLayout layout = (LinearLayout) findViewById(R.id.layout);
+LinearLayout layout = (LinearLayout) findViewById(R.id.graph1);
 layout.addView(graphView);
 </pre>
 				<p>
@@ -392,6 +402,20 @@ graphView.setLegendWidth(200);
 				<div class="image-container">
 					<img alt="Graph Legend" class="doc-image" src="showcase/multi2.png" width="300" />
 				</div>
+				<p>
+					There are more options for legend rendering. You can specify the width, border size and the spacing size.
+				</p>
+				<pre class="brush: java">// set legend
+graphView.setShowLegend(true);
+graphView.setLegendAlign(LegendAlign.BOTTOM);
+graphView.getGraphViewStyle().setLegendBorder(20);
+graphView.getGraphViewStyle().setLegendSpacing(30);
+graphView.getGraphViewStyle().setLegendWidth(300);
+</pre>
+				<div class="image-container">
+					<img alt="Graph Legend" class="doc-image" src="showcase/legend.png" width="300" />
+				</div>
+				
 			</div>
 			
 			<div class="container" id="doc_background">
@@ -401,7 +425,15 @@ graphView.setLegendWidth(200);
 				</div>
 				<p>
 					The LineGraphView has a special feature: <strong>drawBackground</strong>. This draws a light background under the diagram stroke.
+					You can set a specific color. Semi-transparent colors (with alpha) are supported.
 				</p>
+				<pre class="brush: java">LineGraphView graphView = new LineGraphView(
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;, "GraphViewDemo"
+);
+graphView.setDrawBackground(true);
+graphView.setBackgroundColor(Color.rgb(80, 30, 30));
+</pre>
 			</div>
 
 			<div class="container" id="doc_realtime">
@@ -416,6 +448,17 @@ graphView.setLegendWidth(200);
 					<li><strong><a href="http://jjoe64.github.io/GraphView/javadoc/com/jjoe64/graphview/GraphViewSeries.html#resetData(com.jjoe64.graphview.GraphViewDataInterface[])" target="_blank">resetData</a></strong><br>This method resets the whole data. The GraphView will be redrawed.</li>
 					<li><strong><a href="http://jjoe64.github.io/GraphView/javadoc/com/jjoe64/graphview/GraphViewSeries.html#appendData(com.jjoe64.graphview.GraphViewDataInterface, boolean, int)" target="_blank">appendData</a></strong><br>This methods adds a single data set to the current data. There's also a flag "scrollToEnd", that will scroll the GraphView automatically to the last X value. Note: The GraphView has to be scrollable (setScrollable)</li>
 				</ul>
+				<p>Here is a code snippet of the GraphView-Demos project, that shows how to add data via a timer.</p>
+				<pre class="brush: java">mTimer2 = new Runnable() {
+&nbsp;&nbsp;&nbsp;@Override
+&nbsp;&nbsp;&nbsp;public void run() {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;graph2LastXValue += 1d;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;exampleSeries2.appendData(new GraphViewData(graph2LastXValue, getRandom()), true, 10);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mHandler.postDelayed(this, 200);
+&nbsp;&nbsp;&nbsp;}
+};
+mHandler.postDelayed(mTimer2, 1000);
+</pre>
 				<p><a href="#showcase-5">See this in action: VIDEO</a></p>
 			</div>
 
@@ -448,13 +491,51 @@ exampleSeries2 = new GraphViewSeries("aaa", seriesStyle, new GraphViewData[] {
 				</div>
 			</div>
 
+			<div class="container" id="doc_valuesontop">
+				<div class="container-header">
+					<a name="showcase"></a>
+					<h2>BarChart: Values on top</h2>
+				</div>
+				<p>
+					You can set the flag to let the GraphView draw the values on top of the bars.
+				</p>
+				<pre class="brush: java">BarGraphView graphView = new BarGraphView(
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;, "GraphViewDemo"
+);
+graphView.setDrawValuesOnTop(true);</pre>
+				<div class="image-container">
+					<img alt="Values on top BarChart" class="doc-image" src="showcase/valuesontop.png" width="300" />
+				</div>
+			</div>
+
+			<div class="container" id="doc_datapoints">
+				<div class="container-header">
+					<a name="showcase"></a>
+					<h2>LineChart: Data Points</h2>
+				</div>
+				<p>
+					You can set the flag to let the GraphView draw circles at the data points.
+				</p>
+				<pre class="brush: java">LineGraphView graphView = new LineGraphView(
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this // context
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;, "GraphViewDemo" // heading
+);
+graphView.setDrawDataPoints(true);
+graphView.setDataPointsRadius(15f);
+</pre>
+				<div class="image-container">
+					<img alt="Data Points on LineGraph" class="doc-image" src="showcase/datapoints.png" width="300" />
+				</div>
+			</div>
+
 			<div class="container" id="doc_styles">
 				<div class="container-header">
 					<a name="showcase"></a>
 					<h2>More Styles...</h2>
 				</div>
 				<p>
-					It's possible to customize the labels' color, size and grid color and more. Get the GraphViewStyle from GraphView and change the attributes:
+					It's possible to customize the labels' color, size, alignment and grid color and more. Get the GraphViewStyle from GraphView and change the attributes:
 				</p>
 				<pre class="brush: java">graphView.getGraphViewStyle().setGridColor(Color.GREEN);
 graphView.getGraphViewStyle().setHorizontalLabelsColor(Color.YELLOW);
@@ -463,6 +544,7 @@ graphView.getGraphViewStyle().setTextSize(getResources().getDimension(R.dimen.bi
 graphView.getGraphViewStyle().setNumHorizontalLabels(5);
 graphView.getGraphViewStyle().setNumVerticalLabels(4);
 graphView.getGraphViewStyle().setVerticalLabelsWidth(300);
+graphView.getGraphViewStyle().setVerticalLabelsAlign(Align.CENTER);
 </pre>
 				<div class="image-container">
 					<img alt="Labels GraphView" class="doc-image" src="showcase/styles2.png" width="300" />
@@ -577,6 +659,7 @@ graphView.getGraphViewStyle().setVerticalLabelsWidth(300);
 		<!-- Add-in CSS for syntax highlighting -->
 		<script src="http://alexgorbatchev.com/pub/sh/current/scripts/shCore.js" type="text/javascript"></script>
 		<script type="text/javascript" src="http://alexgorbatchev.com/pub/sh/current/scripts/shBrushJava.js"></script>
+		<script type="text/javascript" src="http://alexgorbatchev.com/pub/sh/current/scripts/shBrushXml.js"></script>
 		<script language='javascript'>
 		SyntaxHighlighter.all();
 		</script>
