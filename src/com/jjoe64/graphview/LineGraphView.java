@@ -132,22 +132,38 @@ public class LineGraphView extends GraphView {
 		return drawDataPoints;
 	}
 
+	/**
+	 * sets the background color for the series.
+	 * This is not the background color of the whole graph.
+	 * @see #setDrawBackground(boolean)
+	 */
 	@Override
 	public void setBackgroundColor(int color) {
 		paintBackground.setColor(color);
 	}
 
+	/**
+	 * sets the radius of the circles at the data points.
+	 * @see #setDrawDataPoints(boolean)
+	 * @param dataPointsRadius
+	 */
 	public void setDataPointsRadius(float dataPointsRadius) {
 		this.dataPointsRadius = dataPointsRadius;
 	}
 
 	/**
 	 * @param drawBackground true for a light blue background under the graph line
+	 * @see #setBackgroundColor(int)
 	 */
 	public void setDrawBackground(boolean drawBackground) {
 		this.drawBackground = drawBackground;
 	}
 
+	/**
+	 * You can set the flag to let the GraphView draw circles at the data points
+	 * @see #setDataPointsRadius(float)
+	 * @param drawDataPoints
+	 */
 	public void setDrawDataPoints(boolean drawDataPoints) {
 		this.drawDataPoints = drawDataPoints;
 	}

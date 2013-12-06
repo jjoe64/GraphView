@@ -105,14 +105,18 @@ public class BarGraphView extends GraphView {
 		}
 	}
 
+	public boolean getDrawValuesOnTop() {
+		return drawValuesOnTop;
+	}
+
 	public int getValuesOnTopColor() {
 		return valuesOnTopColor;
 	}
 
-	public boolean isDrawValuesOnTop() {
-		return drawValuesOnTop;
-	}
-
+	/**
+	 * You can set the flag to let the GraphView draw the values on top of the bars
+	 * @param drawValuesOnTop
+	 */
 	public void setDrawValuesOnTop(boolean drawValuesOnTop) {
 		this.drawValuesOnTop = drawValuesOnTop;
 	}
