@@ -40,11 +40,11 @@ Optionally draws a light background under the diagram stroke.
 * And more
 
 <h2>How to use</h2>
-<a href="http://www.jjoe64.com/p/graphview-library.html">View GraphView page <br/> http://www.jjoe64.com/p/graphview-library.html</a>
+<a href="http://android-graphview.org">View GraphView page <br/> http://android-graphview.org</a>
 
 <h2>Important</h2>
 To show you how to integrate the library into an existing project see the GraphView-Demos project!
 See GraphView-Demos for examples.
 <a href="https://github.com/jjoe64/GraphView-Demos">https://github.com/jjoe64/GraphView-Demos<br/>
-<a href="http://www.jjoe64.com/p/graphview-library.html">View GraphView page http://www.jjoe64.com/p/graphview-library.html</a>
+<a href="http://android-graphview.org">View GraphView page http://android-graphview.org</a>
 
