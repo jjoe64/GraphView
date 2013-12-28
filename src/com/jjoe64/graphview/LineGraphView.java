@@ -92,6 +92,8 @@ public class LineGraphView extends GraphView {
 				// draw data point
 				if (drawDataPoints) {
 					canvas.drawCircle(startX, startY, dataPointsRadius, paint);
+                    // draw the final datapoint
+                    if (i == values.length - 1) canvas.drawCircle(endX, endY, dataPointsRadius, paint);
 				}
 
 				canvas.drawLine(startX, startY, endX, endY, paint);
