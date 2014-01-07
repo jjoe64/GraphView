@@ -307,7 +307,7 @@ abstract public class GraphView extends LinearLayout {
 		}
 	}
 
-	protected final Paint paint;
+	protected final Paint paint = new Paint();
 	private String[] horlabels;
 	private String[] verlabels;
 	private String title;
@@ -315,18 +315,18 @@ abstract public class GraphView extends LinearLayout {
 	private boolean disableTouch;
 	private double viewportStart;
 	private double viewportSize;
-	private final View viewVerLabels;
+	private View viewVerLabels;
 	private ScaleGestureDetector scaleDetector;
 	private boolean scalable;
 	private final NumberFormat[] numberformatter = new NumberFormat[2];
-	private final List<GraphViewSeries> graphSeries;
+	private final List<GraphViewSeries> graphSeries = new ArrayList<GraphViewSeries>();
 	private boolean showLegend = false;
 	private LegendAlign legendAlign = LegendAlign.MIDDLE;
 	private boolean manualYAxis;
 	private double manualMaxYValue;
 	private double manualMinYValue;
 	protected GraphViewStyle graphViewStyle;
-	private final GraphViewContentView graphViewContentView;
+	private GraphViewContentView graphViewContentView;
 	private CustomLabelFormatter customLabelFormatter;
 	private Integer labelTextHeight;
 	private Integer horLabelTextWidth;
@@ -336,11 +336,13 @@ abstract public class GraphView extends LinearLayout {
 	private boolean staticVerticalLabels;
 
 	public GraphView(Context context, AttributeSet attrs) {
-		this(context, attrs.getAttributeValue(null, "title"));
+        super(context, attrs);
 
 		int width = attrs.getAttributeIntValue("android", "layout_width", LayoutParams.MATCH_PARENT);
 		int height = attrs.getAttributeIntValue("android", "layout_height", LayoutParams.MATCH_PARENT);
 		setLayoutParams(new LayoutParams(width, height));
+
+        init(context, attrs.getAttributeValue(null, "title"));
 	}
 
 	/**
@@ -351,22 +353,23 @@ abstract public class GraphView extends LinearLayout {
 		super(context);
 		setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
 
-		if (title == null)
-			this.title = "";
-		else
-			this.title = title;
-
-		graphViewStyle = new GraphViewStyle();
-		graphViewStyle.useTextColorFromTheme(context);
-
-		paint = new Paint();
-		graphSeries = new ArrayList<GraphViewSeries>();
-
-		viewVerLabels = new VerLabelsView(context);
-		addView(viewVerLabels);
-		graphViewContentView = new GraphViewContentView(context);
-		addView(graphViewContentView, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT, 1));
+        init(context, title);
 	}
+
+    private void init(Context context, String title) {
+        if (title == null)
+            this.title = "";
+        else
+            this.title = title;
+
+        graphViewStyle = new GraphViewStyle();
+        graphViewStyle.useTextColorFromTheme(context);
+
+        viewVerLabels = new VerLabelsView(context);
+        addView(viewVerLabels);
+        graphViewContentView = new GraphViewContentView(context);
+        addView(graphViewContentView, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT, 1));
+    }
 
 	private GraphViewDataInterface[] _values(int idxSeries) {
 		GraphViewDataInterface[] values = graphSeries.get(idxSeries).values;
