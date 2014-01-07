@@ -41,7 +41,7 @@ import com.jjoe64.graphview.compatible.ScaleGestureDetector;
 
 /**
  * GraphView is a Android View for creating zoomable and scrollable graphs.
- * This is the abstract base class for all graphs. Extend this class and implement {@link #drawSeries(Canvas, GraphViewDataInterface[], float, float, float, double, double, double, double, float)} to display a custom graph.
+ * This is the abstract base class for all graphs. Extend this class and implement {@link #drawSeries(Canvas, GraphViewDataInterface[], float, float, float, double, double, double, double, float, GraphViewSeriesStyle)} to display a custom graph.
  * Use {@link LineGraphView} for creating a line chart.
  *
  * @author jjoe64 - jonas gehring - http://www.jjoe64.com
@@ -65,7 +65,7 @@ abstract public class GraphView extends LinearLayout {
 		 */
 		public GraphViewContentView(Context context) {
 			super(context);
-			setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+			setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 		}
 
 		/**
@@ -249,7 +249,7 @@ abstract public class GraphView extends LinearLayout {
 			super(context);
 			setLayoutParams(new LayoutParams(
 					getGraphViewStyle().getVerticalLabelsWidth()==0?100:getGraphViewStyle().getVerticalLabelsWidth()
-							, LayoutParams.FILL_PARENT));
+							, LayoutParams.MATCH_PARENT));
 		}
 
 		/**
@@ -271,10 +271,10 @@ abstract public class GraphView extends LinearLayout {
 			}
 			if (getGraphViewStyle().getVerticalLabelsWidth()==0 && getLayoutParams().width != verLabelTextWidth+GraphViewConfig.BORDER) {
 				setLayoutParams(new LayoutParams(
-						(int) (verLabelTextWidth+GraphViewConfig.BORDER), LayoutParams.FILL_PARENT));
+						(int) (verLabelTextWidth+GraphViewConfig.BORDER), LayoutParams.MATCH_PARENT));
 			} else if (getGraphViewStyle().getVerticalLabelsWidth()!=0 && getGraphViewStyle().getVerticalLabelsWidth() != getLayoutParams().width) {
 				setLayoutParams(new LayoutParams(
-						getGraphViewStyle().getVerticalLabelsWidth(), LayoutParams.FILL_PARENT));
+						getGraphViewStyle().getVerticalLabelsWidth(), LayoutParams.MATCH_PARENT));
 			}
 
 			float border = GraphViewConfig.BORDER;
@@ -307,7 +307,7 @@ abstract public class GraphView extends LinearLayout {
 		}
 	}
 
-	protected final Paint paint;
+	protected final Paint paint = new Paint();
 	private String[] horlabels;
 	private String[] verlabels;
 	private String title;
@@ -315,18 +315,18 @@ abstract public class GraphView extends LinearLayout {
 	private boolean disableTouch;
 	private double viewportStart;
 	private double viewportSize;
-	private final View viewVerLabels;
+	private View viewVerLabels;
 	private ScaleGestureDetector scaleDetector;
 	private boolean scalable;
 	private final NumberFormat[] numberformatter = new NumberFormat[2];
-	private final List<GraphViewSeries> graphSeries;
+	private final List<GraphViewSeries> graphSeries = new ArrayList<GraphViewSeries>();
 	private boolean showLegend = false;
 	private LegendAlign legendAlign = LegendAlign.MIDDLE;
 	private boolean manualYAxis;
 	private double manualMaxYValue;
 	private double manualMinYValue;
 	protected GraphViewStyle graphViewStyle;
-	private final GraphViewContentView graphViewContentView;
+	private GraphViewContentView graphViewContentView;
 	private CustomLabelFormatter customLabelFormatter;
 	private Integer labelTextHeight;
 	private Integer horLabelTextWidth;
@@ -336,11 +336,13 @@ abstract public class GraphView extends LinearLayout {
 	private boolean staticVerticalLabels;
 
 	public GraphView(Context context, AttributeSet attrs) {
-		this(context, attrs.getAttributeValue(null, "title"));
+        super(context, attrs);
 
 		int width = attrs.getAttributeIntValue("android", "layout_width", LayoutParams.MATCH_PARENT);
 		int height = attrs.getAttributeIntValue("android", "layout_height", LayoutParams.MATCH_PARENT);
 		setLayoutParams(new LayoutParams(width, height));
+
+        init(context, attrs.getAttributeValue(null, "title"));
 	}
 
 	/**
@@ -349,24 +351,25 @@ abstract public class GraphView extends LinearLayout {
 	 */
 	public GraphView(Context context, String title) {
 		super(context);
-		setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+		setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
-		if (title == null)
-			this.title = "";
-		else
-			this.title = title;
-
-		graphViewStyle = new GraphViewStyle();
-		graphViewStyle.useTextColorFromTheme(context);
-
-		paint = new Paint();
-		graphSeries = new ArrayList<GraphViewSeries>();
-
-		viewVerLabels = new VerLabelsView(context);
-		addView(viewVerLabels);
-		graphViewContentView = new GraphViewContentView(context);
-		addView(graphViewContentView, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT, 1));
+        init(context, title);
 	}
+
+    private void init(Context context, String title) {
+        if (title == null)
+            this.title = "";
+        else
+            this.title = title;
+
+        graphViewStyle = new GraphViewStyle();
+        graphViewStyle.useTextColorFromTheme(context);
+
+        viewVerLabels = new VerLabelsView(context);
+        addView(viewVerLabels);
+        graphViewContentView = new GraphViewContentView(context);
+        addView(graphViewContentView, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, 1));
+    }
 
 	private GraphViewDataInterface[] _values(int idxSeries) {
 		GraphViewDataInterface[] values = graphSeries.get(idxSeries).values;
