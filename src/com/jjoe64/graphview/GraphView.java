@@ -19,9 +19,8 @@
 
 package com.jjoe64.graphview;
 
-import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.List;
+import com.jjoe64.graphview.GraphViewSeries.GraphViewSeriesStyle;
+import com.jjoe64.graphview.compatible.ScaleGestureDetector;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -36,8 +35,9 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.LinearLayout;
 
-import com.jjoe64.graphview.GraphViewSeries.GraphViewSeriesStyle;
-import com.jjoe64.graphview.compatible.ScaleGestureDetector;
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * GraphView is a Android View for creating zoomable and scrollable graphs.
@@ -51,10 +51,6 @@ import com.jjoe64.graphview.compatible.ScaleGestureDetector;
  * http://www.gnu.org/licenses/lgpl.html
  */
 abstract public class GraphView extends LinearLayout {
-	static final private class GraphViewConfig {
-		static final float BORDER = 20;
-	}
-
 	private class GraphViewContentView extends View {
 		private float lastTouchEventX;
 		private float graphwidth;
@@ -79,7 +75,7 @@ abstract public class GraphView extends LinearLayout {
 			// normal
 			paint.setStrokeWidth(0);
 
-			float border = GraphViewConfig.BORDER;
+			float border = graphViewStyle.getViewBorder();
 			float horstart = 0;
 			float height = getHeight();
 			float width = getWidth() - 1;
@@ -269,15 +265,15 @@ abstract public class GraphView extends LinearLayout {
 				labelTextHeight = (textBounds.height());
 				verLabelTextWidth = (textBounds.width());
 			}
-			if (getGraphViewStyle().getVerticalLabelsWidth()==0 && getLayoutParams().width != verLabelTextWidth+GraphViewConfig.BORDER) {
+			if (getGraphViewStyle().getVerticalLabelsWidth()==0 && getLayoutParams().width != verLabelTextWidth+graphViewStyle.getViewBorder()) {
 				setLayoutParams(new LayoutParams(
-						(int) (verLabelTextWidth+GraphViewConfig.BORDER), LayoutParams.FILL_PARENT));
+						(int) (verLabelTextWidth+graphViewStyle.getViewBorder()), LayoutParams.FILL_PARENT));
 			} else if (getGraphViewStyle().getVerticalLabelsWidth()!=0 && getGraphViewStyle().getVerticalLabelsWidth() != getLayoutParams().width) {
 				setLayoutParams(new LayoutParams(
 						getGraphViewStyle().getVerticalLabelsWidth(), LayoutParams.FILL_PARENT));
 			}
 
-			float border = GraphViewConfig.BORDER;
+			float border = graphViewStyle.getViewBorder();
 			border += labelTextHeight;
 			float height = getHeight();
 			float graphheight = height - (2 * border);
@@ -297,7 +293,7 @@ abstract public class GraphView extends LinearLayout {
 			}
 			int vers = verlabels.length - 1;
 			for (int i = 0; i < verlabels.length; i++) {
-				float y = ((graphheight / vers) * i) + border;
+                float y = ((graphheight / vers) * i) + border + labelTextHeight / 2 - 1;
 				paint.setColor(graphViewStyle.getVerticalLabelsColor());
 				canvas.drawText(verlabels[i], labelsOffset, y, paint);
 			}
@@ -447,7 +443,7 @@ abstract public class GraphView extends LinearLayout {
 			lTop = height/2 - legendHeight/2;
 			break;
 		default:
-			lTop = height - GraphViewConfig.BORDER - legendHeight - getGraphViewStyle().getLegendMarginBottom();
+			lTop = height - graphViewStyle.getViewBorder() - legendHeight;
 		}
 		float lRight = lLeft+legendWidth;
 		float lBottom = lTop+legendHeight;
