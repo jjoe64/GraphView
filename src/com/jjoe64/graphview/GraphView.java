@@ -685,6 +685,14 @@ abstract public class GraphView extends LinearLayout {
 		}
 		return smallest;
 	}
+	
+	/**
+	 * returns the size of the Viewport
+	 * 
+	 */
+	public double getViewPort(){
+		return viewportSize;
+	}
 
 	public boolean isDisableTouch() {
 		return disableTouch;
