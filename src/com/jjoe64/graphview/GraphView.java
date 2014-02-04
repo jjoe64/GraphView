@@ -53,8 +53,10 @@ import java.util.List;
 abstract public class GraphView extends LinearLayout {
 	private class GraphViewContentView extends View {
 		private float lastTouchEventX;
+		private float firstTouchEventX;
 		private float graphwidth;
 		private boolean scrollingStarted;
+
 
 		/**
 		 * @param context
@@ -136,13 +138,21 @@ abstract public class GraphView extends LinearLayout {
 			paint.setStrokeCap(Paint.Cap.ROUND);
 
 			for (int i=0; i<graphSeries.size(); i++) {
-				drawSeries(canvas, _values(i), graphwidth, graphheight, border, minX, minY, diffX, diffY, horstart, graphSeries.get(i).style);
+				drawSeries(canvas, graphSeries.get(i), _values(i), graphwidth, graphheight, border, minX, minY, diffX, diffY, horstart, graphSeries.get(i).style);
 			}
 
 			if (showLegend) drawLegend(canvas, height, width);
+			// draw the remaining things on the graph
+			drawGraphView(canvas, height, width);
 		}
 
-		private void onMoveGesture(float f) {
+		/**
+		 * @param f
+		 * @return Returns true if the graph could be moved (is not in the extremes)
+		 */
+		private boolean onMoveGesture(float f) {
+
+		    boolean graphIsMoved = true;
 			// view port update
 			if (viewportSize != 0) {
 				viewportStart -= f*viewportSize/graphwidth;
@@ -152,8 +162,10 @@ abstract public class GraphView extends LinearLayout {
 				double maxX = getMaxX(true);
 				if (viewportStart < minX) {
 					viewportStart = minX;
+					graphIsMoved = false;
 				} else if (viewportStart+viewportSize > maxX) {
 					viewportStart = maxX - viewportSize;
+					graphIsMoved = false;
 				}
 
 				// labels have to be regenerated
@@ -162,6 +174,7 @@ abstract public class GraphView extends LinearLayout {
 				viewVerLabels.invalidate();
 			}
 			invalidate();
+			return graphIsMoved;
 		}
 
 		/**
@@ -169,9 +182,16 @@ abstract public class GraphView extends LinearLayout {
 		 */
 		@Override
 		public boolean onTouchEvent(MotionEvent event) {
-			if (!isScrollable() || isDisableTouch()) {
-				return super.onTouchEvent(event);
-			}
+
+            /*
+             * We ignore the touch even if: 1. we disabled the scrolling on the
+             * graph and we made a move action then return. 2. we disabled the
+             * touch on graph
+             */
+            if ((!isScrollable() && event.getAction() == MotionEvent.ACTION_MOVE)
+                    || isDisableTouch()) {
+                return false;
+            }
 
 			boolean handled = false;
 			// first scale
@@ -184,18 +204,25 @@ abstract public class GraphView extends LinearLayout {
 				// if not scaled, scroll
 				if ((event.getAction() & MotionEvent.ACTION_DOWN) == MotionEvent.ACTION_DOWN &&
 						(event.getAction() & MotionEvent.ACTION_MOVE) == 0) {
+                    if (!scrollingStarted)
+                        firstTouchEventX = event.getX();
 					scrollingStarted = true;
 					handled = true;
 				}
 				if ((event.getAction() & MotionEvent.ACTION_UP) == MotionEvent.ACTION_UP) {
-					scrollingStarted = false;
-					lastTouchEventX = 0;
-					handled = true;
+				    // if we did not start scrolling then we save the last touch state
+				    lastTouchEventX = 0;
+				    scrollingStarted = false;
+				    handled = true;
+				    if (Math.abs(event.getX() - firstTouchEventX) < 5)
+				        lastSelectedDataX = event.getX();
 				}
 				if ((event.getAction() & MotionEvent.ACTION_MOVE) == MotionEvent.ACTION_MOVE) {
 					if (scrollingStarted) {
 						if (lastTouchEventX != 0) {
-							onMoveGesture(event.getX() - lastTouchEventX);
+                            if (onMoveGesture(event.getX() - lastTouchEventX)) {
+                                lastSelectedDataX += event.getX() - lastTouchEventX;
+                            }
 						}
 						lastTouchEventX = event.getX();
 						handled = true;
@@ -330,6 +357,8 @@ abstract public class GraphView extends LinearLayout {
 	private final Rect textBounds = new Rect();
 	private boolean staticHorizontalLabels;
 	private boolean staticVerticalLabels;
+	protected float lastSelectedDataX = -1;
+
 
 	public GraphView(Context context, AttributeSet attrs) {
 		this(context, attrs.getAttributeValue(null, "title"));
@@ -421,6 +450,14 @@ abstract public class GraphView extends LinearLayout {
 		}
 	}
 
+	/**
+	 * Let the child to override this method, so it can draw additional UI elements on the graph.
+	 * @param canvas
+	 */
+	protected void drawGraphView (Canvas canvas, float height, float width) {
+
+	}
+
 	protected void drawLegend(Canvas canvas, float height, float width) {
 		float textSize = paint.getTextSize();
 		int spacing = getGraphViewStyle().getLegendSpacing();
@@ -460,7 +497,7 @@ abstract public class GraphView extends LinearLayout {
 		}
 	}
 
-	abstract protected void drawSeries(Canvas canvas, GraphViewDataInterface[] values, float graphwidth, float graphheight, float border, double minX, double minY, double diffX, double diffY, float horstart, GraphViewSeriesStyle style);
+	abstract protected void drawSeries(Canvas canvas, GraphViewSeries series, GraphViewDataInterface[] values, float graphwidth, float graphheight, float border, double minX, double minY, double diffX, double diffY, float horstart, GraphViewSeriesStyle style);
 
 	/**
 	 * formats the label
@@ -754,16 +791,13 @@ abstract public class GraphView extends LinearLayout {
 	public void scrollToEnd() {
 		if (!scrollable) throw new IllegalStateException("This GraphView is not scrollable.");
 		double max = getMaxX(true);
-		viewportStart = max-viewportSize;
+        double viewPortStartNew = max - viewportSize;
+        // If we selected a point already then we have to move it as well
+        if (lastSelectedDataX != -1)
+            lastSelectedDataX -= viewPortStartNew - viewportStart;
 
-		// don't clear labels width/height cache
-		// so that the display is not flickering
-		if (!staticVerticalLabels) verlabels = null;
-		if (!staticHorizontalLabels) horlabels = null;
-
-		invalidate();
-		viewVerLabels.invalidate();
-		graphViewContentView.invalidate();
+        viewportStart = viewPortStartNew;
+		redrawAll();
 	}
 
 	/**

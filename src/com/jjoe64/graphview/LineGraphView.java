@@ -19,19 +19,21 @@
 
 package com.jjoe64.graphview;
 
+import com.jjoe64.graphview.GraphViewSeries.GraphViewSeriesStyle;
+
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.util.AttributeSet;
-
-import com.jjoe64.graphview.GraphViewSeries.GraphViewSeriesStyle;
+import android.util.Log;
 
 /**
  * Line Graph View. This draws a line chart.
  */
 public class LineGraphView extends GraphView {
+<<<<<<< HEAD
 	private final Paint paintBackground;
 	private boolean drawBackground;
 	private boolean drawDataPoints;
@@ -167,5 +169,153 @@ public class LineGraphView extends GraphView {
 	public void setDrawDataPoints(boolean drawDataPoints) {
 		this.drawDataPoints = drawDataPoints;
 	}
+=======
+    private final Paint paintBackground;
+
+    private boolean drawBackground;
+
+    private boolean drawDataPoints;
+
+    private float dataPointsRadius = 10f;
+
+    // Enables the user to select one X value and draw a legend like panel with
+    // the values
+    private boolean selectionEnabled;
+
+    public LineGraphView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+
+        paintBackground = new Paint();
+        paintBackground.setColor(Color.rgb(20, 40, 60));
+        paintBackground.setStrokeWidth(4);
+        paintBackground.setAlpha(128);
+    }
+
+    public LineGraphView(Context context, String title) {
+        super(context, title);
+
+        paintBackground = new Paint();
+        paintBackground.setColor(Color.rgb(20, 40, 60));
+        paintBackground.setStrokeWidth(4);
+        paintBackground.setAlpha(128);
+    }
+
+    @Override
+    public void drawSeries(Canvas canvas, GraphViewSeries series, GraphViewDataInterface[] values,
+            float graphwidth, float graphheight, float border, double minX, double minY,
+            double diffX, double diffY, float horstart, GraphViewSeriesStyle style) {
+        // draw background
+        double lastEndY = 0;
+        double lastEndX = 0;
+
+        // draw data
+        paint.setStrokeWidth(style.thickness);
+        paint.setColor(style.color);
+
+        Path bgPath = null;
+        if (drawBackground) {
+            bgPath = new Path();
+        }
+
+        lastEndY = 0;
+        lastEndX = 0;
+        float firstX = 0;
+        series.setHighlightedData(null);
+
+        for (int i = 0; i < values.length; i++) {
+            double valY = values[i].getY() - minY;
+            double ratY = valY / diffY;
+            double y = graphheight * ratY;
+
+            double valX = values[i].getX() - minX;
+            double ratX = valX / diffX;
+            double x = graphwidth * ratX;
+
+            if (i > 0) {
+                float startX = (float) lastEndX + (horstart + 1);
+                float startY = (float) (border - lastEndY) + graphheight;
+                float endX = (float) x + (horstart + 1);
+                float endY = (float) (border - y) + graphheight;
+
+                // draw data point
+                if (drawDataPoints) {
+                    canvas.drawCircle(startX, startY, dataPointsRadius, paint);
+                }
+
+                // if we have selected a data point then draw a bigger circle
+                if (selectionEnabled && lastSelectedDataX != -1 && lastSelectedDataX < endX
+                        && lastSelectedDataX > startX) {
+                    canvas.drawCircle(startX, startY, 2 * dataPointsRadius, paint);
+                    // update the highlightedData from the series
+                    series.setHighlightedData(values[i-1]);
+                }
+
+                canvas.drawLine(startX, startY, endX, endY, paint);
+                if (bgPath != null) {
+                    if (i == 1) {
+                        firstX = startX;
+                        bgPath.moveTo(startX, startY);
+                    }
+                    bgPath.lineTo(endX, endY);
+                }
+            }
+            lastEndY = y;
+            lastEndX = x;
+        }
+
+        if (bgPath != null) {
+            // end / close path
+            bgPath.lineTo((float) lastEndX, graphheight + border);
+            bgPath.lineTo(firstX, graphheight + border);
+            bgPath.close();
+            canvas.drawPath(bgPath, paintBackground);
+        }
+    }
+
+    public int getBackgroundColor() {
+        return paintBackground.getColor();
+    }
+
+    public float getDataPointsRadius() {
+        return dataPointsRadius;
+    }
+
+    public boolean getDrawBackground() {
+        return drawBackground;
+    }
+
+    public boolean getDrawDataPoints() {
+        return drawDataPoints;
+    }
+
+    @Override
+    public void setBackgroundColor(int color) {
+        paintBackground.setColor(color);
+    }
+
+    public void setDataPointsRadius(float dataPointsRadius) {
+        this.dataPointsRadius = dataPointsRadius;
+    }
+
+    /**
+     * @param drawBackground true for a light blue background under the graph
+     *            line
+     */
+    public void setDrawBackground(boolean drawBackground) {
+        this.drawBackground = drawBackground;
+    }
+
+    public void setDrawDataPoints(boolean drawDataPoints) {
+        this.drawDataPoints = drawDataPoints;
+    }
+
+    public boolean isSelectionEnabled() {
+        return selectionEnabled;
+    }
+
+    public void setSelectionEnabled(boolean selectionEnabled) {
+        this.selectionEnabled = selectionEnabled;
+    }
+>>>>>>> Allowing the graph view to not just be touchable but to select a value on the X axis and to react (display maybe) on the screen.
 
 }
