@@ -19,6 +19,8 @@
 
 package com.jjoe64.graphview;
 
+import java.text.NumberFormat;
+
 /**
  * if you want to show different labels,
  * you can use this label formatter.
@@ -41,14 +43,93 @@ package com.jjoe64.graphview;
 		});
  * }
  */
-public interface CustomLabelFormatter {
+public abstract class CustomLabelFormatter {
 
 	/**
 	 * will be called when the labels were generated
 	 * @param value the raw input value (x or y)
 	 * @param isValueX true if value is a x-value, false if otherwise
+	 * @param highestvalue the highest x or y value that is viewable
+	 * @param lowestvalue the lowest x or y value that is viewable
 	 * @return the string that will be displayed. return null if you want graphview to generate the label for you.
 	 */
-	String formatLabel(double value, boolean isValueX);
+	boolean needsBounds(boolean isValueX) {
+		return false;
+	}
+	
+	void clearBounds() {
+		
+	}
+	
+	void setBounds(double highestvalue, double lowestvalue, boolean isValueX) {
+		
+	}
+	
+	abstract String formatLabel(double value, boolean isValueX);
+	
+	public static class Default extends CustomLabelFormatter {
+		private final NumberFormat[] numberformatter = new NumberFormat[2];
+		
+		@Override
+		public boolean needsBounds(boolean isValueX) {
+			return numberformatter[isValueX ? 1 : 0] == null;
+		}
 
+		@Override
+		public void clearBounds() {
+			numberformatter[0] = null;
+			numberformatter[1] = null;
+		}
+
+		@Override
+		public void setBounds(double highestvalue, double lowestvalue,
+				boolean isValueX) {
+			int i = isValueX ? 1 : 0;
+			numberformatter[i] = NumberFormat.getNumberInstance();
+			if (highestvalue - lowestvalue < 0.1) {
+				numberformatter[i].setMaximumFractionDigits(6);
+			} else if (highestvalue - lowestvalue < 1) {
+				numberformatter[i].setMaximumFractionDigits(4);
+			} else if (highestvalue - lowestvalue < 20) {
+				numberformatter[i].setMaximumFractionDigits(3);
+			} else if (highestvalue - lowestvalue < 100) {
+				numberformatter[i].setMaximumFractionDigits(1);
+			} else {
+				numberformatter[i].setMaximumFractionDigits(0);
+			}
+		}
+		
+		@Override
+		public String formatLabel(double value, boolean isValueX) {
+			return numberformatter[isValueX ? 1 : 0].format(value);
+		}
+	}
+	
+	public static class IntegerOnly extends CustomLabelFormatter {
+		private final NumberFormat[] numberformatter = new NumberFormat[2];
+		
+		@Override
+		public boolean needsBounds(boolean isValueX) {
+			return numberformatter[isValueX ? 1 : 0] == null;
+		}
+
+		@Override
+		public void clearBounds() {
+			numberformatter[0] = null;
+			numberformatter[1] = null;
+		}
+
+		@Override
+		public void setBounds(double highestvalue, double lowestvalue,
+				boolean isValueX) {
+			int i = isValueX ? 1 : 0;
+			numberformatter[i] = NumberFormat.getNumberInstance();
+			numberformatter[i].setMaximumFractionDigits(0);
+		}
+		
+		@Override
+		public String formatLabel(double value, boolean isValueX) {
+			return numberformatter[isValueX ? 1 : 0].format(value);
+		}
+	}
 }
