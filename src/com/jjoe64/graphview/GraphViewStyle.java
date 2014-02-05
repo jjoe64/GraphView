@@ -43,8 +43,10 @@ public class GraphViewStyle {
 	private int legendSpacing;
 	private int legendMarginBottom;
 	private Align verticalLabelsAlign;
+	private int viewBorder;
 
-	public GraphViewStyle() {
+
+    public GraphViewStyle() {
 		setDefaults();
 	}
 
@@ -170,6 +172,14 @@ public class GraphViewStyle {
 	 */
 	public void setVerticalLabelsWidth(int verticalLabelsWidth) {
 		this.verticalLabelsWidth = verticalLabelsWidth;
+	}
+
+	public int getViewBorder() {
+	    return viewBorder;
+	}
+
+	public void setViewBorder(int viewBorder) {
+	    this.viewBorder = viewBorder;
 	}
 
 	/**

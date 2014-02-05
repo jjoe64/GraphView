@@ -67,7 +67,7 @@ public class BarGraphView extends GraphView {
 
 	@SuppressWarnings("deprecation")
 	@Override
-	public void drawSeries(Canvas canvas, GraphViewDataInterface[] values, float graphwidth, float graphheight,
+	public void drawSeries(Canvas canvas, GraphViewSeries series, GraphViewDataInterface[] values, float graphwidth, float graphheight,
 			float border, double minX, double minY, double diffX, double diffY,
 			float horstart, GraphViewSeriesStyle style) {
 		float colwidth = graphwidth / (values.length);

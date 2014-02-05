@@ -19,6 +19,8 @@
 
 package com.jjoe64.graphview;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,11 +45,11 @@ public class GraphViewSeries {
 			this.color = color;
 			this.thickness = thickness;
 		}
-		
+
 		public ValueDependentColor getValueDependentColor() {
 			return valueDependentColor;
 		}
-		
+
 		/**
 		 * the color depends on the value of the data.
 		 * only possible in BarGraphView
@@ -58,12 +60,19 @@ public class GraphViewSeries {
 		}
 	}
 
+	private String TAG = GraphViewSeries.class.getSimpleName();
+
 	final String description;
 	final GraphViewSeriesStyle style;
-	GraphViewDataInterface[] values;
-	private final List<GraphView> graphViews = new ArrayList<GraphView>();
 
-	public GraphViewSeries(GraphViewDataInterface[] values) {
+    GraphViewDataInterface[] values;
+	private final List<GraphView> graphViews = new ArrayList<GraphView>();
+	// Every series can have a highlighted data set.
+	private GraphViewDataInterface highlightedData;
+
+
+
+    public GraphViewSeries(GraphViewDataInterface[] values) {
 		description = null;
 		style = new GraphViewSeriesStyle();
 		this.values = values;
@@ -149,6 +158,10 @@ public class GraphViewSeries {
 		return style;
 	}
 
+	public String getDescription() {
+        return description;
+    }
+
 	/**
 	 * you should use {@link GraphView#removeSeries(GraphViewSeries)}
 	 * @param graphView
@@ -168,4 +181,29 @@ public class GraphViewSeries {
 			g.redrawAll();
 		}
 	}
+
+	/**
+	 * Formats the series
+	 * @param x
+	 * @return
+	 */
+	public String getFormattedValue(int x) {
+	    try {
+	        GraphViewDataInterface data = values[x];
+	        return String.format("%.2f", data.getY());
+        } catch (Exception e) {
+            Log.d(TAG , "Handled exception");
+            e.printStackTrace();
+        }
+
+	    return "";
+	}
+
+	public GraphViewDataInterface getHighlightedData() {
+        return highlightedData;
+    }
+
+    public void setHighlightedData(GraphViewDataInterface highlightedData) {
+        this.highlightedData = highlightedData;
+    }
 }
