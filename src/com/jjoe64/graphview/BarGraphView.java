@@ -58,10 +58,12 @@ public class BarGraphView extends GraphView {
 			paint.setColor(graphViewStyle.getGridColor());
 			canvas.drawLine(x, height - border, x, border, paint);
 
-			// text
-			x = barwidth*i + textOffset + horstart;
-			paint.setColor(graphViewStyle.getHorizontalLabelsColor());
-			canvas.drawText(horlabels[i], x, height - 4, paint);
+            if(getShowHorizontalLabels()) {
+                // text
+                x = barwidth*i + textOffset + horstart;
+                paint.setColor(graphViewStyle.getHorizontalLabelsColor());
+                canvas.drawText(horlabels[i], x, height - 4, paint);
+            }
 		}
 	}
 
