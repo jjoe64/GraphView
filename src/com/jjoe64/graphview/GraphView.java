@@ -98,7 +98,7 @@ abstract public class GraphView extends LinearLayout {
 				labelTextHeight = (textBounds.height());
 				horLabelTextWidth = (textBounds.width());
 			}
-			border += labelTextHeight;
+            border += labelTextHeight;
 
 			float graphheight = height - (2 * border);
 			graphwidth = width;
@@ -121,6 +121,7 @@ abstract public class GraphView extends LinearLayout {
 
 			drawHorizontalLabels(canvas, border, horstart, height, horlabels, graphwidth);
 
+            paint.setColor(graphViewStyle.getHorizontalLabelsColor());
 			paint.setTextAlign(Align.CENTER);
 			canvas.drawText(title, (graphwidth / 2) + horstart, border - 4, paint);
 
@@ -334,6 +335,8 @@ abstract public class GraphView extends LinearLayout {
 	private final Rect textBounds = new Rect();
 	private boolean staticHorizontalLabels;
 	private boolean staticVerticalLabels;
+    private boolean showHorizontalLabels = true;
+    private boolean showVerticalLabels = true;
 
 	public GraphView(Context context, AttributeSet attrs) {
 		this(context, attrs.getAttributeValue(null, "title"));
@@ -415,13 +418,15 @@ abstract public class GraphView extends LinearLayout {
 			paint.setColor(graphViewStyle.getGridColor());
 			float x = ((graphwidth / hors) * i) + horstart;
 			canvas.drawLine(x, height - border, x, border, paint);
-			paint.setTextAlign(Align.CENTER);
-			if (i==horlabels.length-1)
-				paint.setTextAlign(Align.RIGHT);
-			if (i==0)
-				paint.setTextAlign(Align.LEFT);
-			paint.setColor(graphViewStyle.getHorizontalLabelsColor());
-			canvas.drawText(horlabels[i], x, height - 4, paint);
+            if(showHorizontalLabels) {
+                paint.setTextAlign(Align.CENTER);
+                if (i==horlabels.length-1)
+                    paint.setTextAlign(Align.RIGHT);
+                if (i==0)
+                    paint.setTextAlign(Align.LEFT);
+                paint.setColor(graphViewStyle.getHorizontalLabelsColor());
+                canvas.drawText(horlabels[i], x, height - 4, paint);
+            }
 		}
 	}
 
@@ -928,4 +933,47 @@ abstract public class GraphView extends LinearLayout {
 		viewportStart = start;
 		viewportSize = size;
 	}
+
+    /**
+     * Sets whether horizontal labels are drawn or not.
+     *
+     * @param showHorizontalLabels
+     */
+    public void setShowHorizontalLabels(boolean showHorizontalLabels) {
+        this.showHorizontalLabels = showHorizontalLabels;
+        redrawAll();
+    }
+
+    /**
+     * Gets are horizontal labels drawn.
+     *
+     * @return {@code True} if horizontal labels are drawn
+     */
+    public boolean getShowHorizontalLabels() {
+        return showHorizontalLabels;
+    }
+
+    /**
+     * Sets whether vertical labels are drawn or not.
+     *
+     * @param showVerticalLabels
+     */
+    public void setShowVerticalLabels(boolean showVerticalLabels) {
+        this.showVerticalLabels = showVerticalLabels;
+        if(this.showVerticalLabels) {
+            addView(viewVerLabels, 0);
+        } else {
+            removeView(viewVerLabels);
+        }
+    }
+
+    /**
+     * Gets are vertical labels are drawn.
+     *
+     * @return {@code True} if vertical labels are drawn
+     */
+    public boolean getShowVerticalLabels() {
+        return showVerticalLabels;
+    }
+
 }
