@@ -324,6 +324,8 @@ abstract public class GraphView extends LinearLayout {
 	private boolean showLegend = false;
 	private LegendAlign legendAlign = LegendAlign.MIDDLE;
 	private boolean manualYAxis;
+	private boolean manualMaxY;
+    	private boolean manualMinY;
 	private double manualMaxYValue;
 	private double manualMinYValue;
 	protected GraphViewStyle graphViewStyle;
@@ -623,7 +625,7 @@ abstract public class GraphView extends LinearLayout {
 	 */
 	protected double getMaxY() {
 		double largest;
-		if (manualYAxis) {
+		if (manualYAxis || manualMaxY) {
 			largest = manualMaxYValue;
 		} else {
 			largest = Integer.MIN_VALUE;
@@ -677,7 +679,7 @@ abstract public class GraphView extends LinearLayout {
 	 */
 	protected double getMinY() {
 		double smallest;
-		if (manualYAxis) {
+		if (manualYAxis || manualMinY) {
 			smallest = manualMinYValue;
 		} else {
 			smallest = Integer.MAX_VALUE;
@@ -835,6 +837,20 @@ abstract public class GraphView extends LinearLayout {
 	public void setManualYAxis(boolean manualYAxis) {
 		this.manualYAxis = manualYAxis;
 	}
+	
+	/**
+	 * if you want to disable the menual y axis maximum bound, call this method with false.
+	 */
+	public void setManualMaxY(boolean manualMaxY) {
+        	this.manualMaxY = manualMaxY;
+    	}
+    	
+    	/**
+	 * if you want to disable the menual y axis minimum bound, call this method with false.
+	 */
+    	public void setManualMinY(boolean manualMinY) {
+        	this.manualMinY = manualMinY;
+	 }
 
 	/**
 	 * set manual Y axis limit
@@ -846,6 +862,24 @@ abstract public class GraphView extends LinearLayout {
 		manualMinYValue = min;
 		manualYAxis = true;
 	}
+	
+	/*
+	 * set manual Y axis max limit
+	 * @param max
+	 */
+	public void setManualYMaxBound(double max) {
+        	manualMaxYValue = max;
+        	manualMaxY = true;
+    	}
+
+	/*
+	 * set manual Y axis min limit
+	 * @param min
+	 */
+    	public void setManualYMinBound(double min) {
+        	manualMinYValue = min;
+        	manualMinY = true;
+    	}
 
 	/**
 	 * this forces scrollable = true
