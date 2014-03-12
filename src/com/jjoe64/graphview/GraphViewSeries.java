@@ -153,7 +153,7 @@ public class GraphViewSeries {
 	 * you should use {@link GraphView#removeSeries(GraphViewSeries)}
 	 * @param graphView
 	 */
-	public void removeGraphView(GraphView graphView) {
+	void removeGraphView(GraphView graphView) {
 		graphViews.remove(graphView);
 	}
 
