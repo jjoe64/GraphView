@@ -83,12 +83,7 @@ abstract public class GraphView extends LinearLayout {
 			float horstart = 0;
 			float height = getHeight();
 			float width = getWidth() - 1;
-			double maxY = getMaxY();
-			double minY = getMinY();
-			double maxX = getMaxX(false);
-			double minX = getMinX(false);
-			double diffX = maxX - minX;
-
+			
 			 // measure bottom text
 			if (labelTextHeight == null || horLabelTextWidth == null) {
 				paint.setTextSize(getGraphViewStyle().getTextSize());
@@ -124,7 +119,9 @@ abstract public class GraphView extends LinearLayout {
             paint.setColor(graphViewStyle.getHorizontalLabelsColor());
 			paint.setTextAlign(Align.CENTER);
 			canvas.drawText(title, (graphwidth / 2) + horstart, border - 4, paint);
-
+			
+			double maxY = getMaxY();
+			double minY = getMinY();			
 			if (maxY == minY) {
 				// if min/max is the same, fake it so that we can render a line
 				if(maxY == 0) {
@@ -138,6 +135,22 @@ abstract public class GraphView extends LinearLayout {
 			}
 
 			double diffY = maxY - minY;
+			double maxX = getMaxX(false);
+			double minX = getMinX(false);
+			if (maxX == minX) {
+				// if min/max is the same, fake it so that we can render a line
+				if(maxX == 0) {
+					// if both are zero, change the values to prevent division by zero
+					maxX = 1.0d;
+					minX = 0.0d;
+				} else {
+					maxX = maxX*1.05d;
+					minX = minX*0.95d;
+				}
+			}
+			double diffX = maxX - minX;
+
+			
 			paint.setStrokeCap(Paint.Cap.ROUND);
 
 			for (int i=0; i<graphSeries.size(); i++) {
