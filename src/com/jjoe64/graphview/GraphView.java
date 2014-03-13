@@ -690,7 +690,7 @@ abstract public class GraphView extends LinearLayout {
 	 * returns the size of the Viewport
 	 * 
 	 */
-	public double getViewPort(){
+	public double getViewportSize(){
 		return viewportSize;
 	}
 
