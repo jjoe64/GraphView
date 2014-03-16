@@ -17,7 +17,7 @@
  * Copyright Jonas Gehring
  */
 
-package com.jjoe64.graphview;
+package com.jjoe64.graphview.model;
 
 /**
  * the base interface for the graphview data.

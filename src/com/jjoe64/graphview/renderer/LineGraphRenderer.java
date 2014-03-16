@@ -17,47 +17,92 @@
  * Copyright Jonas Gehring
  */
 
-package com.jjoe64.graphview;
+package com.jjoe64.graphview.renderer;
 
-import android.content.Context;
+import java.util.List;
+
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.util.AttributeSet;
 
 import com.jjoe64.graphview.GraphViewSeries.GraphViewSeriesStyle;
+import com.jjoe64.graphview.model.GraphViewDataInterface;
 
 /**
  * Line Graph View. This draws a line chart.
  */
-public class LineGraphView extends GraphView {
+public class LineGraphRenderer implements Renderer<GraphViewDataInterface> {
 	private final Paint paintBackground;
 	private boolean drawBackground;
 	private boolean drawDataPoints;
 	private float dataPointsRadius = 10f;
+	private Paint paint;
 
-	public LineGraphView(Context context, AttributeSet attrs) {
-		super(context, attrs);
-
+	public LineGraphRenderer() {
+		paint = new Paint();
 		paintBackground = new Paint();
 		paintBackground.setColor(Color.rgb(20, 40, 60));
 		paintBackground.setStrokeWidth(4);
 		paintBackground.setAlpha(128);
 	}
 
-	public LineGraphView(Context context, String title) {
-		super(context, title);
+	public int getBackgroundColor() {
+		return paintBackground.getColor();
+	}
 
-		paintBackground = new Paint();
-		paintBackground.setColor(Color.rgb(20, 40, 60));
-		paintBackground.setStrokeWidth(4);
-		paintBackground.setAlpha(128);
+	public float getDataPointsRadius() {
+		return dataPointsRadius;
+	}
+
+	public boolean getDrawBackground() {
+		return drawBackground;
+	}
+
+	public boolean getDrawDataPoints() {
+		return drawDataPoints;
+	}
+
+	/**
+	 * sets the background color for the series.
+	 * This is not the background color of the whole graph.
+	 * @see #setDrawBackground(boolean)
+	 */
+	public void setBackgroundColor(int color) {
+		paintBackground.setColor(color);
+	}
+
+	/**
+	 * sets the radius of the circles at the data points.
+	 * @see #setDrawDataPoints(boolean)
+	 * @param dataPointsRadius
+	 */
+	public void setDataPointsRadius(float dataPointsRadius) {
+		this.dataPointsRadius = dataPointsRadius;
+	}
+
+	/**
+	 * @param drawBackground true for a light blue background under the graph line
+	 * @see #setBackgroundColor(int)
+	 */
+	public void setDrawBackground(boolean drawBackground) {
+		this.drawBackground = drawBackground;
+	}
+
+	/**
+	 * You can set the flag to let the GraphView draw circles at the data points
+	 * @see #setDataPointsRadius(float)
+	 * @param drawDataPoints
+	 */
+	public void setDrawDataPoints(boolean drawDataPoints) {
+		this.drawDataPoints = drawDataPoints;
 	}
 
 	@Override
-	public void drawSeries(Canvas canvas, GraphViewDataInterface[] values, float graphwidth, float graphheight, float border, double minX, double minY, double diffX, double diffY, float horstart, GraphViewSeriesStyle style) {
-		// draw background
+	public void drawSeries(Canvas canvas, List<GraphViewDataInterface> values,
+			float graphwidth, float graphheight, float border, double minX,
+			double minY, double diffX, double diffY, float horstart,
+			GraphViewSeriesStyle style) {
 		double lastEndY = 0;
 		double lastEndX = 0;
 
@@ -74,12 +119,12 @@ public class LineGraphView extends GraphView {
 		lastEndY = 0;
 		lastEndX = 0;
 		float firstX = 0;
-		for (int i = 0; i < values.length; i++) {
-			double valY = values[i].getY() - minY;
+		for (int i = 0; i < values.size(); i++) {
+			double valY = values.get(i).getY() - minY;
 			double ratY = valY / diffY;
 			double y = graphheight * ratY;
 
-			double valX = values[i].getX() - minX;
+			double valX = values.get(i).getX() - minX;
 			double ratX = valX / diffX;
 			double x = graphwidth * ratX;
 
@@ -114,58 +159,6 @@ public class LineGraphView extends GraphView {
 			bgPath.close();
 			canvas.drawPath(bgPath, paintBackground);
 		}
-	}
-
-	public int getBackgroundColor() {
-		return paintBackground.getColor();
-	}
-
-	public float getDataPointsRadius() {
-		return dataPointsRadius;
-	}
-
-	public boolean getDrawBackground() {
-		return drawBackground;
-	}
-
-	public boolean getDrawDataPoints() {
-		return drawDataPoints;
-	}
-
-	/**
-	 * sets the background color for the series.
-	 * This is not the background color of the whole graph.
-	 * @see #setDrawBackground(boolean)
-	 */
-	@Override
-	public void setBackgroundColor(int color) {
-		paintBackground.setColor(color);
-	}
-
-	/**
-	 * sets the radius of the circles at the data points.
-	 * @see #setDrawDataPoints(boolean)
-	 * @param dataPointsRadius
-	 */
-	public void setDataPointsRadius(float dataPointsRadius) {
-		this.dataPointsRadius = dataPointsRadius;
-	}
-
-	/**
-	 * @param drawBackground true for a light blue background under the graph line
-	 * @see #setBackgroundColor(int)
-	 */
-	public void setDrawBackground(boolean drawBackground) {
-		this.drawBackground = drawBackground;
-	}
-
-	/**
-	 * You can set the flag to let the GraphView draw circles at the data points
-	 * @see #setDataPointsRadius(float)
-	 * @param drawDataPoints
-	 */
-	public void setDrawDataPoints(boolean drawDataPoints) {
-		this.drawDataPoints = drawDataPoints;
 	}
 
 }
