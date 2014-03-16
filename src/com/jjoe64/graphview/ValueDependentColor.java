@@ -19,6 +19,8 @@
 
 package com.jjoe64.graphview;
 
+import com.jjoe64.graphview.model.GraphViewDataInterface;
+
 /**
  * you can change the color depending on the value.
  * takes only effect in BarGraphView

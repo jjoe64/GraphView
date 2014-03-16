@@ -25,6 +25,7 @@ import java.util.List;
 
 import android.graphics.Canvas;
 
+import com.jjoe64.graphview.model.GraphViewDataInterface;
 import com.jjoe64.graphview.renderer.Renderer;
 
 /**
@@ -68,10 +69,6 @@ public class GraphViewSeries <T extends GraphViewDataInterface>{
 	private List<T> values;
 	private final List<GraphView> graphViews = new ArrayList<GraphView>();
 
-	@Deprecated
-	public <E> List<E> getValues() {
-		return (List<E>)values;
-	}
 	public GraphViewSeries(List<T> values, Renderer<T> renderer) {
 		description = null;
 		style = new GraphViewSeriesStyle();

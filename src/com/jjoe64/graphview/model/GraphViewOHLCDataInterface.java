@@ -1,4 +1,5 @@
-package com.jjoe64.graphview;
+package com.jjoe64.graphview.model;
+
 
 public interface GraphViewOHLCDataInterface extends GraphViewDataInterface {
 	public double getHigh();

@@ -37,6 +37,8 @@ import android.view.View;
 import android.widget.LinearLayout;
 
 import com.jjoe64.graphview.compatible.ScaleGestureDetector;
+import com.jjoe64.graphview.model.GraphViewDataInterface;
+import com.jjoe64.graphview.renderer.LineGraphRenderer;
 
 /**
  * GraphView is a Android View for creating zoomable and scrollable graphs.
@@ -385,35 +387,7 @@ public class GraphView extends LinearLayout {
 		addView(graphViewContentView, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, 1));
 	}
 
-	@Deprecated
-	protected final <T extends GraphViewDataInterface> List<T> _values(int idxSeries) {
-		List<T> values = graphSeries.get(idxSeries).<T>getValues();
-		synchronized (values) {
-			if (viewportStart == 0 && viewportSize == 0) {
-				// all data
-				return (List<T>)values;
-			} else {
-				// viewport
-				List<T> listData = new ArrayList<T>();
-				for (int i=0; i<values.size(); i++) {
-					if (values.get(i).getX() >= viewportStart) {
-						if (values.get(i).getX() > viewportStart+viewportSize) {
-							listData.add(values.get(i)); // one more for nice scrolling
-							break;
-						} else {
-							listData.add(values.get(i));
-						}
-					} else {
-						if (listData.isEmpty()) {
-							listData.add(values.get(i));
-						}
-						listData.set(0, values.get(i)); // one before, for nice scrolling
-					}
-				}
-				return listData;
-			}
-		}
-	}
+	
 
 	/**
 	 * add a series of data to the graph
@@ -677,10 +651,7 @@ public class GraphView extends LinearLayout {
 		} else {
 			smallest = Integer.MAX_VALUE;
 			for (int i=0; i<graphSeries.size(); i++) {
-				List<GraphViewDataInterface> values = _values(i);
-				for (int ii=0; ii<values.size(); ii++)
-					if (values.get(ii).getY() < smallest)
-						smallest = values.get(ii).getY();
+				smallest = Math.min(smallest, graphSeries.get(i).getMinY(viewportStart, viewportSize));
 			}
 		}
 		return smallest;

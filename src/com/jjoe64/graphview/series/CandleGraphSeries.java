@@ -2,9 +2,9 @@ package com.jjoe64.graphview.series;
 
 import java.util.List;
 
-import com.jjoe64.graphview.GraphViewOHLCDataInterface;
 import com.jjoe64.graphview.GraphViewSeries;
 import com.jjoe64.graphview.GraphViewSeries.GraphViewSeriesStyle;
+import com.jjoe64.graphview.model.GraphViewOHLCDataInterface;
 import com.jjoe64.graphview.renderer.Renderer;
 
 public class CandleGraphSeries <T extends GraphViewOHLCDataInterface> extends GraphViewSeries<T>{

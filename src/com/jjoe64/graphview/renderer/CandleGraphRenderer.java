@@ -6,9 +6,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 
-import com.jjoe64.graphview.GraphViewOHLCDataInterface;
-import com.jjoe64.graphview.GraphViewSeries;
 import com.jjoe64.graphview.GraphViewSeries.GraphViewSeriesStyle;
+import com.jjoe64.graphview.model.GraphViewOHLCDataInterface;
 
 public class CandleGraphRenderer <T extends GraphViewOHLCDataInterface> implements Renderer<T> {
 	private final Paint linePaint;

@@ -17,7 +17,7 @@
  * Copyright Jonas Gehring
  */
 
-package com.jjoe64.graphview;
+package com.jjoe64.graphview.renderer;
 
 import java.util.List;
 
@@ -27,7 +27,7 @@ import android.graphics.Paint;
 import android.graphics.Path;
 
 import com.jjoe64.graphview.GraphViewSeries.GraphViewSeriesStyle;
-import com.jjoe64.graphview.renderer.Renderer;
+import com.jjoe64.graphview.model.GraphViewDataInterface;
 
 /**
  * Line Graph View. This draws a line chart.
