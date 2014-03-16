@@ -40,7 +40,7 @@ public class LineGraphRenderer implements Renderer<GraphViewDataInterface> {
 	private Paint paint;
 
 	public LineGraphRenderer() {
-
+		paint = new Paint();
 		paintBackground = new Paint();
 		paintBackground.setColor(Color.rgb(20, 40, 60));
 		paintBackground.setStrokeWidth(4);
