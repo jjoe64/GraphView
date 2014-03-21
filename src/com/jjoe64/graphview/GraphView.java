@@ -174,7 +174,6 @@ abstract public class GraphView extends LinearLayout {
                 handled = scaleDetector.isInProgress();
             }
             if (!handled) {
-                //Log.d("GraphView", "on touch event scale not handled+"+lastTouchEventX);
                 // if not scaled, scroll
                 if ((event.getAction() & MotionEvent.ACTION_DOWN) == MotionEvent.ACTION_DOWN &&
                         (event.getAction() & MotionEvent.ACTION_MOVE) == 0) {
@@ -512,7 +511,6 @@ abstract public class GraphView extends LinearLayout {
 
         double min = getMinX(false);
         double max = getMaxX(false);
-        Log.d("Kateraas", "Max: [" + max + "] Min[" + min + "]");
 
         if (horizontalIncrement > 0) {
             // Max-min is guaranteed to be dividable with horizontalIncrement by using getMaxX() and getMinX()
