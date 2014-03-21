@@ -339,6 +339,10 @@ abstract public class GraphView extends LinearLayout {
 	private boolean staticVerticalLabels;
     private boolean showHorizontalLabels = true;
     private boolean showVerticalLabels = true;
+    private boolean integerLabels = false;
+    private double horizontalIncrement = 0;
+    private double verticalIncrement = 0;
+
 
 	public GraphView(Context context, AttributeSet attrs) {
 		this(context, attrs.getAttributeValue(null, "title"));
@@ -511,47 +515,74 @@ abstract public class GraphView extends LinearLayout {
 	}
 
 	private String[] generateHorlabels(float graphwidth) {
-		int numLabels = getGraphViewStyle().getNumHorizontalLabels()-1;
-		if (numLabels < 0) {
-			numLabels = (int) (graphwidth/(horLabelTextWidth*2));
-		}
+        int numLabels = getGraphViewStyle().getNumHorizontalLabels() - 1;
+        if (numLabels < 0) {
+            numLabels = (int) (graphwidth/(horLabelTextWidth*2));
+        }
 
-		String[] labels = new String[numLabels+1];
-		double min = getMinX(false);
-		double max = getMaxX(false);
-		for (int i=0; i<=numLabels; i++) {
-			labels[i] = formatLabel(min + ((max-min)*i/numLabels), true);
-		}
-		return labels;
+        double min = getMinX(false);
+        double max = getMaxX(false);
+        Log.d("Kateraas", "Max: [" + max + "] Min[" + min + "]");
+
+        if (horizontalIncrement > 0) {
+            // Max-min is guaranteed to be dividable with horizontalIncrement by using getMaxX() and getMinX()
+            numLabels = (int)((max - min) / horizontalIncrement);
+            if (numLabels < 2) {
+                numLabels = 2;
+            }
+        }
+
+        String[] labels = new String[numLabels+1];
+        for (int i=0; i <= numLabels; i++) {
+            if (horizontalIncrement > 0) {
+                labels[i] = formatLabel(min + (i * horizontalIncrement), true);
+            } else {
+                labels[i] = formatLabel(min + ((max-min) * i/numLabels), true);
+            }
+        }
+        return labels;
 	}
 
 	synchronized private String[] generateVerlabels(float graphheight) {
-		int numLabels = getGraphViewStyle().getNumVerticalLabels()-1;
-		if (numLabels < 0) {
-			numLabels = (int) (graphheight/(labelTextHeight*3));
-			if (numLabels == 0) {
-				Log.w("GraphView", "Height of Graph is smaller than the label text height, so no vertical labels were shown!");
-			}
-		}
-		String[] labels = new String[numLabels+1];
-		double min = getMinY();
-		double max = getMaxY();
-		if (max == min) {
-			// if min/max is the same, fake it so that we can render a line
-			if(max == 0) {
-				// if both are zero, change the values to prevent division by zero
-				max = 1.0d;
-				min = 0.0d;
-			} else {
-				max = max*1.05d;
-				min = min*0.95d;
-			}
-		}
+        int numLabels = getGraphViewStyle().getNumVerticalLabels()-1;
+        if (numLabels < 0) {
+            numLabels = (int) (graphheight/(labelTextHeight*3));
+            if (numLabels == 0) {
+                Log.w("GraphView", "Height of Graph is smaller than the label text height, so no vertical labels were shown!");
+            }
+        }
+        double min = getMinY();
+        double max = getMaxY();
+        if (max == min) {
+            // if min/max is the same, fake it so that we can render a line
+            if(max == 0) {
+                // if both are zero, change the values to prevent division by zero
+                max = 1.0d;
+                min = 0.0d;
+            } else {
+                max = max*1.05d;
+                min = min*0.95d;
+            }
+        }
+        double labelRange = max - min;
 
-		for (int i=0; i<=numLabels; i++) {
-			labels[numLabels-i] = formatLabel(min + ((max-min)*i/numLabels), false);
-		}
-		return labels;
+        if (verticalIncrement > 0) {
+            // Since we already assured us that max is divisible with verticalIncrement, we know numLabels is an integer
+            numLabels = (int)(labelRange / verticalIncrement);
+            if (numLabels < 2) {
+                numLabels = 2;
+            }
+        }
+        String[] labels = new String[numLabels+1];
+        for (int i = 0; i <= numLabels; i++) {
+            if (verticalIncrement > 0) {
+                labels[numLabels - i] = formatLabel(min + (verticalIncrement * i), false);
+
+            } else {
+                labels[numLabels - i] = formatLabel(min + (labelRange * i/numLabels), false);
+            }
+        }
+        return labels;
 	}
 
 	/**
@@ -585,6 +616,21 @@ abstract public class GraphView extends LinearLayout {
 		return getGraphViewStyle().getLegendWidth();
 	}
 
+    /**
+     *  Returns the smallest value the dividend can add to itself to make it divisible with the divisor.
+     *  http://en.wikipedia.org/wiki/Modulo_operation
+     * @param dividend Dividend for the modulo operation
+     * @param divisor Divisor for the modulo operation
+     * @return The smallest value to add to the dividend to make it divisible to the divisor.
+     */
+    private double getModulosDifference(double dividend, double divisor) {
+        double remainder = dividend % divisor;
+        if (remainder > 0) {
+            return divisor - remainder;
+        }
+        return 0;
+    }
+
 	/**
 	 * returns the maximal X value of the current viewport (if viewport is set)
 	 * otherwise maximal X value of all data.
@@ -614,6 +660,13 @@ abstract public class GraphView extends LinearLayout {
 					}
 				}
 			}
+            if (horizontalIncrement > 0) {
+                // Add the difference to make highest divisible with horizontalIncrement.
+                highest += getModulosDifference(highest, horizontalIncrement);
+                // The graph starts at minX and needs to end at minX + (n * horizontalIncrement)
+                double minOffset = getMinX(ignoreViewport) % horizontalIncrement;
+                highest -= minOffset;
+            }
 			return highest;
 		}
 	}
@@ -636,6 +689,10 @@ abstract public class GraphView extends LinearLayout {
 						largest = values[ii].getY();
 			}
 		}
+        if (verticalIncrement > 0) {
+            // Add the difference between the increment and the remainder
+            largest += getModulosDifference(largest, verticalIncrement);
+        }
 		return largest;
 	}
 
@@ -690,6 +747,10 @@ abstract public class GraphView extends LinearLayout {
 						smallest = values[ii].getY();
 			}
 		}
+        if (verticalIncrement > 0) {
+            // Make sure that the lowest X-value is divisible with the increment to line up the values.
+            smallest -= smallest % verticalIncrement ;
+        }
 		return smallest;
 	}
 	
@@ -784,6 +845,36 @@ abstract public class GraphView extends LinearLayout {
 		viewVerLabels.invalidate();
 		graphViewContentView.invalidate();
 	}
+
+    /**
+     * Both vertical and horizontal labels will only be integers
+     * @param integerLabels
+     */
+    public void setIntegerLabels(boolean integerLabels) {
+        this.integerLabels = integerLabels;
+    }
+
+    /**
+     * Increases each horizontal label by increment
+     * @param increment
+     */
+    public void setHorizontalIncrement(double increment) {
+        if (increment < 0) {
+            increment *= -1;
+        }
+        horizontalIncrement = increment;
+    }
+
+    /**
+     * Increases each vertical label by increment
+     * @param increment
+     */
+    public void setVerticalIncrement(double increment) {
+        if (increment < 0) {
+            increment *= -1;
+        }
+        verticalIncrement = increment;
+    }
 
 	/**
 	 * set a custom label formatter
