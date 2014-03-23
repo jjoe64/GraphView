@@ -24,5 +24,5 @@ package com.jjoe64.graphview;
  * takes only effect in BarGraphView
  */
 public interface ValueDependentColor {
-	public int get(GraphViewDataInterface data);
+    public int get(GraphViewDataInterface data);
 }
