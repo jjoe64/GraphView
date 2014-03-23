@@ -534,7 +534,7 @@ abstract public class GraphView extends LinearLayout {
     synchronized private String[] generateVerlabels(float graphheight) {
         int numLabels = getGraphViewStyle().getNumVerticalLabels() - 1;
         if (numLabels < 0) {
-            numLabels = (int) (graphheight / (labelTextHeight * 3));
+            numLabels = (int) (graphheight / (labelTextHeight * 2));
             if (numLabels == 0) {
                 Log.w("GraphView", "Height of Graph is smaller than the label text height, so no vertical labels were shown!");
             }
@@ -553,10 +553,17 @@ abstract public class GraphView extends LinearLayout {
             }
         }
         double labelRange = max - min;
-
+        double iteration = 1;
         if (verticalIncrement > 0) {
             // Since we already assured us that max is divisible with verticalIncrement, we know numLabels is an integer
-            numLabels = (int) (labelRange / verticalIncrement);
+            int newLabelCount = (int) (labelRange / verticalIncrement);
+            Log.d("Kateraas", "Our estimate [" + newLabelCount + "] vs their [" + numLabels + "]");
+            Log.d("Kateraas", "Max [" + max + "] min [" + min + "]");
+            while (newLabelCount > numLabels) {
+                iteration++;
+                newLabelCount = (int) (labelRange / (verticalIncrement * iteration));
+            }
+            numLabels = newLabelCount;
             if (numLabels < 2) {
                 numLabels = 2;
             }
@@ -564,7 +571,7 @@ abstract public class GraphView extends LinearLayout {
         String[] labels = new String[numLabels + 1];
         for (int i = 0; i <= numLabels; i++) {
             if (verticalIncrement > 0) {
-                labels[numLabels - i] = formatLabel(min + (verticalIncrement * i), false);
+                labels[numLabels - i] = formatLabel(min + ((verticalIncrement * iteration) * i), false);
 
             } else {
                 labels[numLabels - i] = formatLabel(min + (labelRange * i / numLabels), false);
@@ -677,6 +684,9 @@ abstract public class GraphView extends LinearLayout {
                     if (values[ii].getY() > largest)
                         largest = values[ii].getY();
             }
+            if (largest == Integer.MIN_VALUE) {
+                largest = 0;
+            }
         }
         if (verticalIncrement > 0) {
             // Add the difference between the increment and the remainder
@@ -733,6 +743,9 @@ abstract public class GraphView extends LinearLayout {
                 for (int ii = 0; ii < values.length; ii++)
                     if (values[ii].getY() < smallest)
                         smallest = values[ii].getY();
+            }
+            if (smallest == Integer.MAX_VALUE) {
+                smallest = 0;
             }
         }
         if (verticalIncrement > 0) {
