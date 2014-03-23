@@ -19,6 +19,7 @@
 
 package com.jjoe64.graphview;
 
+import junit.framework.Assert;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -91,7 +92,8 @@ public class LineGraphView extends GraphView {
 
 				// draw data point
 				if (drawDataPoints) {
-					canvas.drawCircle(startX, startY, dataPointsRadius, paint);
+					//fix: last value was not drawn. Draw here now the end values
+					canvas.drawCircle(endX, endY, dataPointsRadius, paint);
 				}
 
 				canvas.drawLine(startX, startY, endX, endY, paint);
@@ -101,6 +103,14 @@ public class LineGraphView extends GraphView {
 						bgPath.moveTo(startX, startY);
 					}
 					bgPath.lineTo(endX, endY);
+				}
+			} else {
+				Assert.assertTrue(i==0); //else overflow
+				if (drawDataPoints) {
+					//fix: last value not drawn as datapoint. Draw first point here, and then on every step the end values (above)
+					float first_X = (float) x + (horstart + 1);
+					float first_Y = (float) (border - y) + graphheight;
+					canvas.drawCircle(first_X, first_Y, dataPointsRadius, paint);
 				}
 			}
 			lastEndY = y;
