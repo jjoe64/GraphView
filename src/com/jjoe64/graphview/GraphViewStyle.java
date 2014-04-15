@@ -34,6 +34,7 @@ public class GraphViewStyle {
 	private int verticalLabelsColor;
 	private int horizontalLabelsColor;
 	private int gridColor;
+	private GridStyle gridStyle = GridStyle.BOTH;
 	private float textSize;
 	private int verticalLabelsWidth;
 	private int numVerticalLabels;
@@ -57,6 +58,10 @@ public class GraphViewStyle {
 
 	public int getGridColor() {
 		return gridColor;
+	}
+	
+	public GridStyle getGridStyle() {
+		return gridStyle;
 	}
 
 	public int getHorizontalLabelsColor() {
@@ -115,6 +120,10 @@ public class GraphViewStyle {
 		verticalLabelsAlign = Align.LEFT;
 	}
 
+	public void setGridStyle(GridStyle style) {
+		gridStyle = style;
+	}
+	
 	public void setGridColor(int c) {
 		gridColor = c;
 	}
@@ -185,5 +194,9 @@ public class GraphViewStyle {
 			setVerticalLabelsColor(color);
 			setHorizontalLabelsColor(color);
 		}
+	}
+	
+	public enum GridStyle {
+		BOTH, VERTICAL, HORIZONTAL
 	}
 }
