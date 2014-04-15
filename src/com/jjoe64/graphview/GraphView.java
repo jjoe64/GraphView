@@ -513,6 +513,7 @@ abstract public class GraphView extends LinearLayout {
 	private String[] generateHorlabels(float graphwidth) {
 		int numLabels = getGraphViewStyle().getNumHorizontalLabels()-1;
 		if (numLabels < 0) {
+			if (graphwidth <= 0) graphwidth = 1f;
 			numLabels = (int) (graphwidth/(horLabelTextWidth*2));
 		}
 
@@ -528,6 +529,7 @@ abstract public class GraphView extends LinearLayout {
 	synchronized private String[] generateVerlabels(float graphheight) {
 		int numLabels = getGraphViewStyle().getNumVerticalLabels()-1;
 		if (numLabels < 0) {
+			if (graphheight <= 0) graphheight = 1f;
 			numLabels = (int) (graphheight/(labelTextHeight*3));
 			if (numLabels == 0) {
 				Log.w("GraphView", "Height of Graph is smaller than the label text height, so no vertical labels were shown!");
