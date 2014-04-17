@@ -37,6 +37,7 @@ import android.view.View;
 import android.widget.LinearLayout;
 
 import com.jjoe64.graphview.GraphViewSeries.GraphViewSeriesStyle;
+import com.jjoe64.graphview.GraphViewStyle.GridStyle;
 import com.jjoe64.graphview.compatible.ScaleGestureDetector;
 
 /**
@@ -111,12 +112,14 @@ abstract public class GraphView extends LinearLayout {
 			}
 
 			// vertical lines
-			paint.setTextAlign(Align.LEFT);
-			int vers = verlabels.length - 1;
-			for (int i = 0; i < verlabels.length; i++) {
-				paint.setColor(graphViewStyle.getGridColor());
-				float y = ((graphheight / vers) * i) + border;
-				canvas.drawLine(horstart, y, width, y, paint);
+			if(graphViewStyle.getGridStyle() != GridStyle.HORIZONTAL) {
+				paint.setTextAlign(Align.LEFT);
+				int vers = verlabels.length - 1;
+				for (int i = 0; i < verlabels.length; i++) {
+					paint.setColor(graphViewStyle.getGridColor());
+					float y = ((graphheight / vers) * i) + border;
+					canvas.drawLine(horstart, y, width, y, paint);
+				}
 			}
 
 			drawHorizontalLabels(canvas, border, horstart, height, horlabels, graphwidth);
@@ -419,7 +422,9 @@ abstract public class GraphView extends LinearLayout {
 		for (int i = 0; i < horlabels.length; i++) {
 			paint.setColor(graphViewStyle.getGridColor());
 			float x = ((graphwidth / hors) * i) + horstart;
-			canvas.drawLine(x, height - border, x, border, paint);
+			if(graphViewStyle.getGridStyle() != GridStyle.VERTICAL) {
+				canvas.drawLine(x, height - border, x, border, paint);
+			}
             if(showHorizontalLabels) {
                 paint.setTextAlign(Align.CENTER);
                 if (i==horlabels.length-1)
