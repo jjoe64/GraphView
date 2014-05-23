@@ -19,11 +19,8 @@
 
 package com.jjoe64.graphview;
 
-import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.List;
-
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -38,7 +35,12 @@ import android.widget.LinearLayout;
 
 import com.jjoe64.graphview.GraphViewSeries.GraphViewSeriesStyle;
 import com.jjoe64.graphview.GraphViewStyle.GridStyle;
+import com.jjoe64.graphview.R;
 import com.jjoe64.graphview.compatible.ScaleGestureDetector;
+
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * GraphView is a Android View for creating zoomable and scrollable graphs.
@@ -344,11 +346,28 @@ abstract public class GraphView extends LinearLayout {
     private boolean showVerticalLabels = true;
 
 	public GraphView(Context context, AttributeSet attrs) {
-		this(context, attrs.getAttributeValue(null, "title"));
+        super(context, attrs);
 
-		int width = attrs.getAttributeIntValue("android", "layout_width", LayoutParams.MATCH_PARENT);
-		int height = attrs.getAttributeIntValue("android", "layout_height", LayoutParams.MATCH_PARENT);
-		setLayoutParams(new LayoutParams(width, height));
+        TypedArray styledAttributes = context.getTheme().obtainStyledAttributes(
+                attrs,
+                R.styleable.GraphView,
+                0, 0);
+        String title = styledAttributes.getString(R.styleable.GraphView_title);
+        if (title == null)
+            this.title = "";
+        else
+            this.title = title;
+
+        graphViewStyle = new GraphViewStyle();
+        graphViewStyle.useTextColorFromTheme(context);
+
+        paint = new Paint();
+        graphSeries = new ArrayList<GraphViewSeries>();
+
+        viewVerLabels = new VerLabelsView(context);
+        addView(viewVerLabels);
+        graphViewContentView = new GraphViewContentView(context);
+        addView(graphViewContentView, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT, 1));
 	}
 
 	/**
