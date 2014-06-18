@@ -60,6 +60,7 @@ abstract public class GraphView extends LinearLayout {
 		private float lastTouchEventX;
 		private float graphwidth;
 		private boolean scrollingStarted;
+		private Paint paintShader;
 
 		/**
 		 * @param context
@@ -67,6 +68,10 @@ abstract public class GraphView extends LinearLayout {
 		public GraphViewContentView(Context context) {
 			super(context);
 			setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+			
+			paintShader = new Paint();
+			//(40, 192,192,192) is a mostly-transparent light grey
+			paintShader.setARGB(40, 192,192,192);
 		}
 
 		/**
@@ -123,6 +128,65 @@ abstract public class GraphView extends LinearLayout {
 			}
 
 			drawHorizontalLabels(canvas, border, horstart, height, horlabels, graphwidth);
+
+			/*
+			 * Shade the background if a BackgroundShader has been attached and we have data
+			 */
+			if (shader!=null && graphSeries.size()>0) {
+				boolean isShading=false;
+				float boxStart = 0.0f;
+				double valX;
+				double ratX;
+				double x;
+				float endX;
+
+				/* Get the X values for our first series. Since the X values
+				 * are the same regardless of the number of series attached,
+				 * just using the first series is fine.
+				 */
+				GraphViewDataInterface[] data = _values(0);
+
+				for (int i = 0; i < data.length; i++) {
+					//Get x distance from the start of the current viewport
+					valX = (data[i].getX() - minX);
+
+					/* Proceed only if on-screen:
+					 * -a negative value would be off-screen to the left,
+					 * -and we can stop once we get to the end of the viewport.
+					 */
+					if (valX>-1 && valX<diffX+1) {
+
+						//get this value's as a ratio of how far along the screen it goes
+						ratX = valX / diffX;
+
+						//multiply that percentage times the graph width to get the actual on-screen right-end
+						x = graphwidth * ratX;
+
+						//finishing x is: on-screen right-end pixel + (offset=0)
+						endX = (float) x + (horstart);
+
+						//if we're not currently shading but we should start
+						if (!isShading && shader.shade(data[i].getX())) {
+							isShading=true;
+							//save the left end of the box as the current coordinate.
+							boxStart=endX;
+						}
+						/*
+						 * if we are shading and it's time to stop (this includes when
+						 * we're shading right up to the end of the data or screen).
+						 *
+						 * For the end of screen calculation, we use Math.abs to compare the two
+						 * floating point values with a very small number, since floating point
+						 * calculations may involve rounding, and thus a general equality test
+						 * (i.e. valX==diffX might not work) might not be true due to rounding errors.
+						 */
+						if (isShading && (!shader.shade(data[i].getX()) || i==data.length-1 ||  ( Math.abs(valX - diffX) < .0000001 )  ) ) {
+							isShading=false;
+							canvas.drawRect(boxStart, border, endX, (border+graphheight), paintShader);
+						}
+					}
+				}
+			}
 
             paint.setColor(graphViewStyle.getHorizontalLabelsColor());
 			paint.setTextAlign(Align.CENTER);
@@ -342,6 +406,7 @@ abstract public class GraphView extends LinearLayout {
 	private boolean staticVerticalLabels;
     private boolean showHorizontalLabels = true;
     private boolean showVerticalLabels = true;
+    private BackgroundShader shader;
 
 	public GraphView(Context context, AttributeSet attrs) {
 		this(context, attrs.getAttributeValue(null, "title"));
@@ -1023,6 +1088,32 @@ abstract public class GraphView extends LinearLayout {
      */
     public boolean getShowVerticalLabels() {
         return showVerticalLabels;
+    }
+
+    /**
+     * Returns the start of the viewport as a double
+     * @return ViewportStart double
+     */
+    public double getViewportStart(){
+        return viewportStart;
+    }
+
+    /**
+     * Returns the backgroundShader if there is one, otherwise null
+     * @return shader, or null
+     */
+    public BackgroundShader getShader() {
+        return shader;
+    }
+
+    /**
+     * Sets a background shader (shades the background of the graph
+     * based on the x values to improve readability.
+     * @see BackgroundShader.java )
+     * @param shader
+     */
+    public void setShader(BackgroundShader shader) {
+        this.shader = shader;
     }
 
 }
