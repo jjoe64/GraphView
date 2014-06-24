@@ -63,12 +63,22 @@ public class GraphViewSeries {
 	GraphViewDataInterface[] values;
 	private final List<GraphView> graphViews = new ArrayList<GraphView>();
 
+    /**
+     * create a series with predefined values
+     * @param values the values must be in the correct order! x-value has to be ASC. First the lowest x value and at least the highest x value.
+     */
 	public GraphViewSeries(GraphViewDataInterface[] values) {
 		description = null;
 		style = new GraphViewSeriesStyle();
 		this.values = values;
 	}
 
+    /**
+     * create a series with predefined options
+     * @param description the name of the series
+     * @param style custom style. can be null for default styles
+     * @param values the values must be in the correct order! x-value has to be ASC. First the lowest x value and at least the highest x value.
+     */
 	public GraphViewSeries(String description, GraphViewSeriesStyle style, GraphViewDataInterface[] values) {
 		super();
 		this.description = description;
@@ -89,6 +99,7 @@ public class GraphViewSeries {
 
 	/**
 	 * add one data to current data
+     * the values must be in the correct order! x-value has to be ASC. First the lowest x value and at least the highest x value.
 	 * @param value the new data to append
 	 * @param scrollToEnd true => graphview will scroll to the end (maxX)
 	 * @deprecated please use {@link #appendData(GraphViewDataInterface, boolean, int)} to avoid memory overflow
@@ -110,7 +121,9 @@ public class GraphViewSeries {
 
 	/**
 	 * add one data to current data
-	 * @param value the new data to append
+     * the values must be in the correct order! x-value has to be ASC. First the lowest x value and at least the highest x value.
+     *
+	 * @param value the new data to append. Important: the new value must be higher then the last value (x).
 	 * @param scrollToEnd true => graphview will scroll to the end (maxX)
 	 * @param maxDataCount if max data count is reached, the oldest data value will be lost
 	 */
@@ -159,8 +172,9 @@ public class GraphViewSeries {
 
 	/**
 	 * clears the current data and set the new.
+     *
 	 * redraws the graphview(s)
-	 * @param values new data
+	 * @param values the values must be in the correct order! x-value has to be ASC. First the lowest x value and at least the highest x value.
 	 */
 	public void resetData(GraphViewDataInterface[] values) {
 		this.values = values;

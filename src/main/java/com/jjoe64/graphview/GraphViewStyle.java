@@ -27,7 +27,7 @@ import android.view.ContextThemeWrapper;
 
 /**
  * Styles for the GraphView
- * Important: Use GraphViewSeries.GraphViewSeriesStyle for series-specify styling
+ * Important: Use {@link com.jjoe64.graphview.GraphViewSeries.GraphViewSeriesStyle} for series-specify styling
  *
  */
 public class GraphViewStyle {
@@ -195,7 +195,10 @@ public class GraphViewStyle {
 			setHorizontalLabelsColor(color);
 		}
 	}
-	
+
+    /**
+     * Definition which lines will be drawn in the background
+     */
 	public enum GridStyle {
 		BOTH, VERTICAL, HORIZONTAL
 	}
