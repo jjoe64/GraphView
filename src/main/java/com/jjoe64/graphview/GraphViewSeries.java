@@ -71,6 +71,7 @@ public class GraphViewSeries {
 		description = null;
 		style = new GraphViewSeriesStyle();
 		this.values = values;
+        checkValueOrder();
 	}
 
     /**
@@ -87,7 +88,8 @@ public class GraphViewSeries {
 		}
 		this.style = style;
 		this.values = values;
-	}
+        checkValueOrder();
+    }
 
 	/**
 	 * this graphview will be redrawn if data changes
@@ -106,6 +108,9 @@ public class GraphViewSeries {
 	 */
 	@Deprecated
 	public void appendData(GraphViewDataInterface value, boolean scrollToEnd) {
+        if (value.getX() < values[values.length-1].getX()) {
+            throw new IllegalArgumentException("new x-value must be greater then the last value. x-values has to be ordered in ASC.");
+        }
 		GraphViewDataInterface[] newValues = new GraphViewDataInterface[values.length + 1];
 		int offset = values.length;
 		System.arraycopy(values, 0, newValues, 0, offset);
@@ -128,6 +133,9 @@ public class GraphViewSeries {
 	 * @param maxDataCount if max data count is reached, the oldest data value will be lost
 	 */
 	public void appendData(GraphViewDataInterface value, boolean scrollToEnd, int maxDataCount) {
+        if (value.getX() < values[values.length-1].getX()) {
+            throw new IllegalArgumentException("new x-value must be greater then the last value. x-values has to be ordered in ASC.");
+        }
 		synchronized (values) {
 			int curDataCount = values.length;
 			GraphViewDataInterface[] newValues;
@@ -178,8 +186,21 @@ public class GraphViewSeries {
 	 */
 	public void resetData(GraphViewDataInterface[] values) {
 		this.values = values;
-		for (GraphView g : graphViews) {
+        checkValueOrder();
+        for (GraphView g : graphViews) {
 			g.redrawAll();
 		}
 	}
+
+    private void checkValueOrder() {
+        if (values.length>0) {
+            double lx = values[0].getX();
+            for (int i=1;i<values.length;i++) {
+                if (lx > values[i].getX()) {
+                    throw new IllegalArgumentException("Tht order of the values is not correct. X-Values have to be ordered ASC. First the lowest x value and at least the highest x value.");
+                }
+                lx = values[i].getX();
+            }
+        }
+    }
 }
