@@ -197,7 +197,7 @@ public class GraphViewSeries {
             double lx = values[0].getX();
             for (int i=1;i<values.length;i++) {
                 if (lx > values[i].getX()) {
-                    throw new IllegalArgumentException("Tht order of the values is not correct. X-Values have to be ordered ASC. First the lowest x value and at least the highest x value.");
+                    throw new IllegalArgumentException("The order of the values is not correct. X-Values have to be ordered ASC. First the lowest x value and at least the highest x value.");
                 }
                 lx = values[i].getX();
             }
