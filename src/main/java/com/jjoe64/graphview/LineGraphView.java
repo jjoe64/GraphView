@@ -24,6 +24,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.os.SystemClock;
 import android.util.AttributeSet;
 
 import com.jjoe64.graphview.GraphViewSeries.GraphViewSeriesStyle;
@@ -60,7 +61,10 @@ public class LineGraphView extends GraphView {
 		// draw background
 		double lastEndY = 0;
 		double lastEndX = 0;
-
+		double lastY = Double.NaN;
+		float startX = 0, startY = 0, endX = 0, endY = 0;
+		int validpointcount = 0;
+		
 		// draw data
 		paint.setStrokeWidth(style.thickness);
 		paint.setColor(style.color);
@@ -71,53 +75,54 @@ public class LineGraphView extends GraphView {
 			bgPath = new Path();
 		}
 
-		lastEndY = 0;
-		lastEndX = 0;
-		float firstX = 0;
 		for (int i = 0; i < values.length; i++) {
-			double valY = values[i].getY() - minY;
-			double ratY = valY / diffY;
-			double y = graphheight * ratY;
+			if (Double.isNaN(values[i].getY())) {
+				if (validpointcount == 1) {
+					canvas.drawCircle(endX, endY, style.thickness, paint);
+				}
+				
+				if (bgPath != null) {
+					if (!bgPath.isEmpty()) {
+						canvas.drawPath(bgPath, paintBackground);
+						bgPath.reset();
+					}
+				}
+				validpointcount = 0;
+			} else {
+				double valY = values[i].getY() - minY;
+				double ratY = valY / diffY;
+				double y = graphheight * ratY;
+	
+				double valX = values[i].getX() - minX;
+				double ratX = valX / diffX;
+				double x = graphwidth * ratX;
+						
+				startX = (float) lastEndX + (horstart + 1);
+				startY = (float) (border - lastEndY) + graphheight;
+				endX = (float) x + (horstart + 1);
+				endY = (float) (border - y) + graphheight;
 
-			double valX = values[i].getX() - minX;
-			double ratX = valX / diffX;
-			double x = graphwidth * ratX;
-
-			if (i > 0) {
-				float startX = (float) lastEndX + (horstart + 1);
-				float startY = (float) (border - lastEndY) + graphheight;
-				float endX = (float) x + (horstart + 1);
-				float endY = (float) (border - y) + graphheight;
-
-				// draw data point
 				if (drawDataPoints) {
 					//fix: last value was not drawn. Draw here now the end values
 					canvas.drawCircle(endX, endY, dataPointsRadius, paint);
 				}
-
-				canvas.drawLine(startX, startY, endX, endY, paint);
-				if (bgPath != null) {
-					if (i==1) {
-						firstX = startX;
+				
+				if (Double.isNaN(lastY)) {
+					if (bgPath != null)
 						bgPath.moveTo(startX, startY);
-					}
-					bgPath.lineTo(endX, endY);
+				} else {
+					canvas.drawLine(startX, startY, endX, endY, paint);
+					if (bgPath != null)
+						bgPath.lineTo((float)x, (float)y);
 				}
-			} else if (drawDataPoints) {
-				//fix: last value not drawn as datapoint. Draw first point here, and then on every step the end values (above)
-				float first_X = (float) x + (horstart + 1);
-				float first_Y = (float) (border - y) + graphheight;
-				canvas.drawCircle(first_X, first_Y, dataPointsRadius, paint);
+				lastEndY = y;
+				lastEndX = x;
+				
+				validpointcount++;
 			}
-			lastEndY = y;
-			lastEndX = x;
+			lastY = values[i].getY();
 		}
-
 		if (bgPath != null) {
-			// end / close path
-			bgPath.lineTo((float) lastEndX, graphheight + border);
-			bgPath.lineTo(firstX, graphheight + border);
-			bgPath.close();
 			canvas.drawPath(bgPath, paintBackground);
 		}
 	}

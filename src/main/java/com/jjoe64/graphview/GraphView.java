@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -75,6 +76,9 @@ abstract public class GraphView extends LinearLayout {
 		@Override
 		protected void onDraw(Canvas canvas) {
 
+			mBufferedBitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_4444);
+	        mBufferedCanvas = new Canvas(mBufferedBitmap);
+		
 			paint.setAntiAlias(true);
 
 			// normal
@@ -112,21 +116,21 @@ abstract public class GraphView extends LinearLayout {
 			}
 
 			// vertical lines
-			if(graphViewStyle.getGridStyle() != GridStyle.HORIZONTAL) {
-				paint.setTextAlign(Align.LEFT);
-				int vers = verlabels.length - 1;
-				for (int i = 0; i < verlabels.length; i++) {
-					paint.setColor(graphViewStyle.getGridColor());
-					float y = ((graphheight / vers) * i) + border;
-					canvas.drawLine(horstart, y, width, y, paint);
-				}
-			}
+            if(graphViewStyle.getGridStyle() != GridStyle.HORIZONTAL) {
+                paint.setTextAlign(Align.LEFT);
+                int vers = verlabels.length - 1;
+                for (int i = 0; i < verlabels.length; i++) {
+                    paint.setColor(graphViewStyle.getGridColor());
+                    float y = ((graphheight / vers) * i) + border;
+                    mBufferedCanvas.drawLine(horstart, y, width, y, paint);
+                }
+            }
 
-			drawHorizontalLabels(canvas, border, horstart, height, horlabels, graphwidth);
+			drawHorizontalLabels(mBufferedCanvas, border, horstart, height, horlabels, graphwidth);
 
             paint.setColor(graphViewStyle.getHorizontalLabelsColor());
 			paint.setTextAlign(Align.CENTER);
-			canvas.drawText(title, (graphwidth / 2) + horstart, border - 4, paint);
+			mBufferedCanvas.drawText(title, (graphwidth / 2) + horstart, border - 4, paint);
 
 			if (maxY == minY) {
 				// if min/max is the same, fake it so that we can render a line
@@ -144,10 +148,12 @@ abstract public class GraphView extends LinearLayout {
 			paint.setStrokeCap(Paint.Cap.ROUND);
 
 			for (int i=0; i<graphSeries.size(); i++) {
-				drawSeries(canvas, _values(i), graphwidth, graphheight, border, minX, minY, diffX, diffY, horstart, graphSeries.get(i).style);
+				drawSeries(mBufferedCanvas, _values(i), graphwidth, graphheight, border, minX, minY, diffX, diffY, horstart, graphSeries.get(i).style);
 			}
 
-			if (showLegend) drawLegend(canvas, height, width);
+			if (showLegend) drawLegend(mBufferedCanvas, height, width);
+			
+			canvas.drawBitmap(mBufferedBitmap, 0, 0, null);
 		}
 
 		private void onMoveGesture(float f) {
@@ -343,6 +349,9 @@ abstract public class GraphView extends LinearLayout {
     private boolean showHorizontalLabels = true;
     private boolean showVerticalLabels = true;
 
+	private Bitmap mBufferedBitmap;
+    private Canvas mBufferedCanvas;
+    
 	public GraphView(Context context, AttributeSet attrs) {
 		this(context, attrs.getAttributeValue(null, "title"));
 
