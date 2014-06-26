@@ -31,16 +31,16 @@ import com.jjoe64.graphview.compatible.ScaleGestureDetector;
  * http://www.gnu.org/licenses/lgpl.html
  */
 abstract public class GraphView extends RelativeLayout {
-	static final private class GraphViewConfig {
-		static final float BORDER = 10;
-		
-		static final float HORIZONTAL_LABEL_SPACEMENT = 80;
-		static final int HORIZONTAL_LABEL_RELATIVE_POSITION = RelativeLayout.ALIGN_PARENT_BOTTOM;
-		static final int HORIZONTAL_LABEL_HEIGHT = 15;
-		
-		static final float VERTICAL_LABEL_SPACEMENT = 100;
-		static final int VERTICAL_LABEL_RELATIVE_POSITION = RelativeLayout.ALIGN_PARENT_LEFT;
-		static final int VERTICAL_LABEL_WIDTH = 50;
+	static final protected class GraphViewConfig {
+        public static final float BORDER = 10;
+
+        public static final float HORIZONTAL_LABEL_SPACEMENT = 80;
+        public static final int HORIZONTAL_LABEL_RELATIVE_POSITION = RelativeLayout.ALIGN_PARENT_BOTTOM;
+        public static final int HORIZONTAL_LABEL_HEIGHT = 15;
+
+        public static final float VERTICAL_LABEL_SPACEMENT = 100;
+        public static final int VERTICAL_LABEL_RELATIVE_POSITION = RelativeLayout.ALIGN_PARENT_LEFT;
+        public static final int VERTICAL_LABEL_WIDTH = 50;
 	}
 
 	private class GraphViewContentView extends View {
@@ -295,7 +295,7 @@ abstract public class GraphView extends RelativeLayout {
 	private ScaleGestureDetector scaleDetector;
 	private boolean scalable;
 	private final NumberFormat[] numberformatter = new NumberFormat[2];
-	private final List<GraphViewSeries> graphSeries;
+	protected final List<GraphViewSeries> graphSeries;
 	private boolean showLegend = false;
 	private float legendWidth = 120;
 	private LegendAlign legendAlign = LegendAlign.MIDDLE;
