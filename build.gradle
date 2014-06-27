@@ -21,3 +21,18 @@ android {
 dependencies {
     compile 'com.android.support:appcompat-v7:+'
 }
+
+// This is the actual solution, as in http://stackoverflow.com/a/19037807/1002054
+task clearJar(type: Delete) {
+    delete 'build/libs/myCompiledLibrary.jar'
+}
+
+task makeJar(type: Copy) {
+    from('build/bundles/release/')
+    into('build/libs/')
+    include('classes.jar')
+    rename ('classes.jar', 'myCompiledLibrary.jar')
+}
+
+makeJar.dependsOn(clearJar, build)
+
