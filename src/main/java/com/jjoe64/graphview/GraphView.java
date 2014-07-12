@@ -631,19 +631,19 @@ abstract public class GraphView extends LinearLayout {
 	 * warning: only override this, if you really know want you're doing!
 	 */
 	protected double getMaxY() {
-		double largest;
 		if (manualYAxis || manualMaxY) {
-			largest = manualMaxYValue;
-		} else {
-			largest = Integer.MIN_VALUE;
-			for (int i=0; i<graphSeries.size(); i++) {
-				GraphViewDataInterface[] values = _values(i);
-				for (int ii=0; ii<values.length; ii++)
-					if (values[ii].getY() > largest)
-						largest = values[ii].getY();
-			}
+			return manualMaxYValue;
 		}
-		return largest;
+		double largest = Integer.MIN_VALUE;
+		for (int i=0; i<graphSeries.size(); i++) {
+			GraphViewDataInterface[] values = _values(i);
+			for (int ii=0; ii<values.length; ii++)
+				if (values[ii].getY() > largest)
+					largest = values[ii].getY();
+		}
+		double unit = getYUnit();
+		double maxY = (Math.floor(largest / unit) + 1) * unit;
+		return maxY;
 	}
 
 	/**
@@ -685,21 +685,35 @@ abstract public class GraphView extends LinearLayout {
 	 * warning: only override this, if you really know want you're doing!
 	 */
 	protected double getMinY() {
-		double smallest;
 		if (manualYAxis || manualMinY) {
-			smallest = manualMinYValue;
-		} else {
-			smallest = Integer.MAX_VALUE;
-			for (int i=0; i<graphSeries.size(); i++) {
-				GraphViewDataInterface[] values = _values(i);
-				for (int ii=0; ii<values.length; ii++)
-					if (values[ii].getY() < smallest)
-						smallest = values[ii].getY();
+			return manualMinYValue;
+		}
+		double smallest = Integer.MAX_VALUE;
+		for (int i=0; i<graphSeries.size(); i++) {
+			GraphViewDataInterface[] values = _values(i);
+			for (int ii=0; ii<values.length; ii++)
+				if (values[ii].getY() < smallest)
+					smallest = values[ii].getY();
+		}
+		double unit = getYUnit();
+		double minY = (Math.ceil(smallest / unit) - 1) * unit;
+		return minY;
+	}
+
+	private double getYUnit() {
+		double absLargest = Integer.MIN_VALUE;
+		for (int i=0; i<graphSeries.size(); i++) {
+			GraphViewDataInterface[] values = _values(i);
+			for (int ii=0; ii<values.length; ii++) {
+				double absValue = Math.abs(values[ii].getY());
+				if (absValue > absLargest)
+					absLargest = absValue;
 			}
 		}
-		return smallest;
+		int digits = (int) Math.log10(absLargest);
+		return Math.pow(10.0, digits);
 	}
-	
+
 	/**
 	 * returns the size of the Viewport
 	 * 
