@@ -35,6 +35,7 @@ public class LineGraphView extends GraphView {
 	private final Paint paintBackground;
 	private boolean drawBackground;
 	private boolean drawDataPoints;
+	private boolean drawDataPointInnerCircles;
 	private float dataPointsRadius = 10f;
 
 	public LineGraphView(Context context, AttributeSet attrs) {
@@ -89,12 +90,6 @@ public class LineGraphView extends GraphView {
 				float endX = (float) x + (horstart + 1);
 				float endY = (float) (border - y) + graphheight;
 
-				// draw data point
-				if (drawDataPoints) {
-					//fix: last value was not drawn. Draw here now the end values
-					canvas.drawCircle(endX, endY, dataPointsRadius, paint);
-				}
-
 				canvas.drawLine(startX, startY, endX, endY, paint);
 				if (bgPath != null) {
 					if (i==1) {
@@ -103,14 +98,32 @@ public class LineGraphView extends GraphView {
 					}
 					bgPath.lineTo(endX, endY);
 				}
-			} else if (drawDataPoints) {
-				//fix: last value not drawn as datapoint. Draw first point here, and then on every step the end values (above)
-				float first_X = (float) x + (horstart + 1);
-				float first_Y = (float) (border - y) + graphheight;
-				canvas.drawCircle(first_X, first_Y, dataPointsRadius, paint);
 			}
 			lastEndY = y;
 			lastEndX = x;
+		}
+
+		if (drawDataPoints) {
+			for (int i = 0; i < values.length; i++) {
+				double valY = values[i].getY() - minY;
+				double ratY = valY / diffY;
+				double y = graphheight * ratY;
+
+				double valX = values[i].getX() - minX;
+				double ratX = valX / diffX;
+				double x = graphwidth * ratX;
+
+				float cx = (float) x + (horstart + 1);
+				float cy = (float) (border - y) + graphheight;
+
+				paint.setColor(style.color);
+				canvas.drawCircle(cx, cy, dataPointsRadius, paint);
+
+				if (drawDataPointInnerCircles) {
+					paint.setColor(Color.WHITE);
+					canvas.drawCircle(cx, cy, dataPointsRadius / 2, paint);
+				}
+			}
 		}
 
 		if (bgPath != null) {
@@ -172,6 +185,15 @@ public class LineGraphView extends GraphView {
 	 */
 	public void setDrawDataPoints(boolean drawDataPoints) {
 		this.drawDataPoints = drawDataPoints;
+	}
+
+	/**
+	 * You can set the flag to let the GraphView draw inner circles at the data points
+	 * @see #setDataPointsRadius(float)
+	 * @param drawDataPointInnerCircles
+	 */
+	public void setDrawDataPointInnerCircles(boolean drawDataPointInnerCircles) {
+		this.drawDataPointInnerCircles = drawDataPointInnerCircles;
 	}
 
 }
