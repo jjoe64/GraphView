@@ -133,7 +133,7 @@ public class GraphViewSeries {
 	 * @param maxDataCount if max data count is reached, the oldest data value will be lost
 	 */
 	public void appendData(GraphViewDataInterface value, boolean scrollToEnd, int maxDataCount) {
-        if (value.getX() < values[values.length-1].getX()) {
+        if (values.length > 0 && value.getX() < values[values.length-1].getX()) {
             throw new IllegalArgumentException("new x-value must be greater then the last value. x-values has to be ordered in ASC.");
         }
 		synchronized (values) {
