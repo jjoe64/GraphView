@@ -93,6 +93,8 @@ public class LineGraphView extends GraphView {
 				if (drawDataPoints) {
 					//fix: last value was not drawn. Draw here now the end values
 					canvas.drawCircle(endX, endY, dataPointsRadius, paint);
+				} else if (style.getDrawDataPoints()) {
+					canvas.drawCircle(endX, endY, style.getDataPointsRadius(), paint);
 				}
 
 				canvas.drawLine(startX, startY, endX, endY, paint);
@@ -103,11 +105,15 @@ public class LineGraphView extends GraphView {
 					}
 					bgPath.lineTo(endX, endY);
 				}
-			} else if (drawDataPoints) {
+			} else if ((drawDataPoints) || (style.getDrawDataPoints())) {
 				//fix: last value not drawn as datapoint. Draw first point here, and then on every step the end values (above)
 				float first_X = (float) x + (horstart + 1);
 				float first_Y = (float) (border - y) + graphheight;
-				canvas.drawCircle(first_X, first_Y, dataPointsRadius, paint);
+				if (drawDataPoints) {
+					canvas.drawCircle(first_X, first_Y, dataPointsRadius, paint);
+				} else if (style.getDrawDataPoints()) {
+					canvas.drawCircle(first_X, first_Y, style.getDataPointsRadius(), paint);
+				}
 			}
 			lastEndY = y;
 			lastEndX = x;

@@ -40,6 +40,8 @@ public class GraphViewSeries {
 
 		private final Paint paintBackground;
 		private boolean drawBackground;
+		private boolean drawDataPoints;
+		private float dataPointsRadius = 10f;
 
 		public GraphViewSeriesStyle() {
 			super();
@@ -96,6 +98,32 @@ public class GraphViewSeries {
 		 */
 		public void setBackgroundColor(int color) {
 			paintBackground.setColor(color);
+		}
+		
+		public float getDataPointsRadius() {
+			return dataPointsRadius;
+		}
+
+		public boolean getDrawDataPoints() {
+			return drawDataPoints;
+		}
+		
+		/**
+		 * sets the radius of the circles at the data points.
+		 * @see #setDrawDataPoints(boolean)
+		 * @param dataPointsRadius
+		 */
+		public void setDataPointsRadius(float dataPointsRadius) {
+			this.dataPointsRadius = dataPointsRadius;
+		}
+
+		/**
+		 * You can set the flag to let the GraphView draw circles at the data points
+		 * @see #setDataPointsRadius(float)
+		 * @param drawDataPoints
+		 */
+		public void setDrawDataPoints(boolean drawDataPoints) {
+			this.drawDataPoints = drawDataPoints;
 		}
 	}
 
