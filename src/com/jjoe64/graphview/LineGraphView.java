@@ -67,7 +67,7 @@ public class LineGraphView extends GraphView {
 
 
 		Path bgPath = null;
-		if (drawBackground) {
+		if ((drawBackground) || (style.getDrawBackground())) {
 			bgPath = new Path();
 		}
 
@@ -118,7 +118,11 @@ public class LineGraphView extends GraphView {
 			bgPath.lineTo((float) lastEndX, graphheight + border);
 			bgPath.lineTo(firstX, graphheight + border);
 			bgPath.close();
-			canvas.drawPath(bgPath, paintBackground);
+			if (style.getDrawBackground()) {
+				canvas.drawPath(bgPath, style.getPaintBackground());
+			} else {
+				canvas.drawPath(bgPath, paintBackground);
+			}
 		}
 	}
 

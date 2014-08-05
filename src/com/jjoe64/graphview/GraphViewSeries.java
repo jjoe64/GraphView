@@ -22,6 +22,9 @@ package com.jjoe64.graphview;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.graphics.Color;
+import android.graphics.Paint;
+
 /**
  * a graphview series.
  * holds the data, description and styles
@@ -35,13 +38,27 @@ public class GraphViewSeries {
 		public int thickness = 3;
 		private ValueDependentColor valueDependentColor;
 
+		private final Paint paintBackground;
+		private boolean drawBackground;
+
 		public GraphViewSeriesStyle() {
 			super();
+
+			paintBackground = new Paint();
+			paintBackground.setColor(Color.rgb(20, 40, 60));
+			paintBackground.setStrokeWidth(4);
+			paintBackground.setAlpha(128);
 		}
+
 		public GraphViewSeriesStyle(int color, int thickness) {
 			super();
 			this.color = color;
 			this.thickness = thickness;
+
+			paintBackground = new Paint();
+			paintBackground.setColor(Color.rgb(20, 40, 60));
+			paintBackground.setStrokeWidth(4);
+			paintBackground.setAlpha(128);
 		}
 		
 		public ValueDependentColor getValueDependentColor() {
@@ -55,6 +72,30 @@ public class GraphViewSeries {
 		 */
 		public void setValueDependentColor(ValueDependentColor valueDependentColor) {
 			this.valueDependentColor = valueDependentColor;
+		}
+
+		public boolean getDrawBackground() {
+			return drawBackground;
+		}
+
+		public void setDrawBackground(boolean drawBackground) {
+			this.drawBackground = drawBackground;
+		}
+
+		public Paint getPaintBackground() {
+			return paintBackground;
+		}
+
+		public int getBackgroundColor() {
+			return paintBackground.getColor();
+		}
+
+		/**
+		 * sets the background colour for the series. This is not the background
+		 * colour of the whole graph.
+		 */
+		public void setBackgroundColor(int color) {
+			paintBackground.setColor(color);
 		}
 	}
 
