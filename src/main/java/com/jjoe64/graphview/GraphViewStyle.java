@@ -200,6 +200,9 @@ public class GraphViewStyle {
      * Definition which lines will be drawn in the background
      */
 	public enum GridStyle {
-		BOTH, VERTICAL, HORIZONTAL
+		BOTH, VERTICAL, HORIZONTAL, NONE;
+
+        public boolean drawVertical() { return this == BOTH || this == VERTICAL && this != NONE; }
+        public boolean drawHorizontal() { return this == BOTH || this == HORIZONTAL && this != NONE; }
 	}
 }

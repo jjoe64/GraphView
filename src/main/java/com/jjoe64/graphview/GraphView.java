@@ -111,8 +111,8 @@ abstract public class GraphView extends LinearLayout {
 				verlabels = generateVerlabels(graphheight);
 			}
 
-			// vertical lines
-			if(graphViewStyle.getGridStyle() != GridStyle.HORIZONTAL) {
+			// horizontal lines
+			if (graphViewStyle.getGridStyle().drawHorizontal()) {
 				paint.setTextAlign(Align.LEFT);
 				int vers = verlabels.length - 1;
 				for (int i = 0; i < verlabels.length; i++) {
@@ -422,7 +422,7 @@ abstract public class GraphView extends LinearLayout {
 		for (int i = 0; i < horlabels.length; i++) {
 			paint.setColor(graphViewStyle.getGridColor());
 			float x = ((graphwidth / hors) * i) + horstart;
-			if(graphViewStyle.getGridStyle() != GridStyle.VERTICAL) {
+			if(graphViewStyle.getGridStyle().drawVertical()) { // vertical lines
 				canvas.drawLine(x, height - border, x, border, paint);
 			}
             if(showHorizontalLabels) {
