@@ -108,7 +108,7 @@ public class GraphViewSeries {
 	 */
 	@Deprecated
 	public void appendData(GraphViewDataInterface value, boolean scrollToEnd) {
-        if (value.getX() < values[values.length-1].getX()) {
+        if (values.length > 0 && value.getX() < values[values.length-1].getX()) {
             throw new IllegalArgumentException("new x-value must be greater then the last value. x-values has to be ordered in ASC.");
         }
 		GraphViewDataInterface[] newValues = new GraphViewDataInterface[values.length + 1];
