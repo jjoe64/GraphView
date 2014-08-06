@@ -106,9 +106,13 @@ abstract public class GraphView extends LinearLayout {
 
 			if (horlabels == null) {
 				horlabels = generateHorlabels(graphwidth);
+            } else if (getGraphViewStyle().getNumHorizontalLabels() > 0) {
+                Log.w("GraphView", "when you use static labels (via setHorizontalLabels) the labels will just be shown exactly in that way, that you have set it. setNumHorizontalLabels does not have any effect.");
 			}
 			if (verlabels == null) {
 				verlabels = generateVerlabels(graphheight);
+            } else if (getGraphViewStyle().getNumVerticalLabels() > 0) {
+                Log.w("GraphView", "when you use static labels (via setVerticalLabels) the labels will just be shown exactly in that way, that you have set it. setNumVerticalLabels does not have any effect.");
 			}
 
 			// horizontal lines
@@ -288,7 +292,9 @@ abstract public class GraphView extends LinearLayout {
 
 			if (verlabels == null) {
 				verlabels = generateVerlabels(graphheight);
-			}
+			} else if (getGraphViewStyle().getNumVerticalLabels() > 0) {
+                Log.w("GraphView", "when you use static labels (via setVerticalLabels) the labels will just be shown exactly in that way, that you have set it. setNumVerticalLabels does not have any effect.");
+            }
 
 			// vertical labels
 			paint.setTextAlign(getGraphViewStyle().getVerticalLabelsAlign());
@@ -517,7 +523,7 @@ abstract public class GraphView extends LinearLayout {
 
 	private String[] generateHorlabels(float graphwidth) {
 		int numLabels = getGraphViewStyle().getNumHorizontalLabels()-1;
-		if (numLabels < 0) {
+		if (numLabels < 0) { // automatic
 			if (graphwidth <= 0) graphwidth = 1f;
 			numLabels = (int) (graphwidth/(horLabelTextWidth*2));
 		}
@@ -533,7 +539,7 @@ abstract public class GraphView extends LinearLayout {
 
 	synchronized private String[] generateVerlabels(float graphheight) {
 		int numLabels = getGraphViewStyle().getNumVerticalLabels()-1;
-		if (numLabels < 0) {
+		if (numLabels < 0) { // automatic
 			if (graphheight <= 0) graphheight = 1f;
 			numLabels = (int) (graphheight/(labelTextHeight*3));
 			if (numLabels == 0) {
