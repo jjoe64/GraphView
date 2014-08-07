@@ -19,6 +19,7 @@
 
 package com.jjoe64.graphview;
 
+import java.nio.charset.Charset;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -96,7 +97,12 @@ abstract public class GraphView extends LinearLayout {
 				double testX = ((getMaxX(true)-getMinX(true))*0.783)+getMinX(true);
 				String testLabel = formatLabel(testX, true);
 				paint.getTextBounds(testLabel, 0, testLabel.length(), textBounds);
-				labelTextHeight = (textBounds.height());
+                // multiline
+                int lines = 1;
+                for (byte c : testLabel.getBytes(Charset.defaultCharset())) {
+                    if (c == '\n') lines++;
+                }
+                labelTextHeight = textBounds.height()*lines;
 				horLabelTextWidth = (textBounds.width());
 			}
             border += labelTextHeight;
@@ -309,8 +315,14 @@ abstract public class GraphView extends LinearLayout {
 			for (int i = 0; i < verlabels.length; i++) {
 				float y = ((graphheight / vers) * i) + border;
 				paint.setColor(graphViewStyle.getVerticalLabelsColor());
-				canvas.drawText(verlabels[i], labelsOffset, y, paint);
-			}
+
+                String[] lines = verlabels[i].split("\n");
+                for (int li=0; li<lines.length; li++) {
+                    // for the last line y = height
+                    float y2 = y - (lines.length-li-1)*graphViewStyle.getTextSize()*1.1f;
+                    canvas.drawText(lines[li], labelsOffset, y2, paint);
+                }
+            }
 
 			// reset
 			paint.setTextAlign(Align.LEFT);
@@ -438,7 +450,12 @@ abstract public class GraphView extends LinearLayout {
                 if (i==0)
                     paint.setTextAlign(Align.LEFT);
                 paint.setColor(graphViewStyle.getHorizontalLabelsColor());
-                canvas.drawText(horlabels[i], x, height - 4, paint);
+                String[] lines = horlabels[i].split("\n");
+                for (int li=0; li<lines.length; li++) {
+                    // for the last line y = height
+                    float y = (height-4) - (lines.length-li-1)*graphViewStyle.getTextSize()*1.1f;
+                    canvas.drawText(lines[li], x, y, paint);
+                }
             }
 		}
 	}
