@@ -28,6 +28,9 @@ import android.util.AttributeSet;
 
 import com.jjoe64.graphview.GraphViewSeries.GraphViewSeriesStyle;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Line Graph View. This draws a line chart.
  */
@@ -36,6 +39,8 @@ public class LineGraphView extends GraphView {
 	private boolean drawBackground;
 	private boolean drawDataPoints;
 	private float dataPointsRadius = 10f;
+    private List<GraphViewSeries> backgroundDrawableSeriesList;
+    private boolean hasSpecificDrawBackground;
 
 	public LineGraphView(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -44,6 +49,8 @@ public class LineGraphView extends GraphView {
 		paintBackground.setColor(Color.rgb(20, 40, 60));
 		paintBackground.setStrokeWidth(4);
 		paintBackground.setAlpha(128);
+
+        backgroundDrawableSeriesList = new ArrayList<GraphViewSeries>();
 	}
 
 	public LineGraphView(Context context, String title) {
@@ -53,10 +60,14 @@ public class LineGraphView extends GraphView {
 		paintBackground.setColor(Color.rgb(20, 40, 60));
 		paintBackground.setStrokeWidth(4);
 		paintBackground.setAlpha(128);
+
+        backgroundDrawableSeriesList = new ArrayList<GraphViewSeries>();
 	}
 
 	@Override
-	public void drawSeries(Canvas canvas, GraphViewDataInterface[] values, float graphwidth, float graphheight, float border, double minX, double minY, double diffX, double diffY, float horstart, GraphViewSeriesStyle style) {
+	public void drawSeries(Canvas canvas, GraphViewDataInterface[] values, float graphwidth, float graphheight, float border, double minX, double minY, double diffX, double diffY, float horstart, final GraphViewSeries series) {
+		GraphViewSeriesStyle style = series.style;
+
 		// draw background
 		double lastEndY = 0;
 		double lastEndX = 0;
@@ -65,9 +76,8 @@ public class LineGraphView extends GraphView {
 		paint.setStrokeWidth(style.thickness);
 		paint.setColor(style.color);
 
-
 		Path bgPath = null;
-		if (drawBackground) {
+		if (drawBackground && (!hasSpecificDrawBackground) || (drawBackground && hasSpecificDrawBackground && this.backgroundDrawableSeriesList.contains(series))) {
 			bgPath = new Path();
 		}
 
@@ -165,7 +175,47 @@ public class LineGraphView extends GraphView {
 		this.drawBackground = drawBackground;
 	}
 
-	/**
+    /**
+     * @param series which {@link com.jjoe64.graphview.GraphViewSeries} to draw background for
+     * @see #setDrawBackground(boolean)
+     */
+    public void setSpecificDrawBackground(List<GraphViewSeries> series) {
+        this.backgroundDrawableSeriesList = series;
+        this.hasSpecificDrawBackground = !series.isEmpty();
+    }
+
+    public void addSeries(GraphViewSeries series, boolean drawBackground) {
+        super.addSeries(series);
+        if (drawBackground && !backgroundDrawableSeriesList.contains(series)) {
+            this.backgroundDrawableSeriesList.add(series);
+            this.hasSpecificDrawBackground = true;
+        }
+    }
+
+    @Override
+    public void removeAllSeries() {
+        super.removeAllSeries();
+        this.backgroundDrawableSeriesList.clear();
+        this.hasSpecificDrawBackground = false;
+    }
+
+    @Override
+    public void removeSeries(GraphViewSeries series) {
+        super.removeSeries(series);
+        this.backgroundDrawableSeriesList.remove(series);
+        this.hasSpecificDrawBackground = !backgroundDrawableSeriesList.isEmpty();
+    }
+
+    @Override
+    public void removeSeries(int index) {
+        GraphViewSeries series = getSeries(index);
+        super.removeSeries(index);
+        this.backgroundDrawableSeriesList.remove(series);
+        this.hasSpecificDrawBackground = !backgroundDrawableSeriesList.isEmpty();
+
+    }
+
+    /**
 	 * You can set the flag to let the GraphView draw circles at the data points
 	 * @see #setDataPointsRadius(float)
 	 * @param drawDataPoints
