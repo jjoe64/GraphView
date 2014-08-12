@@ -63,8 +63,6 @@ public class LineGraphView extends GraphView {
 
 		// draw data
 		paint.setStrokeWidth(style.thickness);
-		paint.setColor(style.color);
-
 
 		Path bgPath = null;
 		if ((drawBackground) || (style.getDrawBackground())) {
@@ -82,6 +80,13 @@ public class LineGraphView extends GraphView {
 			double valX = values[i].getX() - minX;
 			double ratX = valX / diffX;
 			double x = graphwidth * ratX;
+
+			// hook for value dependent color
+			if (style.getValueDependentColor() != null) {
+				paint.setColor(style.getValueDependentColor().get(values[i]));
+			} else {
+				paint.setColor(style.color);
+			}
 
 			if (i > 0) {
 				float startX = (float) lastEndX + (horstart + 1);
