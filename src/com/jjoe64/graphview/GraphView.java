@@ -441,9 +441,16 @@ abstract public class GraphView extends LinearLayout {
 		int shapeSize = (int) (textSize*0.8d);
 		Log.d("GraphView", "draw legend size: "+paint.getTextSize());
 
+		// calculate size of legend
+		int legendSize = 0;
+		for (int i=0; i<graphSeries.size(); i++) {
+			if (graphSeries.get(i).style.isShowInLegend())
+				legendSize++;
+		}
+
 		// rect
 		paint.setARGB(180, 100, 100, 100);
-		float legendHeight = (shapeSize+spacing)*graphSeries.size() +2*border -spacing;
+		float legendHeight = (shapeSize+spacing)*legendSize +2*border -spacing;
 		float lLeft = width-legendWidth - border*2;
 		float lTop;
 		switch (legendAlign) {
@@ -460,13 +467,17 @@ abstract public class GraphView extends LinearLayout {
 		float lBottom = lTop+legendHeight;
 		canvas.drawRoundRect(new RectF(lLeft, lTop, lRight, lBottom), 8, 8, paint);
 
+		int legendItem = 0;
 		for (int i=0; i<graphSeries.size(); i++) {
-			paint.setColor(graphSeries.get(i).style.color);
-			canvas.drawRect(new RectF(lLeft+border, lTop+border+(i*(shapeSize+spacing)), lLeft+border+shapeSize, lTop+border+(i*(shapeSize+spacing))+shapeSize), paint);
-			if (graphSeries.get(i).description != null) {
-				paint.setColor(Color.WHITE);
-				paint.setTextAlign(Align.LEFT);
-				canvas.drawText(graphSeries.get(i).description, lLeft+border+shapeSize+spacing, lTop+border+shapeSize+(i*(shapeSize+spacing)), paint);
+			if (graphSeries.get(i).style.isShowInLegend()) {
+				paint.setColor(graphSeries.get(i).style.color);
+				canvas.drawRect(new RectF(lLeft+border, lTop+border+(legendItem*(shapeSize+spacing)), lLeft+border+shapeSize, lTop+border+(legendItem*(shapeSize+spacing))+shapeSize), paint);
+				if (graphSeries.get(i).description != null) {
+					paint.setColor(Color.WHITE);
+					paint.setTextAlign(Align.LEFT);
+					canvas.drawText(graphSeries.get(i).description, lLeft+border+shapeSize+spacing, lTop+border+shapeSize+(legendItem*(shapeSize+spacing)), paint);
+				}
+				legendItem++;
 			}
 		}
 	}

@@ -42,6 +42,8 @@ public class GraphViewSeries {
 		private boolean drawBackground;
 		private boolean drawDataPoints;
 		private float dataPointsRadius = 10f;
+		
+		private boolean showInLegend = true;
 
 		public GraphViewSeriesStyle() {
 			super();
@@ -91,6 +93,16 @@ public class GraphViewSeries {
 		public int getBackgroundColor() {
 			return paintBackground.getColor();
 		}
+		
+		public boolean isShowInLegend()
+		{
+			return showInLegend;
+		}
+
+		public void setShowInLegend(boolean showInLegend)
+		{
+			this.showInLegend = showInLegend;
+		}
 
 		/**
 		 * sets the background colour for the series. This is not the background
@@ -104,10 +116,6 @@ public class GraphViewSeries {
 			return dataPointsRadius;
 		}
 
-		public boolean getDrawDataPoints() {
-			return drawDataPoints;
-		}
-		
 		/**
 		 * sets the radius of the circles at the data points.
 		 * @see #setDrawDataPoints(boolean)
@@ -115,6 +123,10 @@ public class GraphViewSeries {
 		 */
 		public void setDataPointsRadius(float dataPointsRadius) {
 			this.dataPointsRadius = dataPointsRadius;
+		}
+
+		public boolean getDrawDataPoints() {
+			return drawDataPoints;
 		}
 
 		/**
