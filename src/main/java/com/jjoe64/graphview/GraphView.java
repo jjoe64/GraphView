@@ -99,7 +99,7 @@ abstract public class GraphView extends LinearLayout {
 				paint.getTextBounds(testLabel, 0, testLabel.length(), textBounds);
                 // multiline
                 int lines = 1;
-                for (byte c : testLabel.getBytes(Charset.defaultCharset())) {
+                for (byte c : testLabel.getBytes()) {
                     if (c == '\n') lines++;
                 }
                 labelTextHeight = textBounds.height()*lines;
