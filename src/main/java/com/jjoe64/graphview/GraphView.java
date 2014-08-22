@@ -69,8 +69,10 @@ public class GraphView extends View {
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
         // test data
-        mViewport.setMaxY(650);
-        mViewport.setMinY(-50);
+        mViewport.setMaxY(400);
+        mViewport.setMinY(0);
+        mViewport.setMaxX(400);
+        mViewport.setMinX(0);
         onDataChanged();
 
     }

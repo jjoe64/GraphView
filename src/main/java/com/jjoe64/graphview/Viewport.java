@@ -37,4 +37,12 @@ public class Viewport {
     public void setMinY(double y) {
         mMinY = y;
     }
+
+    public void setMaxX(double x) {
+        mMaxX = x;
+    }
+
+    public void setMinX(double x) {
+        mMinX = x;
+    }
 }
