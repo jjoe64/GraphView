@@ -5,6 +5,9 @@ import android.graphics.Canvas;
 import android.util.AttributeSet;
 import android.view.View;
 
+import com.jjoe64.graphview.series.LineGraphSeries;
+import com.jjoe64.graphview.series.Series;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,7 +15,7 @@ import java.util.List;
  * Created by jonas on 13.08.14.
  */
 public class GraphView extends View {
-    private List<LineGraphSeries> mSeries;
+    private List<Series> mSeries;
     private GridLabelRenderer mGridLabelRenderer;
     private Viewport mViewport;
     private LegendRenderer mLegendRenderer;
@@ -39,14 +42,18 @@ public class GraphView extends View {
         mLegendRenderer = new LegendRenderer(this);
         mTitleRenderer = new TitleRenderer(this);
 
-        mSeries = new ArrayList<LineGraphSeries>();
+        mSeries = new ArrayList<Series>();
     }
 
-    public void addSeries(LineGraphSeries s) {
+    public GridLabelRenderer getGridLabelRenderer() {
+        return mGridLabelRenderer;
+    }
+
+    public void addSeries(Series s) {
         mSeries.add(s);
     }
 
-    public List<LineGraphSeries> getSeries() {
+    public List<Series> getSeries() {
         // TODO immutable array
         return null;
     }
@@ -59,6 +66,9 @@ public class GraphView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         mGridLabelRenderer.draw(canvas);
+        for (Series s : mSeries) {
+            s.draw(this, canvas);
+        }
     }
 
     public Viewport getViewport() {
@@ -69,9 +79,9 @@ public class GraphView extends View {
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
         // test data
-        mViewport.setMaxY(400);
+        mViewport.setMaxY(6);
         mViewport.setMinY(0);
-        mViewport.setMaxX(400);
+        mViewport.setMaxX(4);
         mViewport.setMinX(0);
         onDataChanged();
 

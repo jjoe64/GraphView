@@ -13,14 +13,14 @@ import java.util.Map;
  * Created by jonas on 13.08.14.
  */
 public class GridLabelRenderer {
-    private final class Styles {
-        float textSize;
-        Paint.Align verticalLabelsAlign;
-        int verticalLabelsColor;
-        int horizontalLabelsColor;
-        int gridColor;
-        boolean highlightZeroLines;
-        int padding;
+    public final class Styles {
+        public float textSize;
+        public Paint.Align verticalLabelsAlign;
+        public int verticalLabelsColor;
+        public int horizontalLabelsColor;
+        public int gridColor;
+        public boolean highlightZeroLines;
+        public int padding;
     }
 
     protected Styles mStyles;
@@ -361,5 +361,17 @@ public class GridLabelRenderer {
             in = 10d;
         }
         return in*Math.pow(10d, ten);
+    }
+
+    public Styles getStyles() {
+        return mStyles;
+    }
+
+    public int getLabelVerticalWidth() {
+        return mLabelVerticalWidth==null?0:mLabelVerticalWidth;
+    }
+
+    public int getLabelHorizontalHeight() {
+        return mLabelHorizontalHeight==null?0:mLabelHorizontalHeight;
     }
 }
