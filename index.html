@@ -398,7 +398,7 @@ for (int i=0; i&lt;num; i++) {
   v += 0.2;
   data[i] = new GraphViewData(i, Math.sin(v));
 }
-GraphViewSeries seriesSin = new GraphViewSeries("Sinus curve", Color.rgb(200, 50, 00), data);
+GraphViewSeries seriesSin = new GraphViewSeries("Sinus curve", new GraphViewSeriesStyle(Color.rgb(200, 50, 00), 3), data);
 
 // cos curve
 data = new GraphViewData[num];
@@ -407,7 +407,7 @@ for (int i=0; i&lt;num; i++) {
   v += 0.2;
   data[i] = new GraphViewData(i, Math.cos(v));
 }
-GraphViewSeries seriesCos = new GraphViewSeries("Cosinus curve", Color.rgb(90, 250, 00), data);
+GraphViewSeries seriesCos = new GraphViewSeries("Cosinus curve", new GraphViewSeriesStyle(Color.rgb(90, 250, 00), 3), data);
 
 // random curve
 num = 1000;
