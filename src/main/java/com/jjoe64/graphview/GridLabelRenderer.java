@@ -131,6 +131,7 @@ public class GridLabelRenderer {
         double newMaxY = newMinY + (numVerticalLabels-1)*exactSteps;
         mGraphView.getViewport().setMinY(newMinY);
         mGraphView.getViewport().setMaxY(newMaxY);
+        mGraphView.getViewport().setYAxisBoundsStatus(Viewport.AxisBoundsStatus.AUTO_ADJUSTED);
 
         mStepsVertical = new LinkedHashMap<Integer, Double>(numVerticalLabels);
         int height = mGraphView.getHeight() - mStyles.padding*2 - mLabelHorizontalHeight;
@@ -198,6 +199,7 @@ public class GridLabelRenderer {
         double newMaxX = newMinX + (numHorizontalLabels-1)*exactSteps;
         mGraphView.getViewport().setMinX(newMinX);
         mGraphView.getViewport().setMaxX(newMaxX);
+        mGraphView.getViewport().setXAxisBoundsStatus(Viewport.AxisBoundsStatus.AUTO_ADJUSTED);
 
         mStepsHorizontal = new LinkedHashMap<Integer, Double>(numHorizontalLabels);
         int width = mGraphView.getWidth() - mStyles.padding*2 - mLabelVerticalWidth;

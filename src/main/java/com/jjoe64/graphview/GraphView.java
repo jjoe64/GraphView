@@ -55,7 +55,7 @@ public class GraphView extends View {
 
     public List<Series> getSeries() {
         // TODO immutable array
-        return null;
+        return mSeries;
     }
 
     protected void onDataChanged() {
@@ -78,12 +78,6 @@ public class GraphView extends View {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        // test data
-        mViewport.setMaxY(6);
-        mViewport.setMinY(0);
-        mViewport.setMaxX(4);
-        mViewport.setMinX(0);
         onDataChanged();
-
     }
 }
