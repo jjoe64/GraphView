@@ -21,16 +21,16 @@ Float arrays have the following advantages compared to the previous implementati
 
 The new structure also changes the way the data storage is allocated for appending data to the existing data.
 The data arrays will now be 'oversized' when single points are added/appended.
-The number of values to display in the array will therefore differ from the size.
-The result is that there might already be space in the array when new values are added, the new value can be added directly without copying all the elements in the array to a newly allocated array of the new size. If there is no space a new array object is created with extra space for future use.
+The number of values to display in the array will therefore differ from the array size.
+The advantage is that there might be space in the array when new values are added, the new value can be added immediately without copying all the elements in the array to a newly allocated array. If there is no space, a new array object is created with extra space for future use.
 Unfortunately these changes are not compatable with the previous implementation. Maybe I can add a convertion constructor?
 
 <h4>20 January 2013 </h4>
 
 Made more changes to speedup the graphs with large data sets.
-* Derived the graphs from View and not from LinearLayout. Had to change all the views in the class to be part of a singel view as well.
+* Derived the graphs from View and not from LinearLayout. Had to change all the views in the class to be part of a single view as well.
 * Improved performance for large datasets by only drawing the graphs if the data are within the current viewport. (This is a huge speedup if the viewport is small compared to the dataset)
-* Changed the scroll/pan and zoom functions. The original functions did not work correcly on my 2 test tablets if the graphs were embedded in a scroller (most of the examples if not all are embedded within a scroller)
+* Changed the scroll/pan and zoom functions. The original functions did not work correcly on my 2 test tablets if the graphs were embedded in a scroller (most of the examples, if not all, are embedded within a scroller)
 
 <h4>8 February 2013 </h4>
 Changed the way that the scroll, fling and zoom is implemented.
@@ -40,7 +40,7 @@ The touch have 3 different functions depending on the action:
 * pinch will zoom the horizontal axis
 
 <h4>16 February 2013 </h4>
-Add y axis zoom. You can now zoom in on the x axis as well as in the y-axis direction. You canalso scroll in both axes while you have 2 fingers on the screen.
+Add y axis zoom. You can now zoom in on the x axis as well as in the y-axis direction. You can also scroll in both axes while you have 2 fingers on the screen.
 Note that with only one finger on the screen a y axis movement will be passed on to a y axis scroller (if present) and you can scroll the page with multiple graphs up or down.
 
 <h4>19 February 2013 </h4>
@@ -49,7 +49,7 @@ Added a function to auto scale the y-axis nicely. If you are on a graph a long t
 A double touch will take you back to the x origin of the graph.
 
 <h4>21 February 2013 </h4>
-Added manual configuration of y axis increments. This will no work with the autoscale as well.
+Added manual configuration of y axis increments. This will now work with the autoscale as well.
 
 <h2>Original text: What is GraphView</h2>
 
