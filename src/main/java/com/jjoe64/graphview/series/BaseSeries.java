@@ -3,6 +3,7 @@ package com.jjoe64.graphview.series;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 /**
  * Created by jonas on 28.08.14.
@@ -50,13 +51,66 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
         return h;
     }
 
+    /**
+     * get the values for a given x span. if from and until are bigger or equal than
+     * all the data, the original data is returned.
+     * If it is only a part of the data, the span is returned plus one datapoint
+     * before and after to get a nice scrolling.
+     *
+     * @param from
+     * @param until
+     * @return
+     */
     @Override
-    public Iterator<E> getValues(double from, double until) {
+    public Iterator<E> getValues(final double from, final double until) {
         if (from <= getLowestValueX() && until >= getHighestValueX()) {
             return mData.iterator();
         } else {
-            // TODO
-            throw new IllegalStateException();
+            return new Iterator<E>() {
+                Iterator<E> org = mData.iterator();
+                E nextValue = null;
+                boolean plusOne = true;
+
+                {
+                    // go to first
+                    boolean found = false;
+                    while (org.hasNext()) {
+                        nextValue = org.next();
+                        if (nextValue.getX() >= from) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        nextValue = null;
+                    }
+                }
+
+                @Override
+                public void remove() {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public E next() {
+                    if (hasNext()) {
+                        E r = nextValue;
+                        if (r.getX() > until) {
+                            plusOne = false;
+                        }
+                        if (org.hasNext()) nextValue = org.next();
+                        else nextValue = null;
+                        return r;
+                    } else {
+                        throw new NoSuchElementException();
+                    }
+                }
+
+                @Override
+                public boolean hasNext() {
+                    return nextValue != null && (nextValue.getX() <= until || plusOne);
+                }
+            };
         }
     }
 }

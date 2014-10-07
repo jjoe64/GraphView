@@ -17,6 +17,15 @@ public class Viewport {
     private double mMaxX;
     private double mMinY;
     private double mMaxY;
+
+    public AxisBoundsStatus getXAxisBoundsStatus() {
+        return mXAxisBoundsStatus;
+    }
+
+    public AxisBoundsStatus getYAxisBoundsStatus() {
+        return mYAxisBoundsStatus;
+    }
+
     private AxisBoundsStatus mXAxisBoundsStatus;
     private AxisBoundsStatus mYAxisBoundsStatus;
 

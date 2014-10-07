@@ -87,44 +87,53 @@ public class GridLabelRenderer {
         double minY = mGraphView.getViewport().getMinY();
         double maxY = mGraphView.getViewport().getMaxY();
 
-        // find the number of labels
+        // TODO find the number of labels
         int numVerticalLabels = 5;
 
-        // find good steps
-        boolean adjusting = true;
-        double newMinY = minY;
-        double exactSteps = 0d;
-        while (adjusting) {
+        double newMinY;
+        double exactSteps;
+
+        if (mGraphView.getViewport().getYAxisBoundsStatus() == Viewport.AxisBoundsStatus.MANUAL) {
+            newMinY = minY;
             double rangeY = maxY - newMinY;
             exactSteps = rangeY / (numVerticalLabels - 1);
-            exactSteps = humanRound(exactSteps);
+        } else {
+            // find good steps
+            boolean adjusting = true;
+            newMinY = minY;
+            exactSteps = 0d;
+            while (adjusting) {
+                double rangeY = maxY - newMinY;
+                exactSteps = rangeY / (numVerticalLabels - 1);
+                exactSteps = humanRound(exactSteps);
 
-            // adjust viewport
-            // wie oft passt STEP in minY rein?
-            int count = 0;
-            if (newMinY >= 0d) {
-                // positive number
-                while (newMinY - exactSteps >= 0) {
-                    newMinY -= exactSteps;
+                // adjust viewport
+                // wie oft passt STEP in minY rein?
+                int count = 0;
+                if (newMinY >= 0d) {
+                    // positive number
+                    while (newMinY - exactSteps >= 0) {
+                        newMinY -= exactSteps;
+                        count++;
+                    }
+                    newMinY = exactSteps * count;
+                } else {
+                    // negative number
                     count++;
+                    while (newMinY + exactSteps < 0) {
+                        newMinY += exactSteps;
+                        count++;
+                    }
+                    newMinY = exactSteps * count * -1;
                 }
-                newMinY = exactSteps * count;
-            } else {
-                // negative number
-                count++;
-                while (newMinY + exactSteps < 0) {
-                    newMinY += exactSteps;
-                    count++;
-                }
-                newMinY = exactSteps * count * -1;
-            }
 
-            // wenn minY sich geändert hat, steps nochmal berechnen
-            // wenn nicht, fertig
-            if (newMinY == minY) {
-                adjusting = false;
-            } else {
-                minY = newMinY;
+                // wenn minY sich geändert hat, steps nochmal berechnen
+                // wenn nicht, fertig
+                if (newMinY == minY) {
+                    adjusting = false;
+                } else {
+                    minY = newMinY;
+                }
             }
         }
 
@@ -155,51 +164,60 @@ public class GridLabelRenderer {
         double minX = mGraphView.getViewport().getMinX();
         double maxX = mGraphView.getViewport().getMaxX();
 
-        // find the number of labels
+        // TODO find the number of labels
         int numHorizontalLabels = 5;
 
-        // find good steps
-        boolean adjusting = true;
-        double newMinX = minX;
-        double exactSteps = 0d;
-        while (adjusting) {
+        double newMinX;
+        double exactSteps;
+
+        if (mGraphView.getViewport().getXAxisBoundsStatus() == Viewport.AxisBoundsStatus.MANUAL) {
+            newMinX = minX;
             double rangeX = maxX - newMinX;
             exactSteps = rangeX / (numHorizontalLabels - 1);
-            exactSteps = humanRound(exactSteps);
+        } else {
+            // find good steps
+            boolean adjusting = true;
+            newMinX = minX;
+            exactSteps = 0d;
+            while (adjusting) {
+                double rangeX = maxX - newMinX;
+                exactSteps = rangeX / (numHorizontalLabels - 1);
+                exactSteps = humanRound(exactSteps);
 
-            // adjust viewport
-            // wie oft passt STEP in minX rein?
-            int count = 0;
-            if (newMinX >= 0d) {
-                // positive number
-                while (newMinX - exactSteps >= 0) {
-                    newMinX -= exactSteps;
+                // adjust viewport
+                // wie oft passt STEP in minX rein?
+                int count = 0;
+                if (newMinX >= 0d) {
+                    // positive number
+                    while (newMinX - exactSteps >= 0) {
+                        newMinX -= exactSteps;
+                        count++;
+                    }
+                    newMinX = exactSteps * count;
+                } else {
+                    // negative number
                     count++;
+                    while (newMinX + exactSteps < 0) {
+                        newMinX += exactSteps;
+                        count++;
+                    }
+                    newMinX = exactSteps * count * -1;
                 }
-                newMinX = exactSteps * count;
-            } else {
-                // negative number
-                count++;
-                while (newMinX + exactSteps < 0) {
-                    newMinX += exactSteps;
-                    count++;
+
+                // wenn minX sich geändert hat, steps nochmal berechnen
+                // wenn nicht, fertig
+                if (newMinX == minX) {
+                    adjusting = false;
+                } else {
+                    minX = newMinX;
                 }
-                newMinX = exactSteps * count * -1;
             }
 
-            // wenn minX sich geändert hat, steps nochmal berechnen
-            // wenn nicht, fertig
-            if (newMinX == minX) {
-                adjusting = false;
-            } else {
-                minX = newMinX;
-            }
+            double newMaxX = newMinX + (numHorizontalLabels - 1) * exactSteps;
+            mGraphView.getViewport().setMinX(newMinX);
+            mGraphView.getViewport().setMaxX(newMaxX);
+            mGraphView.getViewport().setXAxisBoundsStatus(Viewport.AxisBoundsStatus.AUTO_ADJUSTED);
         }
-
-        double newMaxX = newMinX + (numHorizontalLabels-1)*exactSteps;
-        mGraphView.getViewport().setMinX(newMinX);
-        mGraphView.getViewport().setMaxX(newMaxX);
-        mGraphView.getViewport().setXAxisBoundsStatus(Viewport.AxisBoundsStatus.AUTO_ADJUSTED);
 
         mStepsHorizontal = new LinkedHashMap<Integer, Double>(numHorizontalLabels);
         int width = mGraphView.getWidth() - mStyles.padding*2 - mLabelVerticalWidth;
