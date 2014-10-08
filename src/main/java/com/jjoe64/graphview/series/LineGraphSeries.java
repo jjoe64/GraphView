@@ -3,6 +3,7 @@ package com.jjoe64.graphview.series;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.util.Log;
 
 import com.jjoe64.graphview.GraphView;
 
@@ -79,7 +80,42 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
             double ratX = valX / diffX;
             double x = graphwidth * ratX;
 
+            double orgX = x;
+            double orgY = y;
+
             if (i > 0) {
+                // overdraw
+                if (x > graphwidth) { // end right
+                    double b = ((graphwidth - lastEndX) * (y - lastEndY)/(x - lastEndX));
+                    y = lastEndY+b;
+                    x = graphwidth;
+                }
+                if (y < 0) { // end bottom
+                    double b = ((0 - lastEndY) * (x - lastEndX)/(y - lastEndY));
+                    x = lastEndX+b;
+                    y = 0;
+                }
+                if (y > graphheight) { // end top
+                    double b = ((graphheight - lastEndY) * (x - lastEndX)/(y - lastEndY));
+                    x = lastEndX+b;
+                    y = graphheight;
+                }
+                if (lastEndY < 0) { // start bottom
+                    double b = ((0 - y) * (x - lastEndX)/(lastEndY - y));
+                    lastEndX = x-b;
+                    lastEndY = 0;
+                }
+                if (lastEndX < 0) { // start left
+                    double b = ((0 - x) * (y - lastEndY)/(lastEndX - x));
+                    lastEndY = y-b;
+                    lastEndX = 0;
+                }
+                if (lastEndY > graphheight) { // start top
+                    double b = ((graphheight - y) * (x - lastEndX)/(lastEndY - y));
+                    lastEndX = x-b;
+                    lastEndY = graphheight;
+                }
+
                 float startX = (float) lastEndX + (horstart + 1);
                 float startY = (float) (border - lastEndY) + graphheight;
                 float endX = (float) x + (horstart + 1);
@@ -105,8 +141,8 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
                 float first_Y = (float) (border - y) + graphheight;
                 //TODO canvas.drawCircle(first_X, first_Y, dataPointsRadius, mPaint);
             }
-            lastEndY = y;
-            lastEndX = x;
+            lastEndY = orgY;
+            lastEndX = orgX;
             i++;
         }
 

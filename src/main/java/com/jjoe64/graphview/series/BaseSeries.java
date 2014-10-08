@@ -69,16 +69,29 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
             return new Iterator<E>() {
                 Iterator<E> org = mData.iterator();
                 E nextValue = null;
+                E nextNextValue = null;
                 boolean plusOne = true;
 
                 {
                     // go to first
                     boolean found = false;
-                    while (org.hasNext()) {
-                        nextValue = org.next();
-                        if (nextValue.getX() >= from) {
-                            found = true;
-                            break;
+                    E prevValue = null;
+                    if (org.hasNext()) {
+                        prevValue = org.next();
+                    }
+                    if (prevValue.getX() >= from) {
+                        nextValue = prevValue;
+                        found = true;
+                    } else {
+                        while (org.hasNext()) {
+                            nextValue = org.next();
+                            if (nextValue.getX() >= from) {
+                                found = true;
+                                nextNextValue = nextValue;
+                                nextValue = prevValue;
+                                break;
+                            }
+                            prevValue = nextValue;
                         }
                     }
                     if (!found) {
@@ -98,7 +111,10 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
                         if (r.getX() > until) {
                             plusOne = false;
                         }
-                        if (org.hasNext()) nextValue = org.next();
+                        if (nextNextValue != null) {
+                            nextValue = nextNextValue;
+                            nextNextValue = null;
+                        } else if (org.hasNext()) nextValue = org.next();
                         else nextValue = null;
                         return r;
                     } else {
