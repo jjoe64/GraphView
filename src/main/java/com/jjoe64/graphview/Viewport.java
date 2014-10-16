@@ -8,6 +8,14 @@ import java.util.List;
  * Created by jonas on 13.08.14.
  */
 public class Viewport {
+    public boolean isScrollable() {
+        return mIsScrollable;
+    }
+
+    public void setScrollable(boolean mIsScrollable) {
+        this.mIsScrollable = mIsScrollable;
+    }
+
     public enum AxisBoundsStatus {
         INITIAL, AUTO_ADJUSTED, MANUAL
     }
@@ -17,6 +25,8 @@ public class Viewport {
     private double mMaxX;
     private double mMinY;
     private double mMaxY;
+    private boolean mIsScrollable;
+
 
     public AxisBoundsStatus getXAxisBoundsStatus() {
         return mXAxisBoundsStatus;
