@@ -8,8 +8,10 @@ import android.view.MotionEvent;
 import android.widget.EdgeEffect;
 import android.widget.OverScroller;
 
+import com.jjoe64.graphview.series.DataPointInterface;
 import com.jjoe64.graphview.series.Series;
 
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -98,6 +100,9 @@ public class Viewport {
             //    mEdgeEffectTopActive = true;
             //}
 
+            // adjust viewport, labels, etc.
+            mGraphView.onDataChanged();
+
             mGraphView.postInvalidateOnAnimation();
             return true;
         }
@@ -175,7 +180,7 @@ public class Viewport {
         return mYAxisBoundsStatus;
     }
 
-        public void calcCompleteRange() {
+    public void calcCompleteRange() {
         List<Series> series = mGraphView.getSeries();
         if (series.isEmpty()) {
             mCompleteRange.set(0, 0, 0, 0);
@@ -212,34 +217,78 @@ public class Viewport {
             }
             mCompleteRange.top = (float) d;
         }
+
+        if (mYAxisBoundsStatus == AxisBoundsStatus.AUTO_ADJUSTED) {
+            mYAxisBoundsStatus = AxisBoundsStatus.INITIAL;
+        }
+        if (mYAxisBoundsStatus == AxisBoundsStatus.INITIAL) {
+            mCurrentViewport.top = mCompleteRange.top;
+            mCurrentViewport.bottom = mCompleteRange.bottom;
+        }
+
+        if (mXAxisBoundsStatus == AxisBoundsStatus.AUTO_ADJUSTED) {
+            mXAxisBoundsStatus = AxisBoundsStatus.INITIAL;
+        }
+        if (mXAxisBoundsStatus == AxisBoundsStatus.INITIAL) {
+            mCurrentViewport.left = mCompleteRange.left;
+            mCurrentViewport.right = mCompleteRange.right;
+        } else if (mXAxisBoundsStatus == AxisBoundsStatus.MANUAL) {
+            // get highest/lowest of current viewport
+            // lowest
+            double d = Double.MAX_VALUE;
+            for (Series s : series) {
+                Iterator<DataPointInterface> values = s.getValues(mCurrentViewport.left, mCurrentViewport.right);
+                while (values.hasNext()) {
+                    double v = values.next().getY();
+                    if (d > v) {
+                        d = v;
+                    }
+                }
+            }
+
+            mCurrentViewport.bottom = (float) d;
+
+            // highest
+            d = Double.MIN_VALUE;
+            for (Series s : series) {
+                Iterator<DataPointInterface> values = s.getValues(mCurrentViewport.left, mCurrentViewport.right);
+                while (values.hasNext()) {
+                    double v = values.next().getY();
+                    if (d < v) {
+                        d = v;
+                    }
+                }
+            }
+            mCurrentViewport.top = (float) d;
+        }
     }
 
-    public double getMinX() {
-        if (mXAxisBoundsStatus == AxisBoundsStatus.INITIAL) {
+    public double getMinX(boolean completeRange) {
+        if (completeRange) {
             return (double) mCompleteRange.left;
         } else {
             return (double) mCurrentViewport.left;
         }
     }
 
-    public double getMaxX() {
-        if (mXAxisBoundsStatus == AxisBoundsStatus.INITIAL) {
+    public double getMaxX(boolean completeRange) {
+        if (completeRange) {
             return (double) mCompleteRange.right;
         } else {
             return mCurrentViewport.right;
         }
     }
 
-    public double getMinY() {
-        if (mYAxisBoundsStatus == AxisBoundsStatus.INITIAL) {
+    public double getMinY(boolean completeRange) {
+        if (completeRange) {
             return (double) mCompleteRange.bottom;
         } else {
             return mCurrentViewport.bottom;
         }
     }
 
-    public double getMaxY() {
-        if (mYAxisBoundsStatus == AxisBoundsStatus.INITIAL) {
+    public double getMaxY(boolean completeRange) {
+        if (completeRange) {
             return (double) mCompleteRange.top;
         } else {
             return mCurrentViewport.top;

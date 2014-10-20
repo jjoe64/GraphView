@@ -84,8 +84,10 @@ public class GridLabelRenderer {
             return false;
         }
 
-        double minY = mGraphView.getViewport().getMinY();
-        double maxY = mGraphView.getViewport().getMaxY();
+        double minY = mGraphView.getViewport().getMinY(false);
+        double maxY = mGraphView.getViewport().getMaxY(false);
+
+        Log.d("GridLabelRenderer", "minY="+minY+"/maxY="+maxY);
 
         // TODO find the number of labels
         int numVerticalLabels = 5;
@@ -161,8 +163,8 @@ public class GridLabelRenderer {
             return false;
         }
 
-        double minX = mGraphView.getViewport().getMinX();
-        double maxX = mGraphView.getViewport().getMaxX();
+        double minX = mGraphView.getViewport().getMinX(false);
+        double maxX = mGraphView.getViewport().getMaxX(false);
 
         // TODO find the number of labels
         int numHorizontalLabels = 5;
@@ -243,7 +245,7 @@ public class GridLabelRenderer {
 
     protected void calcLabelVerticalSize(Canvas canvas) {
         // test label
-        double testY = ((mGraphView.getViewport().getMaxY()-mGraphView.getViewport().getMinY())*0.783)+mGraphView.getViewport().getMinY();
+        double testY = ((mGraphView.getViewport().getMaxY(false)-mGraphView.getViewport().getMinY(false))*0.783)+mGraphView.getViewport().getMinY(false);
         String testLabel = mLabelFormatter.formatLabel(testY, false);
         Rect textBounds = new Rect();
         mPaintLabel.getTextBounds(testLabel, 0, testLabel.length(), textBounds);
@@ -260,7 +262,7 @@ public class GridLabelRenderer {
 
     protected void calcLabelHorizontalSize(Canvas canvas) {
         // test label
-        double testX = ((mGraphView.getViewport().getMaxX()-mGraphView.getViewport().getMinX())*0.783)+mGraphView.getViewport().getMinX();
+        double testX = ((mGraphView.getViewport().getMaxX(false)-mGraphView.getViewport().getMinX(false))*0.783)+mGraphView.getViewport().getMinX(false);
         String testLabel = mLabelFormatter.formatLabel(testX, true);
         Rect textBounds = new Rect();
         mPaintLabel.getTextBounds(testLabel, 0, testLabel.length(), textBounds);

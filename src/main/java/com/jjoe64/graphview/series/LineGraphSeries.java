@@ -39,10 +39,10 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
     @Override
     public void draw(GraphView graphView, Canvas canvas) {
         // get data
-        double maxX = graphView.getViewport().getMaxX();
-        double minX = graphView.getViewport().getMinX();
-        double maxY = graphView.getViewport().getMaxY();
-        double minY = graphView.getViewport().getMinY();
+        double maxX = graphView.getViewport().getMaxX(false);
+        double minX = graphView.getViewport().getMinX(false);
+        double maxY = graphView.getViewport().getMaxY(false);
+        double minY = graphView.getViewport().getMinY(false);
         Iterator<E> values = getValues(minX, maxX);
 
         // draw background

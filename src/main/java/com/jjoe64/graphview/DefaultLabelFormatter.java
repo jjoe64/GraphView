@@ -17,8 +17,8 @@ public class DefaultLabelFormatter implements LabelFormatter {
         int i = isValueX ? 1 : 0;
         if (numberformatter[i] == null) {
             numberformatter[i] = NumberFormat.getNumberInstance();
-            double highestvalue = isValueX ? mViewport.getMaxX() : mViewport.getMaxY();
-            double lowestvalue = isValueX ? mViewport.getMinX() : mViewport.getMinY();
+            double highestvalue = isValueX ? mViewport.getMaxX(false) : mViewport.getMaxY(false);
+            double lowestvalue = isValueX ? mViewport.getMinX(false) : mViewport.getMinY(false);
             if (highestvalue - lowestvalue < 0.1) {
                 numberformatter[i].setMaximumFractionDigits(6);
             } else if (highestvalue - lowestvalue < 1) {

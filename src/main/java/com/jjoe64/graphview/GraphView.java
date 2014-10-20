@@ -60,7 +60,7 @@ public class GraphView extends View {
         return mSeries;
     }
 
-    protected void onDataChanged() {
+    public void onDataChanged() {
         // adjust grid system
         mGridLabelRenderer.adjust();
         mViewport.calcCompleteRange();
