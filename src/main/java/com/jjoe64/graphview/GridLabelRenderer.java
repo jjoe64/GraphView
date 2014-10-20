@@ -223,9 +223,26 @@ public class GridLabelRenderer {
 
         mStepsHorizontal = new LinkedHashMap<Integer, Double>(numHorizontalLabels);
         int width = mGraphView.getWidth() - mStyles.padding*2 - mLabelVerticalWidth;
+
+
         double v = newMinX;
         int p = mStyles.padding + mLabelVerticalWidth;
         int pixelStep = width/(numHorizontalLabels-1);
+
+        float scrolled = 0;
+        float scrolledPixels = 0;
+        if (!Float.isNaN(mGraphView.getViewport().mScrollingReferenceX)) {
+            scrolled = mGraphView.getViewport().mScrollingReferenceX - (float) newMinX;
+            scrolledPixels = scrolled * ((float)pixelStep/(float)exactSteps);
+
+            if (scrolled < 0-exactSteps) {
+                mGraphView.getViewport().mScrollingReferenceX += exactSteps;
+            } else if (scrolled > exactSteps) {
+                mGraphView.getViewport().mScrollingReferenceX -= exactSteps;
+            }
+        }
+        p += scrolledPixels;
+        v += scrolled;
         for (int i = 0; i < numHorizontalLabels; i++) {
             mStepsHorizontal.put(p, v);
             p += pixelStep;

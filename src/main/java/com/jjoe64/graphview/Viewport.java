@@ -35,6 +35,10 @@ public class Viewport {
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
             Log.d("Viewport", "on Scroll");
 
+            if (Float.isNaN(mScrollingReferenceX)) {
+                mScrollingReferenceX = mCurrentViewport.left;
+            }
+
             // Scrolling uses math based on the viewport (as opposed to math using pixels).
             /**
              * Pixel offset is the offset in screen pixels, while viewport offset is the
@@ -139,6 +143,8 @@ public class Viewport {
     private boolean mEdgeEffectLeftActive;
     private boolean mEdgeEffectRightActive;
     private RectF mScrollerStartViewport = new RectF();
+
+    protected float mScrollingReferenceX = Float.NaN;
 
     private AxisBoundsStatus mXAxisBoundsStatus;
     private AxisBoundsStatus mYAxisBoundsStatus;
