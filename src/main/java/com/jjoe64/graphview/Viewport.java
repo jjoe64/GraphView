@@ -238,7 +238,7 @@ public class Viewport {
         if (mXAxisBoundsStatus == AxisBoundsStatus.INITIAL) {
             mCurrentViewport.left = mCompleteRange.left;
             mCurrentViewport.right = mCompleteRange.right;
-        } else if (mXAxisBoundsStatus == AxisBoundsStatus.MANUAL) {
+        } else if (mXAxisBoundsStatus == AxisBoundsStatus.MANUAL && mYAxisBoundsStatus != AxisBoundsStatus.MANUAL) {
             // get highest/lowest of current viewport
             // lowest
             double d = Double.MAX_VALUE;

@@ -1,10 +1,13 @@
 package com.jjoe64.graphview;
 
+import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.util.Log;
+import android.util.TypedValue;
+import android.view.ContextThemeWrapper;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -45,15 +48,29 @@ public class GridLabelRenderer {
     }
 
     public void resetStyles() {
-        mStyles.textSize = 20;
+        // get matching styles from theme
+        TypedValue typedValue = new TypedValue();
+        mGraphView.getContext().getTheme().resolveAttribute(android.R.attr.textAppearanceSmall, typedValue, true);
+
+        TypedArray array = mGraphView.getContext().obtainStyledAttributes(typedValue.data, new int[] {
+                android.R.attr.textColorPrimary
+                , android.R.attr.textColorSecondary
+                , android.R.attr.textSize
+                , android.R.attr.horizontalGap});
+        int color1 = array.getColor(0, Color.BLACK);
+        int color2 = array.getColor(1, Color.GRAY);
+        int size = array.getDimensionPixelSize(2, 20);
+        int size2 = array.getDimensionPixelSize(3, 20);
+        array.recycle();
+
+        mStyles.verticalLabelsColor = color1;
+        mStyles.horizontalLabelsColor = color1;
+        mStyles.gridColor = color2;
+        mStyles.textSize = size;
+        mStyles.padding = size2;
+
         mStyles.verticalLabelsAlign = Paint.Align.RIGHT;
-        mStyles.verticalLabelsColor = Color.RED;
-        mStyles.horizontalLabelsColor = Color.RED;
-
-        mStyles.gridColor = Color.RED;
         mStyles.highlightZeroLines = true;
-
-        mStyles.padding = 20;
 
         reloadStyles();
     }
@@ -142,7 +159,9 @@ public class GridLabelRenderer {
         double newMaxY = newMinY + (numVerticalLabels-1)*exactSteps;
         mGraphView.getViewport().setMinY(newMinY);
         mGraphView.getViewport().setMaxY(newMaxY);
-        mGraphView.getViewport().setYAxisBoundsStatus(Viewport.AxisBoundsStatus.AUTO_ADJUSTED);
+        if (mGraphView.getViewport().getYAxisBoundsStatus() != Viewport.AxisBoundsStatus.MANUAL) {
+            mGraphView.getViewport().setYAxisBoundsStatus(Viewport.AxisBoundsStatus.AUTO_ADJUSTED);
+        }
 
         mStepsVertical = new LinkedHashMap<Integer, Double>(numVerticalLabels);
         int height = mGraphView.getHeight() - mStyles.padding*2 - mLabelHorizontalHeight;

@@ -15,7 +15,7 @@ import java.util.List;
  */
 public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E> {
     private final class Styles {
-        private int thickness = 3;
+        private int thickness = 5;
         private int color = 0xff0077cc;
         private boolean drawBackground = false;
         private boolean drawDataPoints = false;
