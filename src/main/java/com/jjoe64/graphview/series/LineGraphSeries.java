@@ -1,6 +1,7 @@
 package com.jjoe64.graphview.series;
 
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.util.Log;
@@ -20,10 +21,12 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
         private boolean drawBackground = false;
         private boolean drawDataPoints = false;
         private float dataPointsRadius = 10f;
+        private int backgroundColor = Color.argb(100, 172, 218, 255);
     }
     
     private Styles mStyles;
     private Paint mPaint;
+    private Paint mPaintBackground;
     private Path mPath;
 
     public LineGraphSeries(E[] data) {
@@ -32,6 +35,7 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
         mStyles = new Styles();
         mPaint = new Paint();
         mPaint.setStrokeCap(Paint.Cap.ROUND);
+        mPaintBackground = new Paint();
 
         mPath = new Path();
     }
@@ -52,6 +56,7 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
         // draw data
         mPaint.setStrokeWidth(mStyles.thickness);
         mPaint.setColor(mStyles.color);
+        mPaintBackground.setColor(mStyles.backgroundColor);
 
         if (mStyles.drawBackground) {
             mPath.reset();
@@ -67,6 +72,7 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
 
         lastEndY = 0;
         lastEndX = 0;
+        double lastUsedEndX = 0;
         float firstX = 0;
         int i=0;
         while (values.hasNext()) {
@@ -135,6 +141,7 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
                     }
                     mPath.lineTo(endX, endY);
                 }
+                lastUsedEndX = endX;
             } else if (mStyles.drawDataPoints) {
                 //fix: last value not drawn as datapoint. Draw first point here, and then on every step the end values (above)
                 float first_X = (float) x + (horstart + 1);
@@ -148,11 +155,59 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
 
         if (mStyles.drawBackground) {
             // end / close path
-            mPath.lineTo((float) lastEndX, graphheight + border);
+            mPath.lineTo((float) lastUsedEndX, graphheight + border);
             mPath.lineTo(firstX, graphheight + border);
             mPath.close();
-            //TODO canvas.drawPath(mPath, mPaintBackground);
+            canvas.drawPath(mPath, mPaintBackground);
         }
 
+    }
+
+    public int getThickness() {
+        return mStyles.thickness;
+    }
+
+    public void setThickness(int thickness) {
+        mStyles.thickness = thickness;
+    }
+
+    public int getColor() {
+        return mStyles.color;
+    }
+
+    public void setColor(int color) {
+        mStyles.color = color;
+    }
+
+    public boolean isDrawBackground() {
+        return mStyles.drawBackground;
+    }
+
+    public void setDrawBackground(boolean drawBackground) {
+        mStyles.drawBackground = drawBackground;
+    }
+
+    public boolean isDrawDataPoints() {
+        return mStyles.drawDataPoints;
+    }
+
+    public void setDrawDataPoints(boolean drawDataPoints) {
+        mStyles.drawDataPoints = drawDataPoints;
+    }
+
+    public float getDataPointsRadius() {
+        return mStyles.dataPointsRadius;
+    }
+
+    public void setDataPointsRadius(float dataPointsRadius) {
+        mStyles.dataPointsRadius = dataPointsRadius;
+    }
+
+    public int getBackgroundColor() {
+        return mStyles.backgroundColor;
+    }
+
+    public void setBackgroundColor(int backgroundColor) {
+        mStyles.backgroundColor = backgroundColor;
     }
 }

@@ -68,6 +68,7 @@ public class GraphView extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
+        mViewport.drawFirst(canvas);
         mGridLabelRenderer.draw(canvas);
         for (Series s : mSeries) {
             s.draw(this, canvas);
@@ -92,7 +93,7 @@ public class GraphView extends View {
 
     int getGraphContentTop() {
         int border = getGridLabelRenderer().getStyles().padding;
-        return border + getGridLabelRenderer().getLabelHorizontalHeight();
+        return border;
     }
 
     int getGraphContentHeight() {

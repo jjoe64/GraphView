@@ -1,6 +1,8 @@
 package com.jjoe64.graphview;
 
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.RectF;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -118,6 +120,7 @@ public class Viewport {
             return true;
         }
     };
+    private Paint mPaint;
 
     public boolean onTouchEvent(MotionEvent event) {
         return mGestureDetector.onTouchEvent(event);
@@ -143,11 +146,12 @@ public class Viewport {
     private boolean mEdgeEffectLeftActive;
     private boolean mEdgeEffectRightActive;
     private RectF mScrollerStartViewport = new RectF();
-
     protected float mScrollingReferenceX = Float.NaN;
 
     private AxisBoundsStatus mXAxisBoundsStatus;
     private AxisBoundsStatus mYAxisBoundsStatus;
+
+    private int mBackgroundColor;
 
     public Viewport(GraphView graphView) {
         mScroller = new OverScroller(graphView.getContext());
@@ -160,6 +164,8 @@ public class Viewport {
         mGraphView = graphView;
         mXAxisBoundsStatus = AxisBoundsStatus.INITIAL;
         mYAxisBoundsStatus = AxisBoundsStatus.INITIAL;
+        mBackgroundColor = Color.TRANSPARENT;
+        mPaint = new Paint();
     }
 
     public void setXAxisBoundsStatus(AxisBoundsStatus s) {
@@ -478,7 +484,29 @@ public class Viewport {
         }
     }
 
+    public void drawFirst(Canvas c) {
+        // draw background
+        if (mBackgroundColor != Color.TRANSPARENT) {
+            mPaint.setColor(mBackgroundColor);
+            c.drawRect(
+                    mGraphView.getGraphContentLeft(),
+                    mGraphView.getGraphContentTop(),
+                    mGraphView.getGraphContentLeft()+mGraphView.getGraphContentWidth(),
+                    mGraphView.getGraphContentTop()+mGraphView.getGraphContentHeight(),
+                    mPaint
+            );
+        }
+    }
+
     public void draw(Canvas c) {
         drawEdgeEffectsUnclipped(c);
+    }
+
+    public int getBackgroundColor() {
+        return mBackgroundColor;
+    }
+
+    public void setBackgroundColor(int mBackgroundColor) {
+        this.mBackgroundColor = mBackgroundColor;
     }
 }

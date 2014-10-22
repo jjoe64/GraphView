@@ -94,6 +94,7 @@ public class GridLabelRenderer {
         mIsAdjusted = false;
         mLabelVerticalWidth = null;
         mLabelVerticalHeight = null;
+        reloadStyles();
     }
 
     protected boolean adjustVertical() {
@@ -314,11 +315,19 @@ public class GridLabelRenderer {
     }
 
     public void draw(Canvas canvas) {
+        boolean labelSizeChanged = false;
         if (mLabelHorizontalWidth == null) {
             calcLabelHorizontalSize(canvas);
+            labelSizeChanged = true;
         }
         if (mLabelVerticalWidth == null) {
             calcLabelVerticalSize(canvas);
+            labelSizeChanged = true;
+        }
+        if (labelSizeChanged) {
+            // redraw
+            mGraphView.postInvalidateOnAnimation();
+            return;
         }
 
         if (!mIsAdjusted) {
@@ -344,7 +353,7 @@ public class GridLabelRenderer {
                     mPaintLine.setStrokeWidth(0);
                 }
             }
-            canvas.drawLine(e.getKey(), mStyles.padding, e.getKey(), canvas.getHeight()- mStyles.padding, mPaintLine);
+            canvas.drawLine(e.getKey(), mStyles.padding, e.getKey(), canvas.getHeight()- mStyles.padding-getLabelHorizontalHeight(), mPaintLine);
 
             // draw label
             mPaintLabel.setTextAlign(Paint.Align.CENTER);
@@ -431,5 +440,45 @@ public class GridLabelRenderer {
 
     public int getLabelHorizontalHeight() {
         return mLabelHorizontalHeight==null?0:mLabelHorizontalHeight;
+    }
+
+    public int getGridColor() {
+        return mStyles.gridColor;
+    }
+
+    public boolean isHighlightZeroLines() {
+        return mStyles.highlightZeroLines;
+    }
+
+    public int getPadding() {
+        return mStyles.padding;
+    }
+
+    public void setTextSize(float textSize) {
+        mStyles.textSize = textSize;
+    }
+
+    public void setVerticalLabelsAlign(Paint.Align verticalLabelsAlign) {
+        mStyles.verticalLabelsAlign = verticalLabelsAlign;
+    }
+
+    public void setVerticalLabelsColor(int verticalLabelsColor) {
+        mStyles.verticalLabelsColor = verticalLabelsColor;
+    }
+
+    public void setHorizontalLabelsColor(int horizontalLabelsColor) {
+        mStyles.horizontalLabelsColor = horizontalLabelsColor;
+    }
+
+    public void setGridColor(int gridColor) {
+        mStyles.gridColor = gridColor;
+    }
+
+    public void setHighlightZeroLines(boolean highlightZeroLines) {
+        mStyles.highlightZeroLines = highlightZeroLines;
+    }
+
+    public void setPadding(int padding) {
+        mStyles.padding = padding;
     }
 }
