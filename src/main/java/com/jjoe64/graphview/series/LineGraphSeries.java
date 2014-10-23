@@ -17,7 +17,6 @@ import java.util.List;
 public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E> {
     private final class Styles {
         private int thickness = 5;
-        private int color = 0xff0077cc;
         private boolean drawBackground = false;
         private boolean drawDataPoints = false;
         private float dataPointsRadius = 10f;
@@ -55,7 +54,7 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
 
         // draw data
         mPaint.setStrokeWidth(mStyles.thickness);
-        mPaint.setColor(mStyles.color);
+        mPaint.setColor(getColor());
         mPaintBackground.setColor(mStyles.backgroundColor);
 
         if (mStyles.drawBackground) {
@@ -169,14 +168,6 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
 
     public void setThickness(int thickness) {
         mStyles.thickness = thickness;
-    }
-
-    public int getColor() {
-        return mStyles.color;
-    }
-
-    public void setColor(int color) {
-        mStyles.color = color;
     }
 
     public boolean isDrawBackground() {

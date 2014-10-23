@@ -11,6 +11,9 @@ import java.util.NoSuchElementException;
 public abstract class BaseSeries<E extends DataPointInterface> implements Series<E> {
     private List<E> mData = new ArrayList<E>();
 
+    private String mTitle;
+    private int mColor = 0xff0077cc;
+
     public BaseSeries(E[] data) {
         for (E d : data) {
             mData.add(d);
@@ -128,5 +131,21 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
                 }
             };
         }
+    }
+
+    public String getTitle() {
+        return mTitle;
+    }
+
+    public void setTitle(String mTitle) {
+        this.mTitle = mTitle;
+    }
+
+    public int getColor() {
+        return mColor;
+    }
+
+    public void setColor(int mColor) {
+        this.mColor = mColor;
     }
 }

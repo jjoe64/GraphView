@@ -5,9 +5,7 @@ import android.graphics.Canvas;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.OverScroller;
 
-import com.jjoe64.graphview.series.LineGraphSeries;
 import com.jjoe64.graphview.series.Series;
 
 import java.util.ArrayList;
@@ -20,6 +18,7 @@ public class GraphView extends View {
     private List<Series> mSeries;
     private GridLabelRenderer mGridLabelRenderer;
     private Viewport mViewport;
+
     private LegendRenderer mLegendRenderer;
     private TitleRenderer mTitleRenderer;
 
@@ -74,6 +73,7 @@ public class GraphView extends View {
             s.draw(this, canvas);
         }
         mViewport.draw(canvas);
+        mLegendRenderer.draw(canvas);
     }
 
     public Viewport getViewport() {
@@ -118,5 +118,13 @@ public class GraphView extends View {
     public void computeScroll() {
         super.computeScroll();
         mViewport.computeScroll();
+    }
+
+    public LegendRenderer getLegendRenderer() {
+        return mLegendRenderer;
+    }
+
+    public void setLegendRenderer(LegendRenderer mLegendRenderer) {
+        this.mLegendRenderer = mLegendRenderer;
     }
 }
