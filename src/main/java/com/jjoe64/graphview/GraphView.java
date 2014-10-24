@@ -86,23 +86,23 @@ public class GraphView extends View {
         onDataChanged();
     }
 
-    int getGraphContentLeft() {
+    public int getGraphContentLeft() {
         int border = getGridLabelRenderer().getStyles().padding;
         return border + getGridLabelRenderer().getLabelVerticalWidth();
     }
 
-    int getGraphContentTop() {
+    public int getGraphContentTop() {
         int border = getGridLabelRenderer().getStyles().padding;
         return border;
     }
 
-    int getGraphContentHeight() {
+    public int getGraphContentHeight() {
         int border = getGridLabelRenderer().getStyles().padding;
         int graphheight = getHeight() - (2 * border) - getGridLabelRenderer().getLabelHorizontalHeight();
         return graphheight;
     }
 
-    int getGraphContentWidth() {
+    public int getGraphContentWidth() {
         int border = getGridLabelRenderer().getStyles().padding;
         int graphwidth = getWidth() - (2 * border) - getGridLabelRenderer().getLabelVerticalWidth();
         return graphwidth;

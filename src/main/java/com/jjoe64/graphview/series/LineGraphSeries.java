@@ -64,6 +64,7 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
         double diffY = maxY - minY;
         double diffX = maxX - minX;
 
+        // TODO use getContentWidth etc.
         float border = graphView.getGridLabelRenderer().getStyles().padding;
         float graphheight = graphView.getHeight() - (2 * border) - graphView.getGridLabelRenderer().getLabelHorizontalHeight();
         float graphwidth = graphView.getWidth() - (2 * border) - graphView.getGridLabelRenderer().getLabelVerticalWidth();

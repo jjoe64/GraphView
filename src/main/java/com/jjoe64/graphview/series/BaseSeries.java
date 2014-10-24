@@ -1,5 +1,7 @@
 package com.jjoe64.graphview.series;
 
+import com.jjoe64.graphview.GraphView;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -13,11 +15,16 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
 
     private String mTitle;
     private int mColor = 0xff0077cc;
+    protected GraphView mGraphView;
 
     public BaseSeries(E[] data) {
         for (E d : data) {
             mData.add(d);
         }
+    }
+
+    public void setGraphView(GraphView g) {
+        mGraphView = g;
     }
 
     public double getLowestValueX() {
