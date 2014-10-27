@@ -15,16 +15,11 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
 
     private String mTitle;
     private int mColor = 0xff0077cc;
-    protected GraphView mGraphView;
 
     public BaseSeries(E[] data) {
         for (E d : data) {
             mData.add(d);
         }
-    }
-
-    public void setGraphView(GraphView g) {
-        mGraphView = g;
     }
 
     public double getLowestValueX() {

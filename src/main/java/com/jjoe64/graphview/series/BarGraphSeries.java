@@ -5,6 +5,7 @@ import android.graphics.Paint;
 import android.util.Log;
 
 import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.ValueDependentColor;
 
 import java.util.Iterator;
 
@@ -13,6 +14,11 @@ import java.util.Iterator;
  */
 public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> {
     private Paint mPaint;
+    private int mSpacing;
+    private ValueDependentColor<E> mValueDependentColor;
+    private boolean mDrawValuesOnTop;
+    private int mValuesOnTopColor;
+    private float mValuesOnTopSize;
 
     public BarGraphSeries(E[] data) {
         super(data);
@@ -21,6 +27,12 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
 
     @Override
     public void draw(GraphView graphView, Canvas canvas) {
+        mPaint.setTextAlign(Paint.Align.CENTER);
+        if (mValuesOnTopSize == 0) {
+            mValuesOnTopSize = graphView.getGridLabelRenderer().getTextSize();
+        }
+        mPaint.setTextSize(mValuesOnTopSize);
+
         // get data
         double maxX = graphView.getViewport().getMaxX(false);
         double minX = graphView.getViewport().getMinX(false);
@@ -44,9 +56,7 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
         float colwidth = graphView.getGraphContentWidth() / (numOfBars-1);
         Log.d("BarGraphSeries", "numBars=" + numOfBars);
 
-        //TODO mPaint.setStrokeWidth(style.thickness);
-
-        // TODO style: spacing
+        float spacing = Math.min((float) colwidth*mSpacing/100, colwidth*0.98f);
         float offset = colwidth/2;
 
         double diffY = maxY - minY;
@@ -73,38 +83,94 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
             double ratX = valX / diffX;
             double x = contentWidth * ratX;
 
-            // TODO overdraw
-
-            // TODO hook for value dependent color
-            //if (style.getValueDependentColor() != null) {
-            //    paint.setColor(style.getValueDependentColor().get(values[i]));
-            //} else {
+            // hook for value dependent color
+            if (getValueDependentColor() != null) {
+                mPaint.setColor(getValueDependentColor().get(value));
+            } else {
                 mPaint.setColor(getColor());
-            //}
+            }
 
-            float left = (float)x + contentLeft - offset;
+            float left = (float)x + contentLeft - offset + spacing/2;
             float top = (contentTop - (float)y) + contentHeight;
-            float right = left + colwidth;
+            float right = left + colwidth - spacing;
             float bottom = (contentTop - (float)y0) + contentHeight - (graphView.getGridLabelRenderer().isHighlightZeroLines()?4:1);
 
-            if (top > bottom) {
+            boolean reverse = top > bottom;
+            if (reverse) {
                 float tmp = top;
                 top = bottom + (graphView.getGridLabelRenderer().isHighlightZeroLines()?4:1);
                 bottom = tmp;
             }
 
+            // overdraw
+            left = Math.max(left, contentLeft);
+            right = Math.min(right, contentLeft+contentWidth);
+            bottom = Math.min(bottom, contentTop+contentHeight);
+            top = Math.max(top, contentTop);
+
             canvas.drawRect(left, top, right, bottom, mPaint);
 
-            // TODO -----Set values on top of graph---------
-            //if (drawValuesOnTop) {
-            //    top -= 4;
-            //    if (top<=border) top+=border+4;
-            //    paint.setTextAlign(Paint.Align.CENTER);
-            //    paint.setColor(valuesOnTopColor );
-            //    canvas.drawText(formatLabel(values[i].getY(), false), (left+right)/2, top, paint);
-            //}
+            // set values on top of graph
+            if (mDrawValuesOnTop) {
+                if (reverse) {
+                    top = bottom + mValuesOnTopSize + 4;
+                    if (top > contentTop+contentHeight) top = contentTop + contentHeight;
+                } else {
+                    top -= 4;
+                    if (top<=contentTop) top+=contentTop+4;
+                }
+
+                mPaint.setColor(mValuesOnTopColor);
+                canvas.drawText(
+                        graphView.getGridLabelRenderer().getLabelFormatter().formatLabel(value.getY(), false)
+                        , (left+right)/2, top, mPaint);
+            }
 
             i++;
         }
+    }
+
+    public ValueDependentColor<E> getValueDependentColor() {
+        return mValueDependentColor;
+    }
+
+    public void setValueDependentColor(ValueDependentColor<E> mValueDependentColor) {
+        this.mValueDependentColor = mValueDependentColor;
+    }
+
+    public int getSpacing() {
+        return mSpacing;
+    }
+
+    /**
+     * 0-100
+     * @param mSpacing
+     */
+    public void setSpacing(int mSpacing) {
+        this.mSpacing = mSpacing;
+    }
+
+    public boolean isDrawValuesOnTop() {
+        return mDrawValuesOnTop;
+    }
+
+    public void setDrawValuesOnTop(boolean mDrawValuesOnTop) {
+        this.mDrawValuesOnTop = mDrawValuesOnTop;
+    }
+
+    public int getValuesOnTopColor() {
+        return mValuesOnTopColor;
+    }
+
+    public void setValuesOnTopColor(int mValuesOnTopColor) {
+        this.mValuesOnTopColor = mValuesOnTopColor;
+    }
+
+    public float getValuesOnTopSize() {
+        return mValuesOnTopSize;
+    }
+
+    public void setValuesOnTopSize(float mValuesOnTopSize) {
+        this.mValuesOnTopSize = mValuesOnTopSize;
     }
 }

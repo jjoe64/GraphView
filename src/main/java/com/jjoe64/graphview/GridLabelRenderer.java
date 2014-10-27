@@ -481,4 +481,12 @@ public class GridLabelRenderer {
     public void setPadding(int padding) {
         mStyles.padding = padding;
     }
+
+    public LabelFormatter getLabelFormatter() {
+        return mLabelFormatter;
+    }
+
+    public void setLabelFormatter(LabelFormatter mLabelFormatter) {
+        this.mLabelFormatter = mLabelFormatter;
+    }
 }
