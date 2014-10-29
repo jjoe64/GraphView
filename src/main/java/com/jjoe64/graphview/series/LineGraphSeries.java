@@ -64,11 +64,10 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
         double diffY = maxY - minY;
         double diffX = maxX - minX;
 
-        // TODO use getContentWidth etc.
-        float border = graphView.getGridLabelRenderer().getStyles().padding;
-        float graphheight = graphView.getHeight() - (2 * border) - graphView.getGridLabelRenderer().getLabelHorizontalHeight();
-        float graphwidth = graphView.getWidth() - (2 * border) - graphView.getGridLabelRenderer().getLabelVerticalWidth();
-        float horstart = border + graphView.getGridLabelRenderer().getLabelVerticalWidth();
+        float graphHeight = graphView.getGraphContentHeight();
+        float graphWidth = graphView.getGraphContentWidth();
+        float graphLeft = graphView.getGraphContentLeft();
+        float graphTop = graphView.getGraphContentTop();
 
         lastEndY = 0;
         lastEndX = 0;
@@ -80,31 +79,31 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
 
             double valY = value.getY() - minY;
             double ratY = valY / diffY;
-            double y = graphheight * ratY;
+            double y = graphHeight * ratY;
 
             double valX = value.getX() - minX;
             double ratX = valX / diffX;
-            double x = graphwidth * ratX;
+            double x = graphWidth * ratX;
 
             double orgX = x;
             double orgY = y;
 
             if (i > 0) {
                 // overdraw
-                if (x > graphwidth) { // end right
-                    double b = ((graphwidth - lastEndX) * (y - lastEndY)/(x - lastEndX));
+                if (x > graphWidth) { // end right
+                    double b = ((graphWidth - lastEndX) * (y - lastEndY)/(x - lastEndX));
                     y = lastEndY+b;
-                    x = graphwidth;
+                    x = graphWidth;
                 }
                 if (y < 0) { // end bottom
                     double b = ((0 - lastEndY) * (x - lastEndX)/(y - lastEndY));
                     x = lastEndX+b;
                     y = 0;
                 }
-                if (y > graphheight) { // end top
-                    double b = ((graphheight - lastEndY) * (x - lastEndX)/(y - lastEndY));
+                if (y > graphHeight) { // end top
+                    double b = ((graphHeight - lastEndY) * (x - lastEndX)/(y - lastEndY));
                     x = lastEndX+b;
-                    y = graphheight;
+                    y = graphHeight;
                 }
                 if (lastEndY < 0) { // start bottom
                     double b = ((0 - y) * (x - lastEndX)/(lastEndY - y));
@@ -116,16 +115,16 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
                     lastEndY = y-b;
                     lastEndX = 0;
                 }
-                if (lastEndY > graphheight) { // start top
-                    double b = ((graphheight - y) * (x - lastEndX)/(lastEndY - y));
+                if (lastEndY > graphHeight) { // start top
+                    double b = ((graphHeight - y) * (x - lastEndX)/(lastEndY - y));
                     lastEndX = x-b;
-                    lastEndY = graphheight;
+                    lastEndY = graphHeight;
                 }
 
-                float startX = (float) lastEndX + (horstart + 1);
-                float startY = (float) (border - lastEndY) + graphheight;
-                float endX = (float) x + (horstart + 1);
-                float endY = (float) (border - y) + graphheight;
+                float startX = (float) lastEndX + (graphLeft + 1);
+                float startY = (float) (graphTop - lastEndY) + graphHeight;
+                float endX = (float) x + (graphLeft + 1);
+                float endY = (float) (graphTop - y) + graphHeight;
 
                 // draw data point
                 if (mStyles.drawDataPoints) {
@@ -144,8 +143,8 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
                 lastUsedEndX = endX;
             } else if (mStyles.drawDataPoints) {
                 //fix: last value not drawn as datapoint. Draw first point here, and then on every step the end values (above)
-                float first_X = (float) x + (horstart + 1);
-                float first_Y = (float) (border - y) + graphheight;
+                float first_X = (float) x + (graphLeft + 1);
+                float first_Y = (float) (graphTop - y) + graphHeight;
                 //TODO canvas.drawCircle(first_X, first_Y, dataPointsRadius, mPaint);
             }
             lastEndY = orgY;
@@ -155,8 +154,8 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
 
         if (mStyles.drawBackground) {
             // end / close path
-            mPath.lineTo((float) lastUsedEndX, graphheight + border);
-            mPath.lineTo(firstX, graphheight + border);
+            mPath.lineTo((float) lastUsedEndX, graphHeight + graphTop);
+            mPath.lineTo(firstX, graphHeight + graphTop);
             mPath.close();
             canvas.drawPath(mPath, mPaintBackground);
         }

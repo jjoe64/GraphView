@@ -2,6 +2,8 @@ package com.jjoe64.graphview;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -18,9 +20,12 @@ public class GraphView extends View {
     private List<Series> mSeries;
     private GridLabelRenderer mGridLabelRenderer;
     private Viewport mViewport;
+    private String mTitle;
 
     private LegendRenderer mLegendRenderer;
     private TitleRenderer mTitleRenderer;
+
+    private Paint mPaintTitle;
 
     public GraphView(Context context) {
         super(context);
@@ -44,6 +49,7 @@ public class GraphView extends View {
         mTitleRenderer = new TitleRenderer(this);
 
         mSeries = new ArrayList<Series>();
+        mPaintTitle = new Paint();
     }
 
     public GridLabelRenderer getGridLabelRenderer() {
@@ -67,6 +73,7 @@ public class GraphView extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
+        drawTitle(canvas);
         mViewport.drawFirst(canvas);
         mGridLabelRenderer.draw(canvas);
         for (Series s : mSeries) {
@@ -74,6 +81,26 @@ public class GraphView extends View {
         }
         mViewport.draw(canvas);
         mLegendRenderer.draw(canvas);
+    }
+
+    protected void drawTitle(Canvas canvas) {
+        if (mTitle != null && mTitle.length()>0) {
+            // TODO style
+            mPaintTitle.setColor(mGridLabelRenderer.getHorizontalLabelsColor());
+            mPaintTitle.setTextSize(mGridLabelRenderer.getTextSize());
+            mPaintTitle.setTextAlign(Paint.Align.CENTER);
+            float x = canvas.getWidth()/2;
+            float y = mPaintTitle.getTextSize();
+            canvas.drawText(mTitle, x, y, mPaintTitle);
+        }
+    }
+
+    protected int getTitleHeight() {
+        if (mTitle != null && mTitle.length()>0) {
+            return (int) mPaintTitle.getTextSize();
+        } else {
+            return 0;
+        }
     }
 
     public Viewport getViewport() {
@@ -92,13 +119,14 @@ public class GraphView extends View {
     }
 
     public int getGraphContentTop() {
-        int border = getGridLabelRenderer().getStyles().padding;
+        int border = getGridLabelRenderer().getStyles().padding + getTitleHeight();
         return border;
     }
 
     public int getGraphContentHeight() {
         int border = getGridLabelRenderer().getStyles().padding;
-        int graphheight = getHeight() - (2 * border) - getGridLabelRenderer().getLabelHorizontalHeight();
+        int graphheight = getHeight() - (2 * border) - getGridLabelRenderer().getLabelHorizontalHeight() - getTitleHeight();
+        graphheight -= getGridLabelRenderer().getHorizontalAxisTitleHeight();
         return graphheight;
     }
 
@@ -126,5 +154,13 @@ public class GraphView extends View {
 
     public void setLegendRenderer(LegendRenderer mLegendRenderer) {
         this.mLegendRenderer = mLegendRenderer;
+    }
+
+    public String getTitle() {
+        return mTitle;
+    }
+
+    public void setTitle(String mTitle) {
+        this.mTitle = mTitle;
     }
 }
