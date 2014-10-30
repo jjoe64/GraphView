@@ -115,7 +115,7 @@ public class GraphView extends View {
 
     public int getGraphContentLeft() {
         int border = getGridLabelRenderer().getStyles().padding;
-        return border + getGridLabelRenderer().getLabelVerticalWidth();
+        return border + getGridLabelRenderer().getLabelVerticalWidth() + getGridLabelRenderer().getVerticalAxisTitleWdith();
     }
 
     public int getGraphContentTop() {

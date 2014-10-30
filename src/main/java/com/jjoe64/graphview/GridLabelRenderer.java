@@ -41,6 +41,7 @@ public class GridLabelRenderer {
     private Integer mLabelHorizontalHeight;
     private LabelFormatter mLabelFormatter;
     private String mHorizontalAxisTitle;
+    private String mVerticalAxisTitle;
 
     public GridLabelRenderer(GraphView graphView) {
         mGraphView = graphView;
@@ -346,6 +347,7 @@ public class GridLabelRenderer {
         }
 
         drawHorizontalAxisTitle(canvas);
+        drawVerticalAxisTitle(canvas);
     }
 
     protected void drawHorizontalAxisTitle(Canvas canvas) {
@@ -357,8 +359,28 @@ public class GridLabelRenderer {
         }
     }
 
+    protected void drawVerticalAxisTitle(Canvas canvas) {
+        if (mVerticalAxisTitle != null && mVerticalAxisTitle.length()>0) {
+            mPaintAxisTitle.setColor(getVerticalLabelsColor());
+            float x = getVerticalAxisTitleWdith();
+            float y = canvas.getHeight() / 2;
+            canvas.save();
+            canvas.rotate(-90, x, y);
+            canvas.drawText(mVerticalAxisTitle, x, y, mPaintAxisTitle);
+            canvas.restore();
+        }
+    }
+
     public int getHorizontalAxisTitleHeight() {
         if (mHorizontalAxisTitle != null && mHorizontalAxisTitle.length() > 0) {
+            return (int) mPaintAxisTitle.getTextSize();
+        } else {
+            return 0;
+        }
+    }
+
+    public int getVerticalAxisTitleWdith() {
+        if (mVerticalAxisTitle != null && mVerticalAxisTitle.length() > 0) {
             return (int) mPaintAxisTitle.getTextSize();
         } else {
             return 0;
@@ -421,7 +443,7 @@ public class GridLabelRenderer {
             } else if (getVerticalLabelsAlign() == Paint.Align.CENTER) {
                 labelsOffset = labelsWidth / 2;
             }
-            labelsOffset += mStyles.padding;
+            labelsOffset += mStyles.padding + getVerticalAxisTitleWdith();
 
             float y = e.getKey();
 
@@ -523,5 +545,13 @@ public class GridLabelRenderer {
 
     public void setHorizontalAxisTitle(String mHorizontalAxisTitle) {
         this.mHorizontalAxisTitle = mHorizontalAxisTitle;
+    }
+
+    public String getVerticalAxisTitle() {
+        return mVerticalAxisTitle;
+    }
+
+    public void setVerticalAxisTitle(String mVerticalAxisTitle) {
+        this.mVerticalAxisTitle = mVerticalAxisTitle;
     }
 }
