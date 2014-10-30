@@ -17,10 +17,16 @@ import java.util.List;
  * Created by jonas on 13.08.14.
  */
 public class GraphView extends View {
+    private static final class Styles {
+        float titleTextSize;
+        int titleColor;
+    }
+
     private List<Series> mSeries;
     private GridLabelRenderer mGridLabelRenderer;
     private Viewport mViewport;
     private String mTitle;
+    private Styles mStyles;
 
     private LegendRenderer mLegendRenderer;
     private TitleRenderer mTitleRenderer;
@@ -43,6 +49,7 @@ public class GraphView extends View {
     }
 
     protected void init() {
+        mStyles = new Styles();
         mViewport = new Viewport(this);
         mGridLabelRenderer = new GridLabelRenderer(this);
         mLegendRenderer = new LegendRenderer(this);
@@ -50,6 +57,13 @@ public class GraphView extends View {
 
         mSeries = new ArrayList<Series>();
         mPaintTitle = new Paint();
+
+        loadStyles();
+    }
+
+    public void loadStyles() {
+        mStyles.titleColor = mGridLabelRenderer.getHorizontalLabelsColor();
+        mStyles.titleTextSize = mGridLabelRenderer.getTextSize();
     }
 
     public GridLabelRenderer getGridLabelRenderer() {
@@ -85,9 +99,8 @@ public class GraphView extends View {
 
     protected void drawTitle(Canvas canvas) {
         if (mTitle != null && mTitle.length()>0) {
-            // TODO style
-            mPaintTitle.setColor(mGridLabelRenderer.getHorizontalLabelsColor());
-            mPaintTitle.setTextSize(mGridLabelRenderer.getTextSize());
+            mPaintTitle.setColor(mStyles.titleColor);
+            mPaintTitle.setTextSize(mStyles.titleTextSize);
             mPaintTitle.setTextAlign(Paint.Align.CENTER);
             float x = canvas.getWidth()/2;
             float y = mPaintTitle.getTextSize();
@@ -115,7 +128,7 @@ public class GraphView extends View {
 
     public int getGraphContentLeft() {
         int border = getGridLabelRenderer().getStyles().padding;
-        return border + getGridLabelRenderer().getLabelVerticalWidth() + getGridLabelRenderer().getVerticalAxisTitleWdith();
+        return border + getGridLabelRenderer().getLabelVerticalWidth() + getGridLabelRenderer().getVerticalAxisTitleWidth();
     }
 
     public int getGraphContentTop() {
@@ -162,5 +175,21 @@ public class GraphView extends View {
 
     public void setTitle(String mTitle) {
         this.mTitle = mTitle;
+    }
+
+    public float getTitleTextSize() {
+        return mStyles.titleTextSize;
+    }
+
+    public void setTitleTextSize(float titleTextSize) {
+        mStyles.titleTextSize = titleTextSize;
+    }
+
+    public int getTitleColor() {
+        return mStyles.titleColor;
+    }
+
+    public void setTitleColor(int titleColor) {
+        mStyles.titleColor = titleColor;
     }
 }

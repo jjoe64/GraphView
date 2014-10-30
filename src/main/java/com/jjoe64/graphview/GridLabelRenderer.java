@@ -24,6 +24,10 @@ public class GridLabelRenderer {
         public int gridColor;
         public boolean highlightZeroLines;
         public int padding;
+        public float verticalAxisTitleTextSize;
+        public int verticalAxisTitleColor;
+        public float horizontalAxisTitleTextSize;
+        public int horizontalAxisTitleColor;
     }
 
     protected Styles mStyles;
@@ -74,6 +78,11 @@ public class GridLabelRenderer {
 
         mStyles.verticalLabelsAlign = Paint.Align.RIGHT;
         mStyles.highlightZeroLines = true;
+
+        mStyles.verticalAxisTitleColor = mStyles.verticalLabelsColor;
+        mStyles.horizontalAxisTitleColor = mStyles.horizontalLabelsColor;
+        mStyles.verticalAxisTitleTextSize = mStyles.textSize;
+        mStyles.horizontalAxisTitleTextSize = mStyles.textSize;
 
         reloadStyles();
     }
@@ -352,7 +361,8 @@ public class GridLabelRenderer {
 
     protected void drawHorizontalAxisTitle(Canvas canvas) {
         if (mHorizontalAxisTitle != null && mHorizontalAxisTitle.length()>0) {
-            mPaintAxisTitle.setColor(getHorizontalLabelsColor());
+            mPaintAxisTitle.setColor(getHorizontalAxisTitleColor());
+            mPaintAxisTitle.setTextSize(getHorizontalAxisTitleTextSize());
             float x = canvas.getWidth()/2;
             float y = canvas.getHeight()- mStyles.padding;
             canvas.drawText(mHorizontalAxisTitle, x, y, mPaintAxisTitle);
@@ -361,8 +371,9 @@ public class GridLabelRenderer {
 
     protected void drawVerticalAxisTitle(Canvas canvas) {
         if (mVerticalAxisTitle != null && mVerticalAxisTitle.length()>0) {
-            mPaintAxisTitle.setColor(getVerticalLabelsColor());
-            float x = getVerticalAxisTitleWdith();
+            mPaintAxisTitle.setColor(getVerticalAxisTitleColor());
+            mPaintAxisTitle.setTextSize(getVerticalAxisTitleTextSize());
+            float x = getVerticalAxisTitleWidth();
             float y = canvas.getHeight() / 2;
             canvas.save();
             canvas.rotate(-90, x, y);
@@ -373,15 +384,15 @@ public class GridLabelRenderer {
 
     public int getHorizontalAxisTitleHeight() {
         if (mHorizontalAxisTitle != null && mHorizontalAxisTitle.length() > 0) {
-            return (int) mPaintAxisTitle.getTextSize();
+            return (int) getHorizontalAxisTitleTextSize();
         } else {
             return 0;
         }
     }
 
-    public int getVerticalAxisTitleWdith() {
+    public int getVerticalAxisTitleWidth() {
         if (mVerticalAxisTitle != null && mVerticalAxisTitle.length() > 0) {
-            return (int) mPaintAxisTitle.getTextSize();
+            return (int) getVerticalAxisTitleTextSize();
         } else {
             return 0;
         }
@@ -443,7 +454,7 @@ public class GridLabelRenderer {
             } else if (getVerticalLabelsAlign() == Paint.Align.CENTER) {
                 labelsOffset = labelsWidth / 2;
             }
-            labelsOffset += mStyles.padding + getVerticalAxisTitleWdith();
+            labelsOffset += mStyles.padding + getVerticalAxisTitleWidth();
 
             float y = e.getKey();
 
@@ -553,5 +564,37 @@ public class GridLabelRenderer {
 
     public void setVerticalAxisTitle(String mVerticalAxisTitle) {
         this.mVerticalAxisTitle = mVerticalAxisTitle;
+    }
+
+    public float getVerticalAxisTitleTextSize() {
+        return mStyles.verticalAxisTitleTextSize;
+    }
+
+    public void setVerticalAxisTitleTextSize(float verticalAxisTitleTextSize) {
+        mStyles.verticalAxisTitleTextSize = verticalAxisTitleTextSize;
+    }
+
+    public int getVerticalAxisTitleColor() {
+        return mStyles.verticalAxisTitleColor;
+    }
+
+    public void setVerticalAxisTitleColor(int verticalAxisTitleColor) {
+        mStyles.verticalAxisTitleColor = verticalAxisTitleColor;
+    }
+
+    public float getHorizontalAxisTitleTextSize() {
+        return mStyles.horizontalAxisTitleTextSize;
+    }
+
+    public void setHorizontalAxisTitleTextSize(float horizontalAxisTitleTextSize) {
+        mStyles.horizontalAxisTitleTextSize = horizontalAxisTitleTextSize;
+    }
+
+    public int getHorizontalAxisTitleColor() {
+        return mStyles.horizontalAxisTitleColor;
+    }
+
+    public void setHorizontalAxisTitleColor(int horizontalAxisTitleColor) {
+        mStyles.horizontalAxisTitleColor = horizontalAxisTitleColor;
     }
 }
