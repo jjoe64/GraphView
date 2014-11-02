@@ -148,7 +148,7 @@ public class GraphViewSeries {
 			} else {
 				// we have to trim one data
 				newValues = new GraphViewDataInterface[maxDataCount];
-				System.arraycopy(values, 1, newValues, 0, curDataCount-1);
+				System.arraycopy(values, curDataCount-maxDataCount+1, newValues, 0, maxDataCount-1);
 				// append new data
 				newValues[maxDataCount-1] = value;
 			}
