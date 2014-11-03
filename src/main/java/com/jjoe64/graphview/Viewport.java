@@ -7,6 +7,7 @@ import android.graphics.RectF;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.widget.EdgeEffect;
 import android.widget.OverScroller;
 
@@ -20,10 +21,75 @@ import java.util.List;
  * Created by jonas on 13.08.14.
  */
 public class Viewport {
+    private float mScalingBeginWidth;
+    private float mScalingBeginLeft;
+    private final ScaleGestureDetector.OnScaleGestureListener mScaleGestureListener
+            = new ScaleGestureDetector.OnScaleGestureListener() {
+        @Override
+        public boolean onScale(ScaleGestureDetector detector) {
+            float viewportWidth = mCurrentViewport.width();
+            float center = mCurrentViewport.left + viewportWidth / 2;
+            viewportWidth /= detector.getScaleFactor();
+            mCurrentViewport.left = center - viewportWidth / 2;
+            mCurrentViewport.right = mCurrentViewport.left+viewportWidth;
+
+            // viewportStart must not be < minX
+            float minX = (float) getMinX(true);
+            if (mCurrentViewport.left < minX) {
+                mCurrentViewport.left = minX;
+                mCurrentViewport.right = mCurrentViewport.left+viewportWidth;
+            }
+
+            // viewportStart + viewportSize must not be > maxX
+            float maxX = (float) getMaxX(true);
+            if (viewportWidth == 0) {
+                mCurrentViewport.right = maxX;
+            }
+            double overlap = mCurrentViewport.left + viewportWidth - maxX;
+            if (overlap > 0) {
+                // scroll left
+                if (mCurrentViewport.left-overlap > minX) {
+                    mCurrentViewport.left -= overlap;
+                    mCurrentViewport.right = mCurrentViewport.left+viewportWidth;
+                } else {
+                    // maximal scale
+                    mCurrentViewport.left = minX;
+                    mCurrentViewport.right = maxX;
+                }
+            }
+
+            Log.d("Viewport", "onScale: "+detector.getScaleFactor());
+            mGraphView.postInvalidateOnAnimation();
+
+            return true;
+        }
+
+        @Override
+        public boolean onScaleBegin(ScaleGestureDetector detector) {
+            if (mIsScalable) {
+                Log.d("Viewport", "onScaleBegin");
+                mScalingBeginWidth = mCurrentViewport.width();
+                mScalingBeginLeft = mCurrentViewport.left;
+                mScalingActive = true;
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        @Override
+        public void onScaleEnd(ScaleGestureDetector detector) {
+            Log.d("Viewport", "onScaleEnd");
+            mScalingActive = false;
+        }
+    };
+
     private final GestureDetector.SimpleOnGestureListener mGestureListener
             = new GestureDetector.SimpleOnGestureListener() {
         @Override
         public boolean onDown(MotionEvent e) {
+            if (!mIsScrollable || mScalingActive) return false;
+
             // Initiates the decay phase of any active edge effects.
             releaseEdgeEffects();
             mScrollerStartViewport.set(mCurrentViewport);
@@ -35,6 +101,8 @@ public class Viewport {
 
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            if (!mIsScrollable || mScalingActive) return false;
+
             Log.d("Viewport", "on Scroll");
 
             if (Float.isNaN(mScrollingReferenceX)) {
@@ -123,7 +191,9 @@ public class Viewport {
     private Paint mPaint;
 
     public boolean onTouchEvent(MotionEvent event) {
-        return mGestureDetector.onTouchEvent(event);
+        boolean b = mScaleGestureDetector.onTouchEvent(event);
+        b |= mGestureDetector.onTouchEvent(event);
+        return b;
     }
 
     public enum AxisBoundsStatus {
@@ -133,8 +203,11 @@ public class Viewport {
     private final GraphView mGraphView;
     protected RectF mCurrentViewport = new RectF();
     protected RectF mCompleteRange = new RectF();
+    private boolean mScalingActive;
     private boolean mIsScrollable;
+    private boolean mIsScalable;
     protected GestureDetector mGestureDetector;
+    protected ScaleGestureDetector mScaleGestureDetector;
 
     protected OverScroller mScroller;
     private EdgeEffect mEdgeEffectTop;
@@ -160,6 +233,7 @@ public class Viewport {
         mEdgeEffectLeft = new EdgeEffect(graphView.getContext());
         mEdgeEffectRight = new EdgeEffect(graphView.getContext());
         mGestureDetector = new GestureDetector(graphView.getContext(), mGestureListener);
+        mScaleGestureDetector = new ScaleGestureDetector(graphView.getContext(), mScaleGestureListener);
 
         mGraphView = graphView;
         mXAxisBoundsStatus = AxisBoundsStatus.INITIAL;
@@ -508,5 +582,16 @@ public class Viewport {
 
     public void setBackgroundColor(int mBackgroundColor) {
         this.mBackgroundColor = mBackgroundColor;
+    }
+
+    public boolean isScalable() {
+        return mIsScalable;
+    }
+
+    public void setScalable(boolean mIsScalable) {
+        this.mIsScalable = mIsScalable;
+        if (mIsScalable) {
+            mIsScrollable = true;
+        }
     }
 }
