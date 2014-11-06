@@ -21,8 +21,6 @@ import java.util.List;
  * Created by jonas on 13.08.14.
  */
 public class Viewport {
-    private float mScalingBeginWidth;
-    private float mScalingBeginLeft;
     private final ScaleGestureDetector.OnScaleGestureListener mScaleGestureListener
             = new ScaleGestureDetector.OnScaleGestureListener() {
         @Override
@@ -58,7 +56,13 @@ public class Viewport {
                 }
             }
 
-            Log.d("Viewport", "onScale: "+detector.getScaleFactor());
+            // TODO for testing
+            //mCurrentViewport.left = 4.5f;
+            //mCurrentViewport.right = 7.5f;
+
+            // adjust viewport, labels, etc.
+            mGraphView.onDataChanged();
+
             mGraphView.postInvalidateOnAnimation();
 
             return true;
@@ -80,7 +84,10 @@ public class Viewport {
         @Override
         public void onScaleEnd(ScaleGestureDetector detector) {
             Log.d("Viewport", "onScaleEnd");
+            mScalingBeginWidth = 0;
+            mScalingBeginLeft = 0;
             mScalingActive = false;
+            mGraphView.getGridLabelRenderer().adjustHorizontal();
         }
     };
 
@@ -197,13 +204,15 @@ public class Viewport {
     }
 
     public enum AxisBoundsStatus {
-        INITIAL, AUTO_ADJUSTED, MANUAL
+        INITIAL, AUTO_ADJUSTED, FIX
     }
 
     private final GraphView mGraphView;
     protected RectF mCurrentViewport = new RectF();
     protected RectF mCompleteRange = new RectF();
-    private boolean mScalingActive;
+    protected boolean mScalingActive;
+    protected float mScalingBeginWidth;
+    protected float mScalingBeginLeft;
     private boolean mIsScrollable;
     private boolean mIsScalable;
     protected GestureDetector mGestureDetector;
@@ -223,6 +232,9 @@ public class Viewport {
 
     private AxisBoundsStatus mXAxisBoundsStatus;
     private AxisBoundsStatus mYAxisBoundsStatus;
+
+    private boolean mXAxisBoundsManual;
+    private boolean mYAxisBoundsManual;
 
     private int mBackgroundColor;
 
@@ -318,7 +330,7 @@ public class Viewport {
         if (mXAxisBoundsStatus == AxisBoundsStatus.INITIAL) {
             mCurrentViewport.left = mCompleteRange.left;
             mCurrentViewport.right = mCompleteRange.right;
-        } else if (mXAxisBoundsStatus == AxisBoundsStatus.MANUAL && mYAxisBoundsStatus != AxisBoundsStatus.MANUAL) {
+        } else if (mXAxisBoundsManual && !mYAxisBoundsManual) {
             // get highest/lowest of current viewport
             // lowest
             double d = Double.MAX_VALUE;
@@ -592,6 +604,28 @@ public class Viewport {
         this.mIsScalable = mIsScalable;
         if (mIsScalable) {
             mIsScrollable = true;
+        }
+    }
+
+    public boolean isXAxisBoundsManual() {
+        return mXAxisBoundsManual;
+    }
+
+    public void setXAxisBoundsManual(boolean mXAxisBoundsManual) {
+        this.mXAxisBoundsManual = mXAxisBoundsManual;
+        if (mXAxisBoundsManual) {
+            mXAxisBoundsStatus = AxisBoundsStatus.FIX;
+        }
+    }
+
+    public boolean isYAxisBoundsManual() {
+        return mYAxisBoundsManual;
+    }
+
+    public void setYAxisBoundsManual(boolean mYAxisBoundsManual) {
+        this.mYAxisBoundsManual = mYAxisBoundsManual;
+        if (mYAxisBoundsManual) {
+            mYAxisBoundsStatus = AxisBoundsStatus.FIX;
         }
     }
 }

@@ -129,7 +129,7 @@ public class GridLabelRenderer {
         double newMinY;
         double exactSteps;
 
-        if (mGraphView.getViewport().getYAxisBoundsStatus() == Viewport.AxisBoundsStatus.MANUAL) {
+        if (mGraphView.getViewport().isYAxisBoundsManual()) {
             newMinY = minY;
             double rangeY = maxY - newMinY;
             exactSteps = rangeY / (numVerticalLabels - 1);
@@ -176,7 +176,7 @@ public class GridLabelRenderer {
         double newMaxY = newMinY + (numVerticalLabels-1)*exactSteps;
         mGraphView.getViewport().setMinY(newMinY);
         mGraphView.getViewport().setMaxY(newMaxY);
-        if (mGraphView.getViewport().getYAxisBoundsStatus() != Viewport.AxisBoundsStatus.MANUAL) {
+        if (!mGraphView.getViewport().isYAxisBoundsManual()) {
             mGraphView.getViewport().setYAxisBoundsStatus(Viewport.AxisBoundsStatus.AUTO_ADJUSTED);
         }
 
@@ -208,7 +208,18 @@ public class GridLabelRenderer {
         double newMinX;
         double exactSteps;
 
-        if (mGraphView.getViewport().getXAxisBoundsStatus() == Viewport.AxisBoundsStatus.MANUAL) {
+        float scalingOffset = 0f;
+        if (mGraphView.getViewport().isXAxisBoundsManual()) {
+            // scaling
+            if (mGraphView.getViewport().mScalingActive) {
+                minX = mGraphView.getViewport().mScalingBeginLeft;
+                maxX = minX + mGraphView.getViewport().mScalingBeginWidth;
+
+                //numHorizontalLabels *= (mGraphView.getViewport().mCurrentViewport.width()+oldStep)/(mGraphView.getViewport().mScalingBeginWidth+oldStep);
+                //numHorizontalLabels = (float) Math.ceil(numHorizontalLabels);
+                Log.d("GridLabelRenderer", "hhier scaling");
+            }
+
             newMinX = minX;
             double rangeX = maxX - newMinX;
             exactSteps = rangeX / (numHorizontalLabels - 1);
@@ -257,19 +268,36 @@ public class GridLabelRenderer {
             mGraphView.getViewport().setXAxisBoundsStatus(Viewport.AxisBoundsStatus.AUTO_ADJUSTED);
         }
 
-        mStepsHorizontal = new LinkedHashMap<Integer, Double>(numHorizontalLabels);
+        mStepsHorizontal = new LinkedHashMap<Integer, Double>((int) numHorizontalLabels);
         int width = mGraphView.getGraphContentWidth();
-
-
-        double v = newMinX;
-        int p = mGraphView.getGraphContentLeft(); // start
-        int pixelStep = width/(numHorizontalLabels-1);
 
         float scrolled = 0;
         float scrolledPixels = 0;
+
+        double v = newMinX;
+        int p = mGraphView.getGraphContentLeft(); // start
+        float pixelStep = width/(numHorizontalLabels-1);
+
+        if (mGraphView.getViewport().mScalingActive) {
+            float oldStep = mGraphView.getViewport().mScalingBeginWidth / (numHorizontalLabels - 1);
+            float factor = (mGraphView.getViewport().mCurrentViewport.width()+oldStep)/(mGraphView.getViewport().mScalingBeginWidth+oldStep);
+            pixelStep *= 1f/factor;
+
+            //numHorizontalLabels *= (mGraphView.getViewport().mCurrentViewport.width()+oldStep)/(mGraphView.getViewport().mScalingBeginWidth+oldStep);
+            //numHorizontalLabels = (float) Math.ceil(numHorizontalLabels);
+            Log.d("GridLabelRenderer", "hhier scaling");
+
+            //scrolled = ((float) mGraphView.getViewport().getMinX(false) - mGraphView.getViewport().mScalingBeginLeft)*2;
+            float newWidth = width * 1f/factor;
+            scrolledPixels = (newWidth-width)*-0.5f;
+
+        }
+
+
+        // scrolling
         if (!Float.isNaN(mGraphView.getViewport().mScrollingReferenceX)) {
             scrolled = mGraphView.getViewport().mScrollingReferenceX - (float) newMinX;
-            scrolledPixels = scrolled * ((float)pixelStep/(float)exactSteps);
+            scrolledPixels += scrolled * (pixelStep/(float)exactSteps);
 
             if (scrolled < 0-exactSteps) {
                 mGraphView.getViewport().mScrollingReferenceX += exactSteps;
@@ -279,6 +307,7 @@ public class GridLabelRenderer {
         }
         p += scrolledPixels;
         v += scrolled;
+
         for (int i = 0; i < numHorizontalLabels; i++) {
             mStepsHorizontal.put(p, v);
             p += pixelStep;
