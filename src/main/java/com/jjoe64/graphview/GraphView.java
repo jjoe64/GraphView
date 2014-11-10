@@ -81,8 +81,8 @@ public class GraphView extends View {
 
     public void onDataChanged() {
         // adjust grid system
-        mGridLabelRenderer.adjust();
         mViewport.calcCompleteRange();
+        mGridLabelRenderer.adjust();
     }
 
     @Override

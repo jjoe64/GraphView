@@ -176,6 +176,7 @@ public class GridLabelRenderer {
         double newMaxY = newMinY + (numVerticalLabels-1)*exactSteps;
         mGraphView.getViewport().setMinY(newMinY);
         mGraphView.getViewport().setMaxY(newMaxY);
+
         if (!mGraphView.getViewport().isYAxisBoundsManual()) {
             mGraphView.getViewport().setYAxisBoundsStatus(Viewport.AxisBoundsStatus.AUTO_ADJUSTED);
         }

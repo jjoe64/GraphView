@@ -319,6 +319,7 @@ public class Viewport {
             mCompleteRange.top = (float) d;
         }
 
+        // calc current viewport bounds
         if (mYAxisBoundsStatus == AxisBoundsStatus.AUTO_ADJUSTED) {
             mYAxisBoundsStatus = AxisBoundsStatus.INITIAL;
         }
