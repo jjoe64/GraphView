@@ -56,10 +56,6 @@ public class Viewport {
                 }
             }
 
-            // TODO for testing
-            //mCurrentViewport.left = 4.5f;
-            //mCurrentViewport.right = 7.5f;
-
             // adjust viewport, labels, etc.
             mGraphView.onDataChanged();
 
@@ -84,10 +80,17 @@ public class Viewport {
         @Override
         public void onScaleEnd(ScaleGestureDetector detector) {
             Log.d("Viewport", "onScaleEnd");
-            mScalingBeginWidth = 0;
-            mScalingBeginLeft = 0;
             mScalingActive = false;
-            mGraphView.getGridLabelRenderer().adjustHorizontal();
+
+            // re-adjust
+            mXAxisBoundsStatus = AxisBoundsStatus.READJUST_AFTER_SCALE;
+
+            mScrollingReferenceX = Float.NaN;
+
+            // adjust viewport, labels, etc.
+            mGraphView.onDataChanged();
+
+            mGraphView.postInvalidateOnAnimation();
         }
     };
 
@@ -204,7 +207,7 @@ public class Viewport {
     }
 
     public enum AxisBoundsStatus {
-        INITIAL, AUTO_ADJUSTED, FIX
+        INITIAL, AUTO_ADJUSTED, READJUST_AFTER_SCALE, FIX
     }
 
     private final GraphView mGraphView;

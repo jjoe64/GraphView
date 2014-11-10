@@ -141,7 +141,7 @@ public class GridLabelRenderer {
             while (adjusting) {
                 double rangeY = maxY - newMinY;
                 exactSteps = rangeY / (numVerticalLabels - 1);
-                exactSteps = humanRound(exactSteps);
+                exactSteps = humanRound(exactSteps, true);
 
                 // adjust viewport
                 // wie oft passt STEP in minY rein?
@@ -209,7 +209,7 @@ public class GridLabelRenderer {
         double exactSteps;
 
         float scalingOffset = 0f;
-        if (mGraphView.getViewport().isXAxisBoundsManual()) {
+        if (mGraphView.getViewport().isXAxisBoundsManual() && mGraphView.getViewport().getXAxisBoundsStatus() != Viewport.AxisBoundsStatus.READJUST_AFTER_SCALE) {
             // scaling
             if (mGraphView.getViewport().mScalingActive) {
                 minX = mGraphView.getViewport().mScalingBeginLeft;
@@ -224,6 +224,7 @@ public class GridLabelRenderer {
             double rangeX = maxX - newMinX;
             exactSteps = rangeX / (numHorizontalLabels - 1);
         } else {
+            Log.d("GridLabelRenderer", "find good steps for: "+minX+"/"+maxX);
             // find good steps
             boolean adjusting = true;
             newMinX = minX;
@@ -231,7 +232,15 @@ public class GridLabelRenderer {
             while (adjusting) {
                 double rangeX = maxX - newMinX;
                 exactSteps = rangeX / (numHorizontalLabels - 1);
-                exactSteps = humanRound(exactSteps);
+
+                boolean roundAlwaysUp = true;
+                if (mGraphView.getViewport().getXAxisBoundsStatus() == Viewport.AxisBoundsStatus.READJUST_AFTER_SCALE) {
+                    // if viewports gets smaller, round down
+                    if (mGraphView.getViewport().mCurrentViewport.width() < mGraphView.getViewport().mScalingBeginWidth) {
+                        roundAlwaysUp = false;
+                    }
+                }
+                exactSteps = humanRound(exactSteps, roundAlwaysUp);
 
                 // adjust viewport
                 // wie oft passt STEP in minX rein?
@@ -265,7 +274,11 @@ public class GridLabelRenderer {
             double newMaxX = newMinX + (numHorizontalLabels - 1) * exactSteps;
             mGraphView.getViewport().setMinX(newMinX);
             mGraphView.getViewport().setMaxX(newMaxX);
-            mGraphView.getViewport().setXAxisBoundsStatus(Viewport.AxisBoundsStatus.AUTO_ADJUSTED);
+            if (mGraphView.getViewport().getXAxisBoundsStatus() == Viewport.AxisBoundsStatus.READJUST_AFTER_SCALE) {
+                mGraphView.getViewport().setXAxisBoundsStatus(Viewport.AxisBoundsStatus.FIX);
+            } else {
+                mGraphView.getViewport().setXAxisBoundsStatus(Viewport.AxisBoundsStatus.AUTO_ADJUSTED);
+            }
         }
 
         mStepsHorizontal = new LinkedHashMap<Integer, Double>((int) numHorizontalLabels);
@@ -497,7 +510,7 @@ public class GridLabelRenderer {
         }
     }
 
-    protected double humanRound(double in) {
+    protected double humanRound(double in, boolean roundAlwaysUp) {
         // round-up to 1-steps, 2-steps or 5-steps
         int ten = 0;
         while (in >= 10d) {
@@ -508,13 +521,27 @@ public class GridLabelRenderer {
             in *= 10d;
             ten--;
         }
-        if (in == 1d) {
-        } else if (in <= 2d) {
-            in = 2d;
-        } else if (in <= 5d) {
-            in = 5d;
-        } else if (in < 10d) {
-            in = 10d;
+        if (roundAlwaysUp) {
+            if (in == 1d) {
+            } else if (in <= 2d) {
+                in = 2d;
+            } else if (in <= 5d) {
+                in = 5d;
+            } else if (in < 10d) {
+                in = 10d;
+            }
+        } else { // always round down
+            Log.d("GridLabelRenderer", "round down "+in);
+            if (in == 1d) {
+            } else if (in <= 4.9d) {
+                in = 2d;
+            } else if (in <= 9.9d) {
+                in = 5d;
+            } else if (in < 15d) {
+                in = 10d;
+            }
+            Log.d("GridLabelRenderer", "-> "+in);
+
         }
         return in*Math.pow(10d, ten);
     }
