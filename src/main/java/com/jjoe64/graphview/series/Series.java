@@ -15,7 +15,7 @@ public interface Series<E extends DataPointInterface> {
     public double getLowestValueY();
     public double getHighestValueY();
     public Iterator<E> getValues(double from, double until);
-    public void draw(GraphView graphView, Canvas canvas);
+    public void draw(GraphView graphView, Canvas canvas, boolean isSecondScale);
     public String getTitle();
     public int getColor();
 }

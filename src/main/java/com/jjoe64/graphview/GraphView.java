@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -27,6 +28,7 @@ public class GraphView extends View {
     private Viewport mViewport;
     private String mTitle;
     private Styles mStyles;
+    protected SecondScale mSecondScale;
 
     private LegendRenderer mLegendRenderer;
     private TitleRenderer mTitleRenderer;
@@ -91,7 +93,12 @@ public class GraphView extends View {
         mViewport.drawFirst(canvas);
         mGridLabelRenderer.draw(canvas);
         for (Series s : mSeries) {
-            s.draw(this, canvas);
+            s.draw(this, canvas, false);
+        }
+        if (mSecondScale != null) {
+            for (Series s : mSecondScale.getSeries()) {
+                s.draw(this, canvas, true);
+            }
         }
         mViewport.draw(canvas);
         mLegendRenderer.draw(canvas);
@@ -191,5 +198,12 @@ public class GraphView extends View {
 
     public void setTitleColor(int titleColor) {
         mStyles.titleColor = titleColor;
+    }
+
+    public SecondScale getSecondScale() {
+        if (mSecondScale == null) {
+            mSecondScale = new SecondScale();
+        }
+        return mSecondScale;
     }
 }

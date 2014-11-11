@@ -10,6 +10,9 @@ import android.util.TypedValue;
 
 import com.jjoe64.graphview.series.Series;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by jonas on 14.08.14.
  */
@@ -75,6 +78,12 @@ public class LegendRenderer {
 
         int shapeSize = (int) (mStyles.textSize*0.8d);
 
+        List<Series> allSeries = new ArrayList<Series>();
+        allSeries.addAll(mGraphView.getSeries());
+        if (mGraphView.mSecondScale != null) {
+            allSeries.addAll(mGraphView.getSecondScale().getSeries());
+        }
+
         // width
         int legendWidth = mStyles.width;
         if (legendWidth == 0) {
@@ -83,7 +92,7 @@ public class LegendRenderer {
 
             if (legendWidth == 0) {
                 Rect textBounds = new Rect();
-                for (Series s : mGraphView.getSeries()) {
+                for (Series s : allSeries) {
                     if (s.getTitle() != null) {
                         mPaint.getTextBounds(s.getTitle(), 0, s.getTitle().length(), textBounds);
                         legendWidth = Math.max(legendWidth, textBounds.width());
@@ -98,7 +107,7 @@ public class LegendRenderer {
         }
 
         // rect
-        float legendHeight = (mStyles.textSize+mStyles.spacing)*mGraphView.getSeries().size() -mStyles.spacing;
+        float legendHeight = (mStyles.textSize+mStyles.spacing)*allSeries.size() -mStyles.spacing;
         float lLeft = mGraphView.getWidth()-legendWidth - mStyles.padding*2 - mStyles.margin;
         float lTop;
         switch (mStyles.align) {
@@ -117,7 +126,7 @@ public class LegendRenderer {
         canvas.drawRoundRect(new RectF(lLeft, lTop, lRight, lBottom), 8, 8, mPaint);
 
         int i=0;
-        for (Series series : mGraphView.getSeries()) {
+        for (Series series : allSeries) {
             mPaint.setColor(series.getColor());
             canvas.drawRect(new RectF(lLeft+mStyles.padding, lTop+mStyles.padding+(i*(mStyles.textSize+mStyles.spacing)), lLeft+mStyles.padding+shapeSize, lTop+mStyles.padding+(i*(mStyles.textSize+mStyles.spacing))+shapeSize), mPaint);
             if (series.getTitle() != null) {

@@ -26,7 +26,7 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
     }
 
     @Override
-    public void draw(GraphView graphView, Canvas canvas) {
+    public void draw(GraphView graphView, Canvas canvas, boolean isSecondScale) {
         mPaint.setTextAlign(Paint.Align.CENTER);
         if (mValuesOnTopSize == 0) {
             mValuesOnTopSize = graphView.getGridLabelRenderer().getTextSize();
@@ -36,8 +36,17 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
         // get data
         double maxX = graphView.getViewport().getMaxX(false);
         double minX = graphView.getViewport().getMinX(false);
-        double maxY = graphView.getViewport().getMaxY(false);
-        double minY = graphView.getViewport().getMinY(false);
+
+        double maxY;
+        double minY;
+        if (isSecondScale) {
+            maxY = graphView.getSecondScale().getMaxY();
+            minY = graphView.getSecondScale().getMinY();
+        } else {
+            maxY = graphView.getViewport().getMaxY(false);
+            minY = graphView.getViewport().getMinY(false);
+        }
+
         Iterator<E> values = getValues(minX, maxX);
 
         // this works only if the data has no "hole" and if the interval is always the same
