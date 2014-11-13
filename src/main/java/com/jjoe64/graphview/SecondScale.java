@@ -10,7 +10,7 @@ import java.util.List;
  */
 public class SecondScale {
     private List<Series> mSeries;
-    private boolean mYAxisBoundsManual;
+    private boolean mYAxisBoundsManual = true;
     private double mMinY;
     private double mMaxY;
 
@@ -22,9 +22,9 @@ public class SecondScale {
         mSeries.add(s);
     }
 
-    public void setYAxisBoundsManual(boolean mYAxisBoundsManual) {
-        this.mYAxisBoundsManual = mYAxisBoundsManual;
-    }
+    //public void setYAxisBoundsManual(boolean mYAxisBoundsManual) {
+    //    this.mYAxisBoundsManual = mYAxisBoundsManual;
+    //}
 
     public void setMinY(double d) {
         mMinY = d;
@@ -44,5 +44,9 @@ public class SecondScale {
 
     public double getMaxY() {
         return mMaxY;
+    }
+
+    public boolean isYAxisBoundsManual() {
+        return mYAxisBoundsManual;
     }
 }

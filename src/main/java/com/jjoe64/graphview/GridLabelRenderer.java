@@ -19,7 +19,9 @@ public class GridLabelRenderer {
     public final class Styles {
         public float textSize;
         public Paint.Align verticalLabelsAlign;
+        public Paint.Align verticalLabelsSecondScaleAlign;
         public int verticalLabelsColor;
+        public int verticalLabelsSecondScaleColor;
         public int horizontalLabelsColor;
         public int gridColor;
         public boolean highlightZeroLines;
@@ -33,6 +35,7 @@ public class GridLabelRenderer {
     protected Styles mStyles;
     private final GraphView mGraphView;
     private Map<Integer, Double> mStepsVertical;
+    private Map<Integer, Double> mStepsVerticalSecondScale;
     private Map<Integer, Double> mStepsHorizontal;
     private Map<Double, String> mVerticalLabels;
     private Paint mPaintLine;
@@ -41,6 +44,8 @@ public class GridLabelRenderer {
     private boolean mIsAdjusted;
     private Integer mLabelVerticalWidth;
     private Integer mLabelVerticalHeight;
+    private Integer mLabelVerticalSecondScaleWidth;
+    private Integer mLabelVerticalSecondScaleHeight;
     private Integer mLabelHorizontalWidth;
     private Integer mLabelHorizontalHeight;
     private LabelFormatter mLabelFormatter;
@@ -59,7 +64,7 @@ public class GridLabelRenderer {
         TypedValue typedValue = new TypedValue();
         mGraphView.getContext().getTheme().resolveAttribute(android.R.attr.textAppearanceSmall, typedValue, true);
 
-        TypedArray array = mGraphView.getContext().obtainStyledAttributes(typedValue.data, new int[] {
+        TypedArray array = mGraphView.getContext().obtainStyledAttributes(typedValue.data, new int[]{
                 android.R.attr.textColorPrimary
                 , android.R.attr.textColorSecondary
                 , android.R.attr.textSize
@@ -71,12 +76,14 @@ public class GridLabelRenderer {
         array.recycle();
 
         mStyles.verticalLabelsColor = color1;
+        mStyles.verticalLabelsSecondScaleColor = color1;
         mStyles.horizontalLabelsColor = color1;
         mStyles.gridColor = color2;
         mStyles.textSize = size;
         mStyles.padding = size2;
 
         mStyles.verticalLabelsAlign = Paint.Align.RIGHT;
+        mStyles.verticalLabelsSecondScaleAlign = Paint.Align.LEFT;
         mStyles.highlightZeroLines = true;
 
         mStyles.verticalAxisTitleColor = mStyles.verticalLabelsColor;
@@ -93,7 +100,6 @@ public class GridLabelRenderer {
         mPaintLine.setStrokeWidth(0);
 
         mPaintLabel = new Paint();
-        mPaintLabel.setTextAlign(getVerticalLabelsAlign());
         mPaintLabel.setTextSize(getTextSize());
 
         mPaintAxisTitle = new Paint();
@@ -101,16 +107,81 @@ public class GridLabelRenderer {
         mPaintAxisTitle.setTextAlign(Paint.Align.CENTER);
     }
 
-    public float getTextSize() { return mStyles.textSize; }
-    public int getVerticalLabelsColor() { return mStyles.verticalLabelsColor; }
-    public Paint.Align getVerticalLabelsAlign() { return mStyles.verticalLabelsAlign; }
-    public int getHorizontalLabelsColor() { return mStyles.horizontalLabelsColor; }
+    public float getTextSize() {
+        return mStyles.textSize;
+    }
+
+    public int getVerticalLabelsColor() {
+        return mStyles.verticalLabelsColor;
+    }
+
+    public Paint.Align getVerticalLabelsAlign() {
+        return mStyles.verticalLabelsAlign;
+    }
+
+    public int getHorizontalLabelsColor() {
+        return mStyles.horizontalLabelsColor;
+    }
 
     public void invalide() {
         mIsAdjusted = false;
         mLabelVerticalWidth = null;
         mLabelVerticalHeight = null;
+        mLabelVerticalSecondScaleWidth = null;
+        mLabelVerticalSecondScaleHeight = null;
         reloadStyles();
+    }
+
+    protected boolean adjustVerticalSecondScale() {
+        if (mLabelHorizontalHeight == null) {
+            return false;
+        }
+        if (mGraphView.mSecondScale == null) {
+            return true;
+        }
+
+        double minY = mGraphView.mSecondScale.getMinY();
+        double maxY = mGraphView.mSecondScale.getMaxY();
+
+        Log.d("GridLabelRenderer", "minY=" + minY + "/maxY=" + maxY);
+
+        // TODO find the number of labels
+        int numVerticalLabels = 5;
+
+        double newMinY;
+        double exactSteps;
+
+        if (mGraphView.mSecondScale.isYAxisBoundsManual()) {
+            newMinY = minY;
+            double rangeY = maxY - newMinY;
+            exactSteps = rangeY / (numVerticalLabels - 1);
+        } else {
+            // TODO auto adjusting
+            throw new IllegalStateException("Not yet implemented");
+        }
+
+        double newMaxY = newMinY + (numVerticalLabels - 1) * exactSteps;
+
+        // TODO auto adjusting
+        //mGraphView.getViewport().setMinY(newMinY);
+        //mGraphView.getViewport().setMaxY(newMaxY);
+
+        //if (!mGraphView.getViewport().isYAxisBoundsManual()) {
+        //    mGraphView.getViewport().setYAxisBoundsStatus(Viewport.AxisBoundsStatus.AUTO_ADJUSTED);
+        //}
+
+        mStepsVerticalSecondScale = new LinkedHashMap<Integer, Double>(numVerticalLabels);
+        int height = mGraphView.getGraphContentHeight();
+        double v = newMaxY;
+        int p = mGraphView.getGraphContentTop(); // start
+        int pixelStep = height / (numVerticalLabels - 1);
+        for (int i = 0; i < numVerticalLabels; i++) {
+            mStepsVerticalSecondScale.put(p, v);
+            p += pixelStep;
+            v -= exactSteps;
+        }
+
+        return true;
     }
 
     protected boolean adjustVertical() {
@@ -121,7 +192,7 @@ public class GridLabelRenderer {
         double minY = mGraphView.getViewport().getMinY(false);
         double maxY = mGraphView.getViewport().getMaxY(false);
 
-        Log.d("GridLabelRenderer", "minY="+minY+"/maxY="+maxY);
+        Log.d("GridLabelRenderer", "minY=" + minY + "/maxY=" + maxY);
 
         // TODO find the number of labels
         int numVerticalLabels = 5;
@@ -173,7 +244,7 @@ public class GridLabelRenderer {
             }
         }
 
-        double newMaxY = newMinY + (numVerticalLabels-1)*exactSteps;
+        double newMaxY = newMinY + (numVerticalLabels - 1) * exactSteps;
         mGraphView.getViewport().setMinY(newMinY);
         mGraphView.getViewport().setMaxY(newMaxY);
 
@@ -185,7 +256,7 @@ public class GridLabelRenderer {
         int height = mGraphView.getGraphContentHeight();
         double v = newMaxY;
         int p = mGraphView.getGraphContentTop(); // start
-        int pixelStep = height/(numVerticalLabels-1);
+        int pixelStep = height / (numVerticalLabels - 1);
         for (int i = 0; i < numVerticalLabels; i++) {
             mStepsVertical.put(p, v);
             p += pixelStep;
@@ -225,7 +296,7 @@ public class GridLabelRenderer {
             double rangeX = maxX - newMinX;
             exactSteps = rangeX / (numHorizontalLabels - 1);
         } else {
-            Log.d("GridLabelRenderer", "find good steps for: "+minX+"/"+maxX);
+            Log.d("GridLabelRenderer", "find good steps for: " + minX + "/" + maxX);
             // find good steps
             boolean adjusting = true;
             newMinX = minX;
@@ -290,20 +361,20 @@ public class GridLabelRenderer {
 
         double v = newMinX;
         int p = mGraphView.getGraphContentLeft(); // start
-        float pixelStep = width/(numHorizontalLabels-1);
+        float pixelStep = width / (numHorizontalLabels - 1);
 
         if (mGraphView.getViewport().mScalingActive) {
             float oldStep = mGraphView.getViewport().mScalingBeginWidth / (numHorizontalLabels - 1);
-            float factor = (mGraphView.getViewport().mCurrentViewport.width()+oldStep)/(mGraphView.getViewport().mScalingBeginWidth+oldStep);
-            pixelStep *= 1f/factor;
+            float factor = (mGraphView.getViewport().mCurrentViewport.width() + oldStep) / (mGraphView.getViewport().mScalingBeginWidth + oldStep);
+            pixelStep *= 1f / factor;
 
             //numHorizontalLabels *= (mGraphView.getViewport().mCurrentViewport.width()+oldStep)/(mGraphView.getViewport().mScalingBeginWidth+oldStep);
             //numHorizontalLabels = (float) Math.ceil(numHorizontalLabels);
             Log.d("GridLabelRenderer", "hhier scaling");
 
             //scrolled = ((float) mGraphView.getViewport().getMinX(false) - mGraphView.getViewport().mScalingBeginLeft)*2;
-            float newWidth = width * 1f/factor;
-            scrolledPixels = (newWidth-width)*-0.5f;
+            float newWidth = width * 1f / factor;
+            scrolledPixels = (newWidth - width) * -0.5f;
 
         }
 
@@ -311,9 +382,9 @@ public class GridLabelRenderer {
         // scrolling
         if (!Float.isNaN(mGraphView.getViewport().mScrollingReferenceX)) {
             scrolled = mGraphView.getViewport().mScrollingReferenceX - (float) newMinX;
-            scrolledPixels += scrolled * (pixelStep/(float)exactSteps);
+            scrolledPixels += scrolled * (pixelStep / (float) exactSteps);
 
-            if (scrolled < 0-exactSteps) {
+            if (scrolled < 0 - exactSteps) {
                 mGraphView.getViewport().mScrollingReferenceX += exactSteps;
             } else if (scrolled > exactSteps) {
                 mGraphView.getViewport().mScrollingReferenceX -= exactSteps;
@@ -336,12 +407,13 @@ public class GridLabelRenderer {
      */
     protected void adjust() {
         mIsAdjusted = adjustVertical();
+        mIsAdjusted = adjustVerticalSecondScale();
         mIsAdjusted &= adjustHorizontal();
     }
 
     protected void calcLabelVerticalSize(Canvas canvas) {
         // test label
-        double testY = ((mGraphView.getViewport().getMaxY(false)-mGraphView.getViewport().getMinY(false))*0.783)+mGraphView.getViewport().getMinY(false);
+        double testY = ((mGraphView.getViewport().getMaxY(false) - mGraphView.getViewport().getMinY(false)) * 0.783) + mGraphView.getViewport().getMinY(false);
         String testLabel = mLabelFormatter.formatLabel(testY, false);
         Rect textBounds = new Rect();
         mPaintLabel.getTextBounds(testLabel, 0, testLabel.length(), textBounds);
@@ -356,9 +428,32 @@ public class GridLabelRenderer {
         mLabelVerticalHeight *= lines;
     }
 
+    protected void calcLabelVerticalSecondScaleSize(Canvas canvas) {
+        if (mGraphView.mSecondScale == null) {
+            mLabelVerticalSecondScaleWidth = 0;
+            mLabelVerticalSecondScaleHeight = 0;
+            return;
+        }
+
+        // test label
+        double testY = ((mGraphView.mSecondScale.getMaxY() - mGraphView.mSecondScale.getMinY()) * 0.783) + mGraphView.mSecondScale.getMinY();
+        String testLabel = mLabelFormatter.formatLabel(testY, false);
+        Rect textBounds = new Rect();
+        mPaintLabel.getTextBounds(testLabel, 0, testLabel.length(), textBounds);
+        mLabelVerticalSecondScaleWidth = textBounds.width();
+        mLabelVerticalSecondScaleHeight = textBounds.height();
+
+        // multiline
+        int lines = 1;
+        for (byte c : testLabel.getBytes()) {
+            if (c == '\n') lines++;
+        }
+        mLabelVerticalSecondScaleHeight *= lines;
+    }
+
     protected void calcLabelHorizontalSize(Canvas canvas) {
         // test label
-        double testX = ((mGraphView.getViewport().getMaxX(false)-mGraphView.getViewport().getMinX(false))*0.783)+mGraphView.getViewport().getMinX(false);
+        double testX = ((mGraphView.getViewport().getMaxX(false) - mGraphView.getViewport().getMinX(false)) * 0.783) + mGraphView.getViewport().getMinX(false);
         String testLabel = mLabelFormatter.formatLabel(testX, true);
         Rect textBounds = new Rect();
         mPaintLabel.getTextBounds(testLabel, 0, testLabel.length(), textBounds);
@@ -383,6 +478,10 @@ public class GridLabelRenderer {
             calcLabelVerticalSize(canvas);
             labelSizeChanged = true;
         }
+        if (mLabelVerticalSecondScaleWidth == null) {
+            calcLabelVerticalSecondScaleSize(canvas);
+            labelSizeChanged = true;
+        }
         if (labelSizeChanged) {
             // redraw
             mGraphView.postInvalidateOnAnimation();
@@ -395,6 +494,7 @@ public class GridLabelRenderer {
 
         if (mIsAdjusted) {
             drawVerticalSteps(canvas);
+            drawVerticalStepsSecondScale(canvas);
             drawHorizontalSteps(canvas);
         }
 
@@ -403,17 +503,17 @@ public class GridLabelRenderer {
     }
 
     protected void drawHorizontalAxisTitle(Canvas canvas) {
-        if (mHorizontalAxisTitle != null && mHorizontalAxisTitle.length()>0) {
+        if (mHorizontalAxisTitle != null && mHorizontalAxisTitle.length() > 0) {
             mPaintAxisTitle.setColor(getHorizontalAxisTitleColor());
             mPaintAxisTitle.setTextSize(getHorizontalAxisTitleTextSize());
-            float x = canvas.getWidth()/2;
-            float y = canvas.getHeight()- mStyles.padding;
+            float x = canvas.getWidth() / 2;
+            float y = canvas.getHeight() - mStyles.padding;
             canvas.drawText(mHorizontalAxisTitle, x, y, mPaintAxisTitle);
         }
     }
 
     protected void drawVerticalAxisTitle(Canvas canvas) {
-        if (mVerticalAxisTitle != null && mVerticalAxisTitle.length()>0) {
+        if (mVerticalAxisTitle != null && mVerticalAxisTitle.length() > 0) {
             mPaintAxisTitle.setColor(getVerticalAxisTitleColor());
             mPaintAxisTitle.setTextSize(getVerticalAxisTitleTextSize());
             float x = getVerticalAxisTitleWidth();
@@ -444,7 +544,7 @@ public class GridLabelRenderer {
     protected void drawHorizontalSteps(Canvas canvas) {
         // draw horizontal steps (vertical lines and horizontal labels)
         mPaintLabel.setColor(getHorizontalLabelsColor());
-        int i=0;
+        int i = 0;
         for (Map.Entry<Integer, Double> e : mStepsHorizontal.entrySet()) {
             // draw line
             if (mStyles.highlightZeroLines) {
@@ -454,23 +554,54 @@ public class GridLabelRenderer {
                     mPaintLine.setStrokeWidth(0);
                 }
             }
-            canvas.drawLine(e.getKey(), mGraphView.getGraphContentTop(), e.getKey(), mGraphView.getGraphContentTop()+mGraphView.getGraphContentHeight(), mPaintLine);
+            canvas.drawLine(e.getKey(), mGraphView.getGraphContentTop(), e.getKey(), mGraphView.getGraphContentTop() + mGraphView.getGraphContentHeight(), mPaintLine);
 
             // draw label
             mPaintLabel.setTextAlign(Paint.Align.CENTER);
-            if (i==mStepsHorizontal.size()-1)
+            if (i == mStepsHorizontal.size() - 1)
                 mPaintLabel.setTextAlign(Paint.Align.RIGHT);
-            if (i==0)
+            if (i == 0)
                 mPaintLabel.setTextAlign(Paint.Align.LEFT);
 
             // multiline labels
             String[] lines = mLabelFormatter.formatLabel(e.getValue(), true).split("\n");
-            for (int li=0; li<lines.length; li++) {
+            for (int li = 0; li < lines.length; li++) {
                 // for the last line y = height
-                float y = (canvas.getHeight()- mStyles.padding -getHorizontalAxisTitleHeight()) - (lines.length-li-1)*getTextSize()*1.1f;
+                float y = (canvas.getHeight() - mStyles.padding - getHorizontalAxisTitleHeight()) - (lines.length - li - 1) * getTextSize() * 1.1f;
                 canvas.drawText(lines[li], e.getKey(), y, mPaintLabel);
             }
             i++;
+        }
+    }
+
+    protected void drawVerticalStepsSecondScale(Canvas canvas) {
+        if (mGraphView.mSecondScale == null) {
+            return;
+        }
+
+        // draw only the vertical labels on the right
+        float startLeft = mGraphView.getGraphContentLeft() + mGraphView.getGraphContentWidth();
+        mPaintLabel.setColor(getVerticalLabelsSecondScaleColor());
+        mPaintLabel.setTextAlign(getVerticalLabelsSecondScaleAlign());
+        for (Map.Entry<Integer, Double> e : mStepsVerticalSecondScale.entrySet()) {
+            // draw label
+            int labelsWidth = mLabelVerticalSecondScaleWidth;
+            int labelsOffset = (int) startLeft;
+            if (getVerticalLabelsSecondScaleAlign() == Paint.Align.RIGHT) {
+                labelsOffset += labelsWidth;
+            } else if (getVerticalLabelsSecondScaleAlign() == Paint.Align.CENTER) {
+                labelsOffset += labelsWidth / 2;
+            }
+
+            float y = e.getKey();
+
+            String[] lines = mLabelFormatter.formatLabel(e.getValue(), false).split("\n");
+            y += (lines.length * getTextSize() * 1.1f) / 2; // center text vertically
+            for (int li = 0; li < lines.length; li++) {
+                // for the last line y = height
+                float y2 = y - (lines.length - li - 1) * getTextSize() * 1.1f;
+                canvas.drawText(lines[li], labelsOffset, y2, mPaintLabel);
+            }
         }
     }
 
@@ -478,6 +609,7 @@ public class GridLabelRenderer {
         // draw vertical steps (horizontal lines and vertical labels)
         float startLeft = mGraphView.getGraphContentLeft();
         mPaintLabel.setColor(getVerticalLabelsColor());
+        mPaintLabel.setTextAlign(getVerticalLabelsAlign());
         for (Map.Entry<Integer, Double> e : mStepsVertical.entrySet()) {
             // draw line
             if (mStyles.highlightZeroLines) {
@@ -487,7 +619,7 @@ public class GridLabelRenderer {
                     mPaintLine.setStrokeWidth(0);
                 }
             }
-            canvas.drawLine(startLeft, e.getKey(), startLeft+mGraphView.getGraphContentWidth(), e.getKey(), mPaintLine);
+            canvas.drawLine(startLeft, e.getKey(), startLeft + mGraphView.getGraphContentWidth(), e.getKey(), mPaintLine);
 
             // draw label
             int labelsWidth = mLabelVerticalWidth;
@@ -502,10 +634,10 @@ public class GridLabelRenderer {
             float y = e.getKey();
 
             String[] lines = mLabelFormatter.formatLabel(e.getValue(), false).split("\n");
-            y += (lines.length*getTextSize()*1.1f) / 2; // center text vertically
-            for (int li=0; li<lines.length; li++) {
+            y += (lines.length * getTextSize() * 1.1f) / 2; // center text vertically
+            for (int li = 0; li < lines.length; li++) {
                 // for the last line y = height
-                float y2 = y - (lines.length-li-1)*getTextSize()*1.1f;
+                float y2 = y - (lines.length - li - 1) * getTextSize() * 1.1f;
                 canvas.drawText(lines[li], labelsOffset, y2, mPaintLabel);
             }
         }
@@ -532,7 +664,7 @@ public class GridLabelRenderer {
                 in = 10d;
             }
         } else { // always round down
-            Log.d("GridLabelRenderer", "round down "+in);
+            Log.d("GridLabelRenderer", "round down " + in);
             if (in == 1d) {
             } else if (in <= 4.9d) {
                 in = 2d;
@@ -541,10 +673,10 @@ public class GridLabelRenderer {
             } else if (in < 15d) {
                 in = 10d;
             }
-            Log.d("GridLabelRenderer", "-> "+in);
+            Log.d("GridLabelRenderer", "-> " + in);
 
         }
-        return in*Math.pow(10d, ten);
+        return in * Math.pow(10d, ten);
     }
 
     public Styles getStyles() {
@@ -552,11 +684,11 @@ public class GridLabelRenderer {
     }
 
     public int getLabelVerticalWidth() {
-        return mLabelVerticalWidth==null?0:mLabelVerticalWidth;
+        return mLabelVerticalWidth == null ? 0 : mLabelVerticalWidth;
     }
 
     public int getLabelHorizontalHeight() {
-        return mLabelHorizontalHeight==null?0:mLabelHorizontalHeight;
+        return mLabelHorizontalHeight == null ? 0 : mLabelHorizontalHeight;
     }
 
     public int getGridColor() {
@@ -653,5 +785,25 @@ public class GridLabelRenderer {
 
     public void setHorizontalAxisTitleColor(int horizontalAxisTitleColor) {
         mStyles.horizontalAxisTitleColor = horizontalAxisTitleColor;
+    }
+
+    public Paint.Align getVerticalLabelsSecondScaleAlign() {
+        return mStyles.verticalLabelsSecondScaleAlign;
+    }
+
+    public void setVerticalLabelsSecondScaleAlign(Paint.Align verticalLabelsSecondScaleAlign) {
+        mStyles.verticalLabelsSecondScaleAlign = verticalLabelsSecondScaleAlign;
+    }
+
+    public int getVerticalLabelsSecondScaleColor() {
+        return mStyles.verticalLabelsSecondScaleColor;
+    }
+
+    public void setVerticalLabelsSecondScaleColor(int verticalLabelsSecondScaleColor) {
+        mStyles.verticalLabelsSecondScaleColor = verticalLabelsSecondScaleColor;
+    }
+
+    public int getLabelVerticalSecondScaleWidth() {
+        return mLabelVerticalSecondScaleWidth;
     }
 }

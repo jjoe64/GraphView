@@ -101,14 +101,14 @@ public class LegendRenderer {
                 if (legendWidth == 0) legendWidth = 1;
 
                 // add shape size
-                legendWidth += shapeSize+mStyles.spacing;
+                legendWidth += shapeSize+mStyles.padding*2 + mStyles.spacing;
                 cachedLegendWidth = legendWidth;
             }
         }
 
         // rect
         float legendHeight = (mStyles.textSize+mStyles.spacing)*allSeries.size() -mStyles.spacing;
-        float lLeft = mGraphView.getWidth()-legendWidth - mStyles.padding*2 - mStyles.margin;
+        float lLeft = mGraphView.getGraphContentLeft()+mGraphView.getGraphContentWidth() - legendWidth - mStyles.margin;
         float lTop;
         switch (mStyles.align) {
             case TOP:
@@ -120,7 +120,7 @@ public class LegendRenderer {
             default:
                 lTop = mGraphView.getGraphContentTop()+mGraphView.getGraphContentHeight() - mStyles.margin;
         }
-        float lRight = lLeft+legendWidth+2*mStyles.padding;
+        float lRight = lLeft+legendWidth;
         float lBottom = lTop+legendHeight+2*mStyles.padding;
         mPaint.setColor(mStyles.backgroundColor);
         canvas.drawRoundRect(new RectF(lLeft, lTop, lRight, lBottom), 8, 8, mPaint);

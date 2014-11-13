@@ -153,6 +153,9 @@ public class GraphView extends View {
     public int getGraphContentWidth() {
         int border = getGridLabelRenderer().getStyles().padding;
         int graphwidth = getWidth() - (2 * border) - getGridLabelRenderer().getLabelVerticalWidth();
+        if (mSecondScale != null) {
+            graphwidth -= getGridLabelRenderer().getLabelVerticalSecondScaleWidth();
+        }
         return graphwidth;
     }
 
