@@ -24,6 +24,7 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -31,6 +32,7 @@ import android.graphics.Paint;
 import android.graphics.Paint.Align;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -329,7 +331,7 @@ abstract public class GraphView extends LinearLayout {
 		}
 	}
 
-	protected final Paint paint;
+	protected Paint paint;
 	private String[] horlabels;
 	private String[] verlabels;
 	private String title;
@@ -337,11 +339,11 @@ abstract public class GraphView extends LinearLayout {
 	private boolean disableTouch;
 	private double viewportStart;
 	private double viewportSize;
-	private final View viewVerLabels;
+	private View viewVerLabels;
 	private ScaleGestureDetector scaleDetector;
 	private boolean scalable;
 	private final NumberFormat[] numberformatter = new NumberFormat[2];
-	private final List<GraphViewSeries> graphSeries;
+	private List<GraphViewSeries> graphSeries;
 	private boolean showLegend = false;
 	private LegendAlign legendAlign = LegendAlign.MIDDLE;
 	private boolean manualYAxis;
@@ -350,7 +352,7 @@ abstract public class GraphView extends LinearLayout {
 	private double manualMaxYValue;
 	private double manualMinYValue;
 	protected GraphViewStyle graphViewStyle;
-	private final GraphViewContentView graphViewContentView;
+	private GraphViewContentView graphViewContentView;
 	private CustomLabelFormatter customLabelFormatter;
 	private Integer labelTextHeight;
 	private Integer horLabelTextWidth;
@@ -361,40 +363,52 @@ abstract public class GraphView extends LinearLayout {
     private boolean showHorizontalLabels = true;
     private boolean showVerticalLabels = true;
 
-	public GraphView(Context context, AttributeSet attrs) {
-		this(context, attrs.getAttributeValue(null, "title"));
+    public GraphView(Context context) {
+        super(context);
+    }
 
-		int width = attrs.getAttributeIntValue("android", "layout_width", LayoutParams.MATCH_PARENT);
-		int height = attrs.getAttributeIntValue("android", "layout_height", LayoutParams.MATCH_PARENT);
-		setLayoutParams(new LayoutParams(width, height));
-	}
+    public GraphView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        initGraph(context, attrs.getAttributeValue(null, "title"),
+                  attrs.getAttributeIntValue("android", "layout_width", LayoutParams.MATCH_PARENT),
+                  attrs.getAttributeIntValue("android", "layout_height", LayoutParams.MATCH_PARENT));
+    }
 
-	/**
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    public GraphView(Context context, AttributeSet attrs, int defStyle) {
+        super(context, attrs, defStyle);
+    }
+
+    /**
 	 * @param context
 	 * @param title [optional]
 	 */
-	public GraphView(Context context, String title) {
+    public GraphView(Context context, String title) {
 		super(context);
-		setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
-
-		if (title == null)
-			this.title = "";
-		else
-			this.title = title;
-
-		graphViewStyle = new GraphViewStyle();
-		graphViewStyle.useTextColorFromTheme(context);
-
-		paint = new Paint();
-		graphSeries = new ArrayList<GraphViewSeries>();
-
-		viewVerLabels = new VerLabelsView(context);
-		addView(viewVerLabels);
-		graphViewContentView = new GraphViewContentView(context);
-		addView(graphViewContentView, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT, 1));
+        initGraph(context, title, LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
 	}
 
-	private GraphViewDataInterface[] _values(int idxSeries) {
+    private void initGraph(Context context, String title, int width, int height) {
+        setLayoutParams(new LayoutParams(width, height));
+
+        if (title == null)
+            this.title = "";
+        else
+            this.title = title;
+
+        graphViewStyle = new GraphViewStyle();
+        graphViewStyle.useTextColorFromTheme(context);
+
+        paint = new Paint();
+        graphSeries = new ArrayList<GraphViewSeries>();
+
+        viewVerLabels = new VerLabelsView(context);
+        addView(viewVerLabels);
+        graphViewContentView = new GraphViewContentView(context);
+        addView(graphViewContentView, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT, 1));
+    }
+
+    private GraphViewDataInterface[] _values(int idxSeries) {
 		GraphViewDataInterface[] values = graphSeries.get(idxSeries).values;
 		synchronized (values) {
 			if (viewportStart == 0 && viewportSize == 0) {
@@ -722,10 +736,10 @@ abstract public class GraphView extends LinearLayout {
 		}
 		return smallest;
 	}
-	
+
 	/**
 	 * returns the size of the Viewport
-	 * 
+	 *
 	 */
 	public double getViewportSize(){
 		return viewportSize;
@@ -875,14 +889,14 @@ abstract public class GraphView extends LinearLayout {
 	public void setManualYAxis(boolean manualYAxis) {
 		this.manualYAxis = manualYAxis;
 	}
-	
+
 	/**
 	 * if you want to disable the menual y axis maximum bound, call this method with false.
 	 */
 	public void setManualMaxY(boolean manualMaxY) {
         	this.manualMaxY = manualMaxY;
     	}
-    	
+
     	/**
 	 * if you want to disable the menual y axis minimum bound, call this method with false.
 	 */
@@ -900,7 +914,7 @@ abstract public class GraphView extends LinearLayout {
 		manualMinYValue = min;
 		manualYAxis = true;
 	}
-	
+
 	/*
 	 * set manual Y axis max limit
 	 * @param max
