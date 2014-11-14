@@ -4,6 +4,8 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Point;
+import android.graphics.PointF;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -23,12 +25,35 @@ public class GraphView extends View {
         int titleColor;
     }
 
+    private class TapDetector {
+        private long lastDown;
+        private PointF lastPoint;
+
+        public boolean onTouchEvent(MotionEvent event) {
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                lastDown = System.currentTimeMillis();
+                lastPoint = new PointF(event.getX(), event.getY());
+            } else if (lastDown > 0 && event.getAction() == MotionEvent.ACTION_MOVE) {
+                if (Math.abs(event.getX() - lastPoint.x) > 60
+                        || Math.abs(event.getY() - lastPoint.y) > 60) {
+                    lastDown = 0;
+                }
+            } else if (event.getAction() == MotionEvent.ACTION_UP) {
+                if (System.currentTimeMillis() - lastDown < 400) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+
     private List<Series> mSeries;
     private GridLabelRenderer mGridLabelRenderer;
     private Viewport mViewport;
     private String mTitle;
     private Styles mStyles;
     protected SecondScale mSecondScale;
+    private TapDetector mTapDetector;
 
     private LegendRenderer mLegendRenderer;
     private TitleRenderer mTitleRenderer;
@@ -59,6 +84,8 @@ public class GraphView extends View {
 
         mSeries = new ArrayList<Series>();
         mPaintTitle = new Paint();
+
+        mTapDetector = new TapDetector();
 
         loadStyles();
     }
@@ -162,7 +189,22 @@ public class GraphView extends View {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         boolean b = mViewport.onTouchEvent(event);
-        return b || super.onTouchEvent(event);
+        boolean a = super.onTouchEvent(event);
+
+        // is it a click?
+        if (mTapDetector.onTouchEvent(event)) {
+            Log.d("GraphView", "tap detected");
+            for (Series s : mSeries) {
+                s.onTap(event.getX(), event.getY());
+            }
+            if (mSecondScale != null) {
+                for (Series s : mSecondScale.getSeries()) {
+                    s.onTap(event.getX(), event.getY());
+                }
+            }
+        }
+
+        return b || a;
     }
 
     @Override

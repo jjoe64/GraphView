@@ -1,10 +1,15 @@
 package com.jjoe64.graphview.series;
 
+import android.graphics.PointF;
+import android.util.Log;
+
 import com.jjoe64.graphview.GraphView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 /**
@@ -12,9 +17,11 @@ import java.util.NoSuchElementException;
  */
 public abstract class BaseSeries<E extends DataPointInterface> implements Series<E> {
     private List<E> mData = new ArrayList<E>();
+    private Map<PointF, E> mDataPoints = new HashMap<PointF, E>();
 
     private String mTitle;
     private int mColor = 0xff0077cc;
+    protected OnDataPointTapListener mOnDataPointTapListener;
 
     public BaseSeries(E[] data) {
         for (E d : data) {
@@ -149,5 +156,58 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
 
     public void setColor(int mColor) {
         this.mColor = mColor;
+    }
+
+    public void setOnDataPointTapListener(OnDataPointTapListener l) {
+        this.mOnDataPointTapListener = l;
+    }
+
+    @Override
+    public void onTap(float x, float y) {
+        if (mOnDataPointTapListener != null) {
+            E p = findDataPoint(x, y);
+            if (p != null) {
+                mOnDataPointTapListener.onTap(this, p);
+            }
+        }
+    }
+
+    protected E findDataPoint(float x, float y) {
+        float shortestDistance = Float.NaN;
+        E shortest = null;
+        for (Map.Entry<PointF, E> entry : mDataPoints.entrySet()) {
+            float x1 = entry.getKey().x;
+            float y1 = entry.getKey().y;
+            float x2 = x;
+            float y2 = y;
+
+            float distance = (float) Math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
+            if (shortest == null || distance < shortestDistance) {
+                shortestDistance = distance;
+                shortest = entry.getValue();
+            }
+        }
+        if (shortest != null) {
+            if (shortestDistance < 120) {
+                return shortest;
+            } else {
+                Log.d("BaseSeries", "point too far: " + shortestDistance);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * register the datapoint to find it at a tap
+     * @param x
+     * @param y
+     * @param dp
+     */
+    protected void registerDataPoint(float x, float y, E dp) {
+        mDataPoints.put(new PointF(x, y), dp);
+    }
+
+    protected void resetDataPoints() {
+        mDataPoints.clear();
     }
 }

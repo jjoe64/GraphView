@@ -41,6 +41,8 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
 
     @Override
     public void draw(GraphView graphView, Canvas canvas, boolean isSecondScale) {
+        resetDataPoints();
+
         // get data
         double maxX = graphView.getViewport().getMaxX(false);
         double minX = graphView.getViewport().getMinX(false);
@@ -140,6 +142,7 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
                     //fix: last value was not drawn. Draw here now the end values
                     canvas.drawCircle(endX, endY, mStyles.dataPointsRadius, mPaint);
                 }
+                registerDataPoint(endX, endY, value);
 
                 canvas.drawLine(startX, startY, endX, endY, mPaint);
                 if (mStyles.drawBackground) {

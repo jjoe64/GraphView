@@ -2,12 +2,15 @@ package com.jjoe64.graphview.series;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.RectF;
 import android.util.Log;
 
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.ValueDependentColor;
 
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Created by jonas on 24.10.14.
@@ -19,6 +22,8 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
     private boolean mDrawValuesOnTop;
     private int mValuesOnTopColor;
     private float mValuesOnTopSize;
+
+    private Map<RectF, E> mDataPoints = new HashMap<RectF, E>();
 
     public BarGraphSeries(E[] data) {
         super(data);
@@ -117,6 +122,8 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
             bottom = Math.min(bottom, contentTop+contentHeight);
             top = Math.max(top, contentTop);
 
+            mDataPoints.put(new RectF(left, top, right, bottom), value);
+
             canvas.drawRect(left, top, right, bottom, mPaint);
 
             // set values on top of graph
@@ -181,5 +188,21 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
 
     public void setValuesOnTopSize(float mValuesOnTopSize) {
         this.mValuesOnTopSize = mValuesOnTopSize;
+    }
+
+    @Override
+    protected void resetDataPoints() {
+        mDataPoints.clear();
+    }
+
+    @Override
+    protected E findDataPoint(float x, float y) {
+        for (Map.Entry<RectF, E> entry : mDataPoints.entrySet()) {
+            if (x >= entry.getKey().left && x <= entry.getKey().right
+                && y >= entry.getKey().top && y <= entry.getKey().bottom) {
+                return entry.getValue();
+            }
+        }
+        return null;
     }
 }
