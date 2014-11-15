@@ -4,13 +4,15 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.support.v4.view.ViewCompat;
+import android.support.v4.widget.EdgeEffectCompat;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
-import android.widget.EdgeEffect;
 import android.widget.OverScroller;
 
+import com.jjoe64.graphview.compat.OverScrollerCompat;
 import com.jjoe64.graphview.series.DataPointInterface;
 import com.jjoe64.graphview.series.Series;
 
@@ -59,7 +61,7 @@ public class Viewport {
             // adjust viewport, labels, etc.
             mGraphView.onDataChanged();
 
-            mGraphView.postInvalidateOnAnimation();
+            ViewCompat.postInvalidateOnAnimation(mGraphView);
 
             return true;
         }
@@ -90,7 +92,7 @@ public class Viewport {
             // adjust viewport, labels, etc.
             mGraphView.onDataChanged();
 
-            mGraphView.postInvalidateOnAnimation();
+            ViewCompat.postInvalidateOnAnimation(mGraphView);
         }
     };
 
@@ -105,7 +107,7 @@ public class Viewport {
             mScrollerStartViewport.set(mCurrentViewport);
             // Aborts any active scroll animations and invalidates.
             mScroller.forceFinished(true);
-            mGraphView.postInvalidateOnAnimation();
+            ViewCompat.postInvalidateOnAnimation(mGraphView);
             return true;
         }
 
@@ -187,7 +189,7 @@ public class Viewport {
             // adjust viewport, labels, etc.
             mGraphView.onDataChanged();
 
-            mGraphView.postInvalidateOnAnimation();
+            ViewCompat.postInvalidateOnAnimation(mGraphView);
             return true;
         }
 
@@ -222,10 +224,10 @@ public class Viewport {
     protected ScaleGestureDetector mScaleGestureDetector;
 
     protected OverScroller mScroller;
-    private EdgeEffect mEdgeEffectTop;
-    private EdgeEffect mEdgeEffectBottom;
-    private EdgeEffect mEdgeEffectLeft;
-    private EdgeEffect mEdgeEffectRight;
+    private EdgeEffectCompat mEdgeEffectTop;
+    private EdgeEffectCompat mEdgeEffectBottom;
+    private EdgeEffectCompat mEdgeEffectLeft;
+    private EdgeEffectCompat mEdgeEffectRight;
     private boolean mEdgeEffectTopActive;
     private boolean mEdgeEffectBottomActive;
     private boolean mEdgeEffectLeftActive;
@@ -243,10 +245,10 @@ public class Viewport {
 
     public Viewport(GraphView graphView) {
         mScroller = new OverScroller(graphView.getContext());
-        mEdgeEffectTop = new EdgeEffect(graphView.getContext());
-        mEdgeEffectBottom = new EdgeEffect(graphView.getContext());
-        mEdgeEffectLeft = new EdgeEffect(graphView.getContext());
-        mEdgeEffectRight = new EdgeEffect(graphView.getContext());
+        mEdgeEffectTop = new EdgeEffectCompat(graphView.getContext());
+        mEdgeEffectBottom = new EdgeEffectCompat(graphView.getContext());
+        mEdgeEffectLeft = new EdgeEffectCompat(graphView.getContext());
+        mEdgeEffectRight = new EdgeEffectCompat(graphView.getContext());
         mGestureDetector = new GestureDetector(graphView.getContext(), mGestureListener);
         mScaleGestureDetector = new ScaleGestureDetector(graphView.getContext(), mScaleGestureListener);
 
@@ -441,7 +443,7 @@ public class Viewport {
                 0, maxY,
                 mGraphView.getGraphContentWidth() / 2,
                 mGraphView.getGraphContentHeight() / 2);
-        mGraphView.postInvalidateOnAnimation();
+        ViewCompat.postInvalidateOnAnimation(mGraphView);
     }
 
     public void computeScroll() {
@@ -468,14 +470,14 @@ public class Viewport {
                     && currX < 0
                     && mEdgeEffectLeft.isFinished()
                     && !mEdgeEffectLeftActive) {
-                mEdgeEffectLeft.onAbsorb((int) mScroller.getCurrVelocity());
+                mEdgeEffectLeft.onAbsorb((int) OverScrollerCompat.getCurrVelocity(mScroller));
                 mEdgeEffectLeftActive = true;
                 needsInvalidate = true;
             } else if (canScrollX
                     && currX > (completeWidth - mGraphView.getGraphContentWidth())
                     && mEdgeEffectRight.isFinished()
                     && !mEdgeEffectRightActive) {
-                mEdgeEffectRight.onAbsorb((int) mScroller.getCurrVelocity());
+                mEdgeEffectRight.onAbsorb((int) OverScrollerCompat.getCurrVelocity(mScroller));
                 mEdgeEffectRightActive = true;
                 needsInvalidate = true;
             }
@@ -484,14 +486,14 @@ public class Viewport {
                     && currY < 0
                     && mEdgeEffectTop.isFinished()
                     && !mEdgeEffectTopActive) {
-                mEdgeEffectTop.onAbsorb((int) mScroller.getCurrVelocity());
+                mEdgeEffectTop.onAbsorb((int) OverScrollerCompat.getCurrVelocity(mScroller));
                 mEdgeEffectTopActive = true;
                 needsInvalidate = true;
             } else if (canScrollY
                     && currY > (completeHeight - mGraphView.getGraphContentHeight())
                     && mEdgeEffectBottom.isFinished()
                     && !mEdgeEffectBottomActive) {
-                mEdgeEffectBottom.onAbsorb((int) mScroller.getCurrVelocity());
+                mEdgeEffectBottom.onAbsorb((int) OverScrollerCompat.getCurrVelocity(mScroller));
                 mEdgeEffectBottomActive = true;
                 needsInvalidate = true;
             }
@@ -510,13 +512,12 @@ public class Viewport {
         }
 
         if (needsInvalidate) {
-            mGraphView.postInvalidateOnAnimation();
+            ViewCompat.postInvalidateOnAnimation(mGraphView);
         }
     }
 
     /**
-     * Draws the overscroll "glow" at the four edges of the chart region, if necessary. The edges
-     * of the chart region are stored in {@link #mContentRect}.
+     * Draws the overscroll "glow" at the four edges of the chart region, if necessary.
      *
      * @see EdgeEffectCompat
      */
@@ -570,7 +571,7 @@ public class Viewport {
         }
 
         if (needsInvalidate) {
-            mGraphView.postInvalidateOnAnimation();
+            ViewCompat.postInvalidateOnAnimation(mGraphView);
         }
     }
 

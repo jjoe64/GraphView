@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.support.v4.view.ViewCompat;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
@@ -484,7 +485,7 @@ public class GridLabelRenderer {
         }
         if (labelSizeChanged) {
             // redraw
-            mGraphView.postInvalidateOnAnimation();
+            ViewCompat.postInvalidateOnAnimation(mGraphView);
             return;
         }
 
