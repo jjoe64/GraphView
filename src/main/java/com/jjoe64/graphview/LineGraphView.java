@@ -22,9 +22,11 @@ package com.jjoe64.graphview;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.util.AttributeSet;
+import android.view.View;
 
 import com.jjoe64.graphview.GraphViewSeries.GraphViewSeriesStyle;
 
@@ -65,6 +67,13 @@ public class LineGraphView extends GraphView {
 		paint.setStrokeWidth(style.thickness);
 		paint.setColor(style.color);
 
+		int[] dotStyle = style.getDotted();
+		if (dotStyle[0] != 0 && dotStyle[1] != 0) {
+			paint.setPathEffect(new DashPathEffect(new float[]{dotStyle[0], dotStyle[0] + dotStyle[1]}, 0));
+			if (android.os.Build.VERSION.SDK_INT >= 11) {
+				this.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+			}
+		}
 
 		Path bgPath = null;
 		if (drawBackground) {
@@ -120,6 +129,11 @@ public class LineGraphView extends GraphView {
 			bgPath.close();
 			canvas.drawPath(bgPath, paintBackground);
 		}
+
+        // restore the paint path effect
+        if (dotStyle[0] != 0 && dotStyle[1] != 0) {
+            paint.setPathEffect(null);
+        }
 	}
 
 	public int getBackgroundColor() {

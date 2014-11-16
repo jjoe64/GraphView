@@ -34,6 +34,7 @@ public class GraphViewSeries {
 		public int color = 0xff0077cc;
 		public int thickness = 3;
 		private ValueDependentColor valueDependentColor;
+		private int[] mDotted = new int[]{0, 0};
 
 		public GraphViewSeriesStyle() {
 			super();
@@ -56,6 +57,20 @@ public class GraphViewSeries {
 		public void setValueDependentColor(ValueDependentColor valueDependentColor) {
 			this.valueDependentColor = valueDependentColor;
 		}
+
+		/**
+		 * Dotted style need a path.
+		 * only possible in LineGraphView
+		 * @param dotLength
+		 * @param spacing
+		 */
+		public void setDotted(int dotLength, int spacing){
+			this.mDotted = new int[]{dotLength, spacing};
+		}
+
+		public int[] getDotted(){
+            return this.mDotted;
+        }
 	}
 
 	final String description;
