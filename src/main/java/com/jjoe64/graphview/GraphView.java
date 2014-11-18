@@ -59,6 +59,7 @@ public class GraphView extends View {
     private TitleRenderer mTitleRenderer;
 
     private Paint mPaintTitle;
+    private Paint mPreviewPaint;
 
     public GraphView(Context context) {
         super(context);
@@ -76,6 +77,11 @@ public class GraphView extends View {
     }
 
     protected void init() {
+        mPreviewPaint = new Paint();
+        mPreviewPaint.setTextAlign(Paint.Align.CENTER);
+        mPreviewPaint.setColor(Color.BLACK);
+        mPreviewPaint.setTextSize(50);
+
         mStyles = new Styles();
         mViewport = new Viewport(this);
         mGridLabelRenderer = new GridLabelRenderer(this);
@@ -116,19 +122,24 @@ public class GraphView extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        drawTitle(canvas);
-        mViewport.drawFirst(canvas);
-        mGridLabelRenderer.draw(canvas);
-        for (Series s : mSeries) {
-            s.draw(this, canvas, false);
-        }
-        if (mSecondScale != null) {
-            for (Series s : mSecondScale.getSeries()) {
-                s.draw(this, canvas, true);
+        if (isInEditMode()) {
+            canvas.drawColor(Color.rgb(200, 200, 200));
+            canvas.drawText("GraphView: No Preview available", canvas.getWidth()/2, canvas.getHeight()/2, mPreviewPaint);
+        } else {
+            drawTitle(canvas);
+            mViewport.drawFirst(canvas);
+            mGridLabelRenderer.draw(canvas);
+            for (Series s : mSeries) {
+                s.draw(this, canvas, false);
             }
+            if (mSecondScale != null) {
+                for (Series s : mSecondScale.getSeries()) {
+                    s.draw(this, canvas, true);
+                }
+            }
+            mViewport.draw(canvas);
+            mLegendRenderer.draw(canvas);
         }
-        mViewport.draw(canvas);
-        mLegendRenderer.draw(canvas);
     }
 
     protected void drawTitle(Canvas canvas) {

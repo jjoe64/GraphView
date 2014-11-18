@@ -61,10 +61,16 @@ public class LegendRenderer {
         TypedValue typedValue = new TypedValue();
         mGraphView.getContext().getTheme().resolveAttribute(android.R.attr.textAppearanceSmall, typedValue, true);
 
-        TypedArray array = mGraphView.getContext().obtainStyledAttributes(typedValue.data, new int[]{
-                android.R.attr.textColorPrimary});
-        int color1 = array.getColor(0, Color.BLACK);
-        array.recycle();
+        int color1;
+
+        try {
+            TypedArray array = mGraphView.getContext().obtainStyledAttributes(typedValue.data, new int[]{
+                    android.R.attr.textColorPrimary});
+            color1 = array.getColor(0, Color.BLACK);
+            array.recycle();
+        } catch (Exception e) {
+            color1 = Color.BLACK;
+        }
 
         mStyles.textColor = color1;
 

@@ -65,16 +65,29 @@ public class GridLabelRenderer {
         TypedValue typedValue = new TypedValue();
         mGraphView.getContext().getTheme().resolveAttribute(android.R.attr.textAppearanceSmall, typedValue, true);
 
-        TypedArray array = mGraphView.getContext().obtainStyledAttributes(typedValue.data, new int[]{
-                android.R.attr.textColorPrimary
-                , android.R.attr.textColorSecondary
-                , android.R.attr.textSize
-                , android.R.attr.horizontalGap});
-        int color1 = array.getColor(0, Color.BLACK);
-        int color2 = array.getColor(1, Color.GRAY);
-        int size = array.getDimensionPixelSize(2, 20);
-        int size2 = array.getDimensionPixelSize(3, 20);
-        array.recycle();
+        int color1;
+        int color2;
+        int size;
+        int size2;
+
+        TypedArray array = null;
+        try {
+            array = mGraphView.getContext().obtainStyledAttributes(typedValue.data, new int[]{
+                    android.R.attr.textColorPrimary
+                    , android.R.attr.textColorSecondary
+                    , android.R.attr.textSize
+                    , android.R.attr.horizontalGap});
+            color1 = array.getColor(0, Color.BLACK);
+            color2 = array.getColor(1, Color.GRAY);
+            size = array.getDimensionPixelSize(2, 20);
+            size2 = array.getDimensionPixelSize(3, 20);
+            array.recycle();
+        } catch (Exception e) {
+            color1 = Color.BLACK;
+            color2 = Color.GRAY;
+            size = 20;
+            size2 = 20;
+        }
 
         mStyles.verticalLabelsColor = color1;
         mStyles.verticalLabelsSecondScaleColor = color1;
@@ -274,6 +287,7 @@ public class GridLabelRenderer {
 
         double minX = mGraphView.getViewport().getMinX(false);
         double maxX = mGraphView.getViewport().getMaxX(false);
+        if (minX == maxX) return true;
 
         // TODO find the number of labels
         int numHorizontalLabels = 5;
