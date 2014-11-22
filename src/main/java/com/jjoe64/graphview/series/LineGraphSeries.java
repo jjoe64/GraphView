@@ -4,12 +4,10 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.util.Log;
 
 import com.jjoe64.graphview.GraphView;
 
 import java.util.Iterator;
-import java.util.List;
 
 /**
  * Created by jonas on 13.08.14.
@@ -26,7 +24,9 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
     private Styles mStyles;
     private Paint mPaint;
     private Paint mPaintBackground;
+    private Path mPathBackground;
     private Path mPath;
+    private Paint mCustomPaint;
 
     public LineGraphSeries(E[] data) {
         super(data);
@@ -34,8 +34,10 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
         mStyles = new Styles();
         mPaint = new Paint();
         mPaint.setStrokeCap(Paint.Cap.ROUND);
+        mPaint.setStyle(Paint.Style.STROKE);
         mPaintBackground = new Paint();
 
+        mPathBackground = new Path();
         mPath = new Path();
     }
 
@@ -68,8 +70,15 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
         mPaint.setColor(getColor());
         mPaintBackground.setColor(mStyles.backgroundColor);
 
+        Paint paint;
+        if (mCustomPaint != null) {
+            paint = mCustomPaint;
+        } else {
+            paint = mPaint;
+        }
+
         if (mStyles.drawBackground) {
-            mPath.reset();
+            mPathBackground.reset();
         }
 
         double diffY = maxY - minY;
@@ -144,13 +153,16 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
                 }
                 registerDataPoint(endX, endY, value);
 
-                canvas.drawLine(startX, startY, endX, endY, mPaint);
+                mPath.reset();
+                mPath.moveTo(startX, startY);
+                mPath.lineTo(endX, endY);
+                canvas.drawPath(mPath, paint);
                 if (mStyles.drawBackground) {
                     if (i==1) {
                         firstX = startX;
-                        mPath.moveTo(startX, startY);
+                        mPathBackground.moveTo(startX, startY);
                     }
-                    mPath.lineTo(endX, endY);
+                    mPathBackground.lineTo(endX, endY);
                 }
                 lastUsedEndX = endX;
             } else if (mStyles.drawDataPoints) {
@@ -166,10 +178,10 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
 
         if (mStyles.drawBackground) {
             // end / close path
-            mPath.lineTo((float) lastUsedEndX, graphHeight + graphTop);
-            mPath.lineTo(firstX, graphHeight + graphTop);
-            mPath.close();
-            canvas.drawPath(mPath, mPaintBackground);
+            mPathBackground.lineTo((float) lastUsedEndX, graphHeight + graphTop);
+            mPathBackground.lineTo(firstX, graphHeight + graphTop);
+            mPathBackground.close();
+            canvas.drawPath(mPathBackground, mPaintBackground);
         }
 
     }
@@ -212,5 +224,9 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
 
     public void setBackgroundColor(int backgroundColor) {
         mStyles.backgroundColor = backgroundColor;
+    }
+
+    public void setCustomPaint(Paint customPaint) {
+        this.mCustomPaint = customPaint;
     }
 }
