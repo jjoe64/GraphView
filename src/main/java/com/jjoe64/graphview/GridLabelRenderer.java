@@ -8,7 +8,6 @@ import android.graphics.Rect;
 import android.support.v4.view.ViewCompat;
 import android.util.Log;
 import android.util.TypedValue;
-import android.view.ContextThemeWrapper;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -31,6 +30,8 @@ public class GridLabelRenderer {
         public int verticalAxisTitleColor;
         public float horizontalAxisTitleTextSize;
         public int horizontalAxisTitleColor;
+        boolean horizontalLabelsVisible;
+        boolean verticalLabelsVisible;
     }
 
     protected Styles mStyles;
@@ -104,6 +105,9 @@ public class GridLabelRenderer {
         mStyles.horizontalAxisTitleColor = mStyles.horizontalLabelsColor;
         mStyles.verticalAxisTitleTextSize = mStyles.textSize;
         mStyles.horizontalAxisTitleTextSize = mStyles.textSize;
+
+        mStyles.horizontalLabelsVisible = true;
+        mStyles.verticalLabelsVisible = true;
 
         reloadStyles();
     }
@@ -572,18 +576,20 @@ public class GridLabelRenderer {
             canvas.drawLine(e.getKey(), mGraphView.getGraphContentTop(), e.getKey(), mGraphView.getGraphContentTop() + mGraphView.getGraphContentHeight(), mPaintLine);
 
             // draw label
-            mPaintLabel.setTextAlign(Paint.Align.CENTER);
-            if (i == mStepsHorizontal.size() - 1)
-                mPaintLabel.setTextAlign(Paint.Align.RIGHT);
-            if (i == 0)
-                mPaintLabel.setTextAlign(Paint.Align.LEFT);
+            if (isHorizontalLabelsVisible()) {
+                mPaintLabel.setTextAlign(Paint.Align.CENTER);
+                if (i == mStepsHorizontal.size() - 1)
+                    mPaintLabel.setTextAlign(Paint.Align.RIGHT);
+                if (i == 0)
+                    mPaintLabel.setTextAlign(Paint.Align.LEFT);
 
-            // multiline labels
-            String[] lines = mLabelFormatter.formatLabel(e.getValue(), true).split("\n");
-            for (int li = 0; li < lines.length; li++) {
-                // for the last line y = height
-                float y = (canvas.getHeight() - mStyles.padding - getHorizontalAxisTitleHeight()) - (lines.length - li - 1) * getTextSize() * 1.1f;
-                canvas.drawText(lines[li], e.getKey(), y, mPaintLabel);
+                // multiline labels
+                String[] lines = mLabelFormatter.formatLabel(e.getValue(), true).split("\n");
+                for (int li = 0; li < lines.length; li++) {
+                    // for the last line y = height
+                    float y = (canvas.getHeight() - mStyles.padding - getHorizontalAxisTitleHeight()) - (lines.length - li - 1) * getTextSize() * 1.1f;
+                    canvas.drawText(lines[li], e.getKey(), y, mPaintLabel);
+                }
             }
             i++;
         }
@@ -637,23 +643,25 @@ public class GridLabelRenderer {
             canvas.drawLine(startLeft, e.getKey(), startLeft + mGraphView.getGraphContentWidth(), e.getKey(), mPaintLine);
 
             // draw label
-            int labelsWidth = mLabelVerticalWidth;
-            int labelsOffset = 0;
-            if (getVerticalLabelsAlign() == Paint.Align.RIGHT) {
-                labelsOffset = labelsWidth;
-            } else if (getVerticalLabelsAlign() == Paint.Align.CENTER) {
-                labelsOffset = labelsWidth / 2;
-            }
-            labelsOffset += mStyles.padding + getVerticalAxisTitleWidth();
+            if (isVerticalLabelsVisible()) {
+                int labelsWidth = mLabelVerticalWidth;
+                int labelsOffset = 0;
+                if (getVerticalLabelsAlign() == Paint.Align.RIGHT) {
+                    labelsOffset = labelsWidth;
+                } else if (getVerticalLabelsAlign() == Paint.Align.CENTER) {
+                    labelsOffset = labelsWidth / 2;
+                }
+                labelsOffset += mStyles.padding + getVerticalAxisTitleWidth();
 
-            float y = e.getKey();
+                float y = e.getKey();
 
-            String[] lines = mLabelFormatter.formatLabel(e.getValue(), false).split("\n");
-            y += (lines.length * getTextSize() * 1.1f) / 2; // center text vertically
-            for (int li = 0; li < lines.length; li++) {
-                // for the last line y = height
-                float y2 = y - (lines.length - li - 1) * getTextSize() * 1.1f;
-                canvas.drawText(lines[li], labelsOffset, y2, mPaintLabel);
+                String[] lines = mLabelFormatter.formatLabel(e.getValue(), false).split("\n");
+                y += (lines.length * getTextSize() * 1.1f) / 2; // center text vertically
+                for (int li = 0; li < lines.length; li++) {
+                    // for the last line y = height
+                    float y2 = y - (lines.length - li - 1) * getTextSize() * 1.1f;
+                    canvas.drawText(lines[li], labelsOffset, y2, mPaintLabel);
+                }
             }
         }
     }
@@ -699,11 +707,11 @@ public class GridLabelRenderer {
     }
 
     public int getLabelVerticalWidth() {
-        return mLabelVerticalWidth == null ? 0 : mLabelVerticalWidth;
+        return mLabelVerticalWidth == null || !isVerticalLabelsVisible() ? 0 : mLabelVerticalWidth;
     }
 
     public int getLabelHorizontalHeight() {
-        return mLabelHorizontalHeight == null ? 0 : mLabelHorizontalHeight;
+        return mLabelHorizontalHeight == null || !isHorizontalLabelsVisible() ? 0 : mLabelHorizontalHeight;
     }
 
     public int getGridColor() {
@@ -820,5 +828,21 @@ public class GridLabelRenderer {
 
     public int getLabelVerticalSecondScaleWidth() {
         return mLabelVerticalSecondScaleWidth;
+    }
+
+    public boolean isHorizontalLabelsVisible() {
+        return mStyles.horizontalLabelsVisible;
+    }
+
+    public void setHorizontalLabelsVisible(boolean horizontalTitleVisible) {
+        mStyles.horizontalLabelsVisible = horizontalTitleVisible;
+    }
+
+    public boolean isVerticalLabelsVisible() {
+        return mStyles.verticalLabelsVisible;
+    }
+
+    public void setVerticalLabelsVisible(boolean verticalTitleVisible) {
+        mStyles.verticalLabelsVisible = verticalTitleVisible;
     }
 }
