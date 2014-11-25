@@ -53,12 +53,16 @@ public class GridLabelRenderer {
     private LabelFormatter mLabelFormatter;
     private String mHorizontalAxisTitle;
     private String mVerticalAxisTitle;
+    private int mNumVerticalLabels;
+    private int mNumHorizontalLabels;
 
     public GridLabelRenderer(GraphView graphView) {
         mGraphView = graphView;
-        mLabelFormatter = new DefaultLabelFormatter(graphView.getViewport());
+        setLabelFormatter(new DefaultLabelFormatter());
         mStyles = new Styles();
         resetStyles();
+        mNumVerticalLabels = 5;
+        mNumHorizontalLabels = 5;
     }
 
     public void resetStyles() {
@@ -164,7 +168,7 @@ public class GridLabelRenderer {
         Log.d("GridLabelRenderer", "minY=" + minY + "/maxY=" + maxY);
 
         // TODO find the number of labels
-        int numVerticalLabels = 5;
+        int numVerticalLabels = mNumVerticalLabels;
 
         double newMinY;
         double exactSteps;
@@ -213,7 +217,7 @@ public class GridLabelRenderer {
         Log.d("GridLabelRenderer", "minY=" + minY + "/maxY=" + maxY);
 
         // TODO find the number of labels
-        int numVerticalLabels = 5;
+        int numVerticalLabels = mNumVerticalLabels;
 
         double newMinY;
         double exactSteps;
@@ -294,7 +298,7 @@ public class GridLabelRenderer {
         if (minX == maxX) return true;
 
         // TODO find the number of labels
-        int numHorizontalLabels = 5;
+        int numHorizontalLabels = mNumHorizontalLabels;
 
         double newMinX;
         double exactSteps;
@@ -760,6 +764,7 @@ public class GridLabelRenderer {
 
     public void setLabelFormatter(LabelFormatter mLabelFormatter) {
         this.mLabelFormatter = mLabelFormatter;
+        mLabelFormatter.setViewport(mGraphView.getViewport());
     }
 
     public String getHorizontalAxisTitle() {
@@ -844,5 +849,21 @@ public class GridLabelRenderer {
 
     public void setVerticalLabelsVisible(boolean verticalTitleVisible) {
         mStyles.verticalLabelsVisible = verticalTitleVisible;
+    }
+
+    public int getNumVerticalLabels() {
+        return mNumVerticalLabels;
+    }
+
+    public void setNumVerticalLabels(int mNumVerticalLabels) {
+        this.mNumVerticalLabels = mNumVerticalLabels;
+    }
+
+    public int getNumHorizontalLabels() {
+        return mNumHorizontalLabels;
+    }
+
+    public void setNumHorizontalLabels(int mNumHorizontalLabels) {
+        this.mNumHorizontalLabels = mNumHorizontalLabels;
     }
 }

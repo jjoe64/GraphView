@@ -9,7 +9,11 @@ public class DefaultLabelFormatter implements LabelFormatter {
     protected NumberFormat[] numberformatter = new NumberFormat[2];
     protected Viewport mViewport;
 
-    public DefaultLabelFormatter(Viewport viewport) {
+    public DefaultLabelFormatter() {
+    }
+
+    @Override
+    public void setViewport(Viewport viewport) {
         mViewport = viewport;
     }
 

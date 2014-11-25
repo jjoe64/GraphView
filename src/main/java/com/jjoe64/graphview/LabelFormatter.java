@@ -5,4 +5,5 @@ package com.jjoe64.graphview;
  */
 public interface LabelFormatter {
     public String formatLabel(double value, boolean isValueX);
+    public void setViewport(Viewport viewport);
 }
