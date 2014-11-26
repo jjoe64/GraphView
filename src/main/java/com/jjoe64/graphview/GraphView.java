@@ -263,4 +263,14 @@ public class GraphView extends View {
         }
         return mSecondScale;
     }
+
+    public void removeAllSeries() {
+        mSeries.clear();
+        onDataChanged();
+    }
+
+    public void removeSeries(Series<?> series) {
+        mSeries.remove(series);
+        onDataChanged();
+    }
 }
