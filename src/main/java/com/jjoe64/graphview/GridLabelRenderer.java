@@ -145,7 +145,7 @@ public class GridLabelRenderer {
         return mStyles.horizontalLabelsColor;
     }
 
-    public void invalide() {
+    public void invalidate() {
         mIsAdjusted = false;
         mLabelVerticalWidth = null;
         mLabelVerticalHeight = null;
@@ -213,6 +213,10 @@ public class GridLabelRenderer {
 
         double minY = mGraphView.getViewport().getMinY(false);
         double maxY = mGraphView.getViewport().getMaxY(false);
+
+        if (minY == maxY) {
+            return false;
+        }
 
         Log.d("GridLabelRenderer", "minY=" + minY + "/maxY=" + maxY);
 
@@ -295,7 +299,7 @@ public class GridLabelRenderer {
 
         double minX = mGraphView.getViewport().getMinX(false);
         double maxX = mGraphView.getViewport().getMaxX(false);
-        if (minX == maxX) return true;
+        if (minX == maxX) return false;
 
         // TODO find the number of labels
         int numHorizontalLabels = mNumHorizontalLabels;
@@ -430,7 +434,7 @@ public class GridLabelRenderer {
      */
     protected void adjust() {
         mIsAdjusted = adjustVertical();
-        mIsAdjusted = adjustVerticalSecondScale();
+        mIsAdjusted &= adjustVerticalSecondScale();
         mIsAdjusted &= adjustHorizontal();
     }
 
@@ -519,6 +523,9 @@ public class GridLabelRenderer {
             drawVerticalSteps(canvas);
             drawVerticalStepsSecondScale(canvas);
             drawHorizontalSteps(canvas);
+        } else {
+            // we can not draw anything
+            return;
         }
 
         drawHorizontalAxisTitle(canvas);
