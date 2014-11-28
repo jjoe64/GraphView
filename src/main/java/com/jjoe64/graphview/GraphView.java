@@ -106,7 +106,9 @@ public class GraphView extends View {
     }
 
     public void addSeries(Series s) {
+        s.onGraphViewAttached(this);
         mSeries.add(s);
+        onDataChanged(false, false);
     }
 
     public List<Series> getSeries() {
@@ -114,10 +116,10 @@ public class GraphView extends View {
         return mSeries;
     }
 
-    public void onDataChanged() {
+    public void onDataChanged(boolean keepLabelsSize, boolean keepViewport) {
         // adjust grid system
         mViewport.calcCompleteRange();
-        mGridLabelRenderer.invalidate();
+        mGridLabelRenderer.invalidate(keepLabelsSize, keepViewport);
         invalidate();
     }
 
@@ -169,7 +171,7 @@ public class GraphView extends View {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        onDataChanged();
+        onDataChanged(true, true);
     }
 
     public int getGraphContentLeft() {
@@ -266,11 +268,11 @@ public class GraphView extends View {
 
     public void removeAllSeries() {
         mSeries.clear();
-        onDataChanged();
+        onDataChanged(false, false);
     }
 
     public void removeSeries(Series<?> series) {
         mSeries.remove(series);
-        onDataChanged();
+        onDataChanged(false, false);
     }
 }

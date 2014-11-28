@@ -59,7 +59,7 @@ public class Viewport {
             }
 
             // adjust viewport, labels, etc.
-            mGraphView.onDataChanged();
+            mGraphView.onDataChanged(true, false);
 
             ViewCompat.postInvalidateOnAnimation(mGraphView);
 
@@ -90,7 +90,7 @@ public class Viewport {
             mScrollingReferenceX = Float.NaN;
 
             // adjust viewport, labels, etc.
-            mGraphView.onDataChanged();
+            mGraphView.onDataChanged(true, false);
 
             ViewCompat.postInvalidateOnAnimation(mGraphView);
         }
@@ -187,7 +187,7 @@ public class Viewport {
             //}
 
             // adjust viewport, labels, etc.
-            mGraphView.onDataChanged();
+            mGraphView.onDataChanged(true, false);
 
             ViewCompat.postInvalidateOnAnimation(mGraphView);
             return true;

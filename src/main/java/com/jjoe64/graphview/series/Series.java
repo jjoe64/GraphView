@@ -20,4 +20,5 @@ public interface Series<E extends DataPointInterface> {
     public int getColor();
     public void setOnDataPointTapListener(OnDataPointTapListener l);
     void onTap(float x, float y);
+    void onGraphViewAttached(GraphView graphView);
 }

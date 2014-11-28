@@ -145,12 +145,16 @@ public class GridLabelRenderer {
         return mStyles.horizontalLabelsColor;
     }
 
-    public void invalidate() {
-        mIsAdjusted = false;
-        mLabelVerticalWidth = null;
-        mLabelVerticalHeight = null;
-        mLabelVerticalSecondScaleWidth = null;
-        mLabelVerticalSecondScaleHeight = null;
+    public void invalidate(boolean keepLabelsSize, boolean keepViewport) {
+        if (!keepViewport) {
+            mIsAdjusted = false;
+        }
+        if (!keepLabelsSize) {
+            mLabelVerticalWidth = null;
+            mLabelVerticalHeight = null;
+            mLabelVerticalSecondScaleWidth = null;
+            mLabelVerticalSecondScaleHeight = null;
+        }
         reloadStyles();
     }
 

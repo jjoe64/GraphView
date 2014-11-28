@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 /**
  * Created by jonas on 28.08.14.
@@ -22,8 +23,10 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
     private String mTitle;
     private int mColor = 0xff0077cc;
     protected OnDataPointTapListener mOnDataPointTapListener;
+    private List<GraphView> mGraphViews;
 
     public BaseSeries(E[] data) {
+        mGraphViews = new ArrayList<GraphView>();
         for (E d : data) {
             mData.add(d);
         }
@@ -209,5 +212,22 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
 
     protected void resetDataPoints() {
         mDataPoints.clear();
+    }
+
+    public void resetData(E[] data) {
+        mData.clear();
+        for (E d : data) {
+            mData.add(d);
+        }
+
+        // update graphview
+        for (GraphView gv : mGraphViews) {
+            gv.onDataChanged(true, false);
+        }
+    }
+
+    @Override
+    public void onGraphViewAttached(GraphView graphView) {
+        mGraphViews.add(graphView);
     }
 }
