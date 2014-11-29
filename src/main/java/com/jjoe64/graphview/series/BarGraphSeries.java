@@ -25,6 +25,10 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
 
     private Map<RectF, E> mDataPoints = new HashMap<RectF, E>();
 
+    public BarGraphSeries() {
+        mPaint = new Paint();
+    }
+
     public BarGraphSeries(E[] data) {
         super(data);
         mPaint = new Paint();

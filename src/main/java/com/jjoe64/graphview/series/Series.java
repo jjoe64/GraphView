@@ -21,4 +21,5 @@ public interface Series<E extends DataPointInterface> {
     public void setOnDataPointTapListener(OnDataPointTapListener l);
     void onTap(float x, float y);
     void onGraphViewAttached(GraphView graphView);
+    boolean isEmpty();
 }

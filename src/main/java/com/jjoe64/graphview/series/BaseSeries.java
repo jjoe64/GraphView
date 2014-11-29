@@ -17,13 +17,17 @@ import java.util.Set;
  * Created by jonas on 28.08.14.
  */
 public abstract class BaseSeries<E extends DataPointInterface> implements Series<E> {
-    private List<E> mData = new ArrayList<E>();
+    final private List<E> mData = new ArrayList<E>();
     private Map<PointF, E> mDataPoints = new HashMap<PointF, E>();
 
     private String mTitle;
     private int mColor = 0xff0077cc;
     protected OnDataPointTapListener mOnDataPointTapListener;
     private List<GraphView> mGraphViews;
+
+    public BaseSeries() {
+        mGraphViews = new ArrayList<GraphView>();
+    }
 
     public BaseSeries(E[] data) {
         mGraphViews = new ArrayList<GraphView>();
@@ -229,5 +233,39 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
     @Override
     public void onGraphViewAttached(GraphView graphView) {
         mGraphViews.add(graphView);
+    }
+
+    public void appendData(E dataPoint, boolean scrollToEnd, int maxDataPoints) {
+        if (!mData.isEmpty() && dataPoint.getX() < mData.get(mData.size()-1).getX()) {
+            throw new IllegalArgumentException("new x-value must be greater then the last value. x-values has to be ordered in ASC.");
+        }
+        synchronized (mData) {
+            int curDataCount = mData.size();
+            if (curDataCount < maxDataPoints) {
+                // enough space
+                mData.add(dataPoint);
+            } else {
+                // we have to trim one data
+                mData.remove(0);
+                mData.add(dataPoint);
+            }
+        }
+
+        // recalc the labels when it was the first data
+        boolean keepLabels = mData.size() != 1;
+
+        // update linked graph views
+        // update graphview
+        for (GraphView gv : mGraphViews) {
+            gv.onDataChanged(keepLabels, scrollToEnd);
+            if (scrollToEnd) {
+                gv.getViewport().scrollToEnd();
+            }
+        }
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return mData.isEmpty();
     }
 }

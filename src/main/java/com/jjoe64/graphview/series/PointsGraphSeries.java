@@ -31,9 +31,16 @@ public class PointsGraphSeries<E extends DataPointInterface> extends BaseSeries<
     private Paint mPaint;
     private CustomShape mCustomShape;
 
+    public PointsGraphSeries() {
+        init();
+    }
+
     public PointsGraphSeries(E[] data) {
         super(data);
+        init();
+    }
 
+    protected void init() {
         mStyles = new Styles();
         mStyles.size = 20f;
         mPaint = new Paint();

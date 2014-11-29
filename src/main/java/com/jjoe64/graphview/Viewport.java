@@ -285,12 +285,11 @@ public class Viewport {
 
     public void calcCompleteRange() {
         List<Series> series = mGraphView.getSeries();
-        if (series.isEmpty()) {
-            mCompleteRange.set(0, 0, 0, 0);
-        } else {
+        mCompleteRange.set(0, 0, 0, 0);
+        if (!series.isEmpty() && !series.get(0).isEmpty()) {
             double d = series.get(0).getLowestValueX();
             for (Series s : series) {
-                if (d > s.getLowestValueX()) {
+                if (!s.isEmpty() && d > s.getLowestValueX()) {
                     d = s.getLowestValueX();
                 }
             }
@@ -298,7 +297,7 @@ public class Viewport {
 
             d = series.get(0).getHighestValueX();
             for (Series s : series) {
-                if (d < s.getHighestValueX()) {
+                if (!s.isEmpty() && d < s.getHighestValueX()) {
                     d = s.getHighestValueX();
                 }
             }
@@ -306,7 +305,7 @@ public class Viewport {
 
             d = series.get(0).getLowestValueY();
             for (Series s : series) {
-                if (d > s.getLowestValueY()) {
+                if (!s.isEmpty() && d > s.getLowestValueY()) {
                     d = s.getLowestValueY();
                 }
             }
@@ -314,7 +313,7 @@ public class Viewport {
 
             d = series.get(0).getHighestValueY();
             for (Series s : series) {
-                if (d < s.getHighestValueY()) {
+                if (!s.isEmpty() && d < s.getHighestValueY()) {
                     d = s.getHighestValueY();
                 }
             }
@@ -336,7 +335,7 @@ public class Viewport {
         if (mXAxisBoundsStatus == AxisBoundsStatus.INITIAL) {
             mCurrentViewport.left = mCompleteRange.left;
             mCurrentViewport.right = mCompleteRange.right;
-        } else if (mXAxisBoundsManual && !mYAxisBoundsManual) {
+        } else if (mXAxisBoundsManual && !mYAxisBoundsManual && mCompleteRange.width() != 0) {
             // get highest/lowest of current viewport
             // lowest
             double d = Double.MAX_VALUE;
@@ -631,6 +630,17 @@ public class Viewport {
         this.mYAxisBoundsManual = mYAxisBoundsManual;
         if (mYAxisBoundsManual) {
             mYAxisBoundsStatus = AxisBoundsStatus.FIX;
+        }
+    }
+
+    public void scrollToEnd() {
+        if (mXAxisBoundsManual) {
+            float size = mCurrentViewport.width();
+            mCurrentViewport.right = mCompleteRange.right;
+            mCurrentViewport.left = mCompleteRange.right - size;
+            mGraphView.onDataChanged(true, false);
+        } else {
+            Log.w("GraphView", "scrollToEnd works only with manual x axis bounds");
         }
     }
 }

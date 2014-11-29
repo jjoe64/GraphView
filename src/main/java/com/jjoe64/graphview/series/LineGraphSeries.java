@@ -28,9 +28,16 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
     private Path mPath;
     private Paint mCustomPaint;
 
+    public LineGraphSeries() {
+        init();
+    }
+
     public LineGraphSeries(E[] data) {
         super(data);
+        init();
+    }
 
+    protected void init() {
         mStyles = new Styles();
         mPaint = new Paint();
         mPaint.setStrokeCap(Paint.Cap.ROUND);
