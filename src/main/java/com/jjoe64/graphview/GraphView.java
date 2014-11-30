@@ -36,18 +36,57 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by jonas on 13.08.14.
+ * @author jjoe64
+ * @version 4.0.0
  */
 public class GraphView extends View {
+    /**
+     * Class to wrap style options that are general
+     * to graphs.
+     *
+     * @author jjoe64
+     */
     private static final class Styles {
+        /**
+         * The font size of the title that can be displayed
+         * above the graph.
+         *
+         * @see GraphView#setTitle(String)
+         */
         float titleTextSize;
+
+        /**
+         * The font color of the title that can be displayed
+         * above the graph.
+         *
+         * @see GraphView#setTitle(String)
+         */
         int titleColor;
     }
 
+    /**
+     * Helper class to detect tap events on the
+     * graph.
+     *
+     * @author jjoe64
+     */
     private class TapDetector {
+        /**
+         * save the time of the last down event
+         */
         private long lastDown;
+
+        /**
+         * point of the tap down event
+         */
         private PointF lastPoint;
 
+        /**
+         * to be called to process the events
+         *
+         * @param event
+         * @return true if there was a tap event. otherwise returns false.
+         */
         public boolean onTouchEvent(MotionEvent event) {
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
                 lastDown = System.currentTimeMillis();
@@ -66,35 +105,98 @@ public class GraphView extends View {
         }
     }
 
+    /**
+     * our series (this does not contain the series
+     * that can be displayed on the right side. The
+     * right side series is a special feature of
+     * the {@link SecondScale} feature.
+     */
     private List<Series> mSeries;
+
+    /**
+     * the renderer for the grid and labels
+     */
     private GridLabelRenderer mGridLabelRenderer;
+
+    /**
+     * viewport that holds the current bounds of
+     * view.
+     */
     private Viewport mViewport;
+
+    /**
+     * title of the graph that will be shown above
+     */
     private String mTitle;
+
+    /**
+     * wraps the general styles
+     */
     private Styles mStyles;
+
+    /**
+     * feature to have a second scale e.g. on the
+     * right side
+     */
     protected SecondScale mSecondScale;
+
+    /**
+     * tap detector
+     */
     private TapDetector mTapDetector;
 
+    /**
+     * renderer for the legend
+     */
     private LegendRenderer mLegendRenderer;
-    private TitleRenderer mTitleRenderer;
 
+    /**
+     * paint for the graph title
+     */
     private Paint mPaintTitle;
+
+    /**
+     * paint for the preview (in the SDK)
+     */
     private Paint mPreviewPaint;
 
+    /**
+     * Initialize the GraphView view
+     * @param context
+     */
     public GraphView(Context context) {
         super(context);
         init();
     }
 
+    /**
+     * Initialize the GraphView view.
+     *
+     * @param context
+     * @param attrs
+     */
     public GraphView(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
     }
 
+    /**
+     * Initialize the GraphView view
+     *
+     * @param context
+     * @param attrs
+     * @param defStyle
+     */
     public GraphView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         init();
     }
 
+    /**
+     * initialize the internal objects.
+     * This method has to be called directly
+     * in the constructors.
+     */
     protected void init() {
         mPreviewPaint = new Paint();
         mPreviewPaint.setTextAlign(Paint.Align.CENTER);
@@ -105,7 +207,6 @@ public class GraphView extends View {
         mViewport = new Viewport(this);
         mGridLabelRenderer = new GridLabelRenderer(this);
         mLegendRenderer = new LegendRenderer(this);
-        mTitleRenderer = new TitleRenderer(this);
 
         mSeries = new ArrayList<Series>();
         mPaintTitle = new Paint();
@@ -115,26 +216,49 @@ public class GraphView extends View {
         loadStyles();
     }
 
-    public void loadStyles() {
+    /**
+     * loads the font
+     */
+    protected void loadStyles() {
         mStyles.titleColor = mGridLabelRenderer.getHorizontalLabelsColor();
         mStyles.titleTextSize = mGridLabelRenderer.getTextSize();
     }
 
+    /**
+     * @return the renderer for the grid and labels
+     */
     public GridLabelRenderer getGridLabelRenderer() {
         return mGridLabelRenderer;
     }
 
+    /**
+     * Add a new series to the graph. This will
+     * automatically redraw the graph.
+     * @param s the series to be added
+     */
     public void addSeries(Series s) {
         s.onGraphViewAttached(this);
         mSeries.add(s);
         onDataChanged(false, false);
     }
 
+    /**
+     * important: do not do modifications on the list
+     * object that will be returned.
+     * Use {link #removeSeries} and {link #addSeries}
+     *
+     * @return all series
+     */
     public List<Series> getSeries() {
         // TODO immutable array
         return mSeries;
     }
 
+    /**
+     *
+     * @param keepLabelsSize
+     * @param keepViewport
+     */
     public void onDataChanged(boolean keepLabelsSize, boolean keepViewport) {
         // adjust grid system
         mViewport.calcCompleteRange();
@@ -142,6 +266,10 @@ public class GraphView extends View {
         invalidate();
     }
 
+    /**
+     *
+     * @param canvas
+     */
     @Override
     protected void onDraw(Canvas canvas) {
         if (isInEditMode()) {
@@ -164,6 +292,10 @@ public class GraphView extends View {
         }
     }
 
+    /**
+     *
+     * @param canvas
+     */
     protected void drawTitle(Canvas canvas) {
         if (mTitle != null && mTitle.length()>0) {
             mPaintTitle.setColor(mStyles.titleColor);
@@ -175,6 +307,10 @@ public class GraphView extends View {
         }
     }
 
+    /**
+     *
+     * @return
+     */
     protected int getTitleHeight() {
         if (mTitle != null && mTitle.length()>0) {
             return (int) mPaintTitle.getTextSize();
@@ -183,26 +319,49 @@ public class GraphView extends View {
         }
     }
 
+    /**
+     *
+     * @return
+     */
     public Viewport getViewport() {
         return mViewport;
     }
 
+    /**
+     *
+     * @param w
+     * @param h
+     * @param oldw
+     * @param oldh
+     */
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
         onDataChanged(true, true);
     }
 
+    /**
+     *
+     * @return
+     */
     public int getGraphContentLeft() {
         int border = getGridLabelRenderer().getStyles().padding;
         return border + getGridLabelRenderer().getLabelVerticalWidth() + getGridLabelRenderer().getVerticalAxisTitleWidth();
     }
 
+    /**
+     *
+     * @return
+     */
     public int getGraphContentTop() {
         int border = getGridLabelRenderer().getStyles().padding + getTitleHeight();
         return border;
     }
 
+    /**
+     *
+     * @return
+     */
     public int getGraphContentHeight() {
         int border = getGridLabelRenderer().getStyles().padding;
         int graphheight = getHeight() - (2 * border) - getGridLabelRenderer().getLabelHorizontalHeight() - getTitleHeight();
@@ -210,6 +369,10 @@ public class GraphView extends View {
         return graphheight;
     }
 
+    /**
+     *
+     * @return
+     */
     public int getGraphContentWidth() {
         int border = getGridLabelRenderer().getStyles().padding;
         int graphwidth = getWidth() - (2 * border) - getGridLabelRenderer().getLabelVerticalWidth();
@@ -219,6 +382,11 @@ public class GraphView extends View {
         return graphwidth;
     }
 
+    /**
+     *
+     * @param event
+     * @return
+     */
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         boolean b = mViewport.onTouchEvent(event);
@@ -240,44 +408,83 @@ public class GraphView extends View {
         return b || a;
     }
 
+    /**
+     *
+     */
     @Override
     public void computeScroll() {
         super.computeScroll();
         mViewport.computeScroll();
     }
 
+    /**
+     *
+     * @return
+     */
     public LegendRenderer getLegendRenderer() {
         return mLegendRenderer;
     }
 
+    /**
+     *
+     * @param mLegendRenderer
+     */
     public void setLegendRenderer(LegendRenderer mLegendRenderer) {
         this.mLegendRenderer = mLegendRenderer;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getTitle() {
         return mTitle;
     }
 
+    /**
+     *
+     * @param mTitle
+     */
     public void setTitle(String mTitle) {
         this.mTitle = mTitle;
     }
 
+    /**
+     *
+     * @return
+     */
     public float getTitleTextSize() {
         return mStyles.titleTextSize;
     }
 
+    /**
+     *
+     * @param titleTextSize
+     */
     public void setTitleTextSize(float titleTextSize) {
         mStyles.titleTextSize = titleTextSize;
     }
 
+    /**
+     *
+     * @return
+     */
     public int getTitleColor() {
         return mStyles.titleColor;
     }
 
+    /**
+     *
+     * @param titleColor
+     */
     public void setTitleColor(int titleColor) {
         mStyles.titleColor = titleColor;
     }
 
+    /**
+     *
+     * @return
+     */
     public SecondScale getSecondScale() {
         if (mSecondScale == null) {
             mSecondScale = new SecondScale();
@@ -285,11 +492,18 @@ public class GraphView extends View {
         return mSecondScale;
     }
 
+    /**
+     *
+     */
     public void removeAllSeries() {
         mSeries.clear();
         onDataChanged(false, false);
     }
 
+    /**
+     *
+     * @param series
+     */
     public void removeSeries(Series<?> series) {
         mSeries.remove(series);
         onDataChanged(false, false);
