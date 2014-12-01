@@ -32,47 +32,201 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Created by jonas on 13.08.14.
+ * The default renderer for the grid
+ * and the labels.
+ *
+ * @author jjoe64
  */
 public class GridLabelRenderer {
+    /**
+     * wrapper for the styles regarding
+     * to the grid and the labels
+     */
     public final class Styles {
+        /**
+         * the general text size of the axis titles.
+         * can be overwritten with #verticalAxisTitleTextSize
+         * and #horizontalAxisTitleTextSize
+         */
         public float textSize;
+
+        /**
+         * the alignment of the vertical labels
+         */
         public Paint.Align verticalLabelsAlign;
+
+        /**
+         * the alignment of the labels on the right side
+         */
         public Paint.Align verticalLabelsSecondScaleAlign;
+
+        /**
+         * the color of the vertical labels
+         */
         public int verticalLabelsColor;
+
+        /**
+         * the color of the labels on the right side
+         */
         public int verticalLabelsSecondScaleColor;
+
+        /**
+         * the color of the horizontal labels
+         */
         public int horizontalLabelsColor;
+
+        /**
+         * the color of the grid lines
+         */
         public int gridColor;
+
+        /**
+         * flag whether the zero-lines (vertical+
+         * horizontal) shall be highlighted
+         */
         public boolean highlightZeroLines;
+
+        /**
+         * the padding around the graph and labels
+         */
         public int padding;
+
+        /**
+         * font size of the vertical axis title
+         */
         public float verticalAxisTitleTextSize;
+
+        /**
+         * font color of the vertical axis title
+         */
         public int verticalAxisTitleColor;
+
+        /**
+         * font size of the horizontal axis title
+         */
         public float horizontalAxisTitleTextSize;
+
+        /**
+         * font color of the horizontal axis title
+         */
         public int horizontalAxisTitleColor;
+
+        /**
+         * flag whether the horizontal labels are
+         * visible
+         */
         boolean horizontalLabelsVisible;
+
+        /**
+         * flag whether the vertical labels are
+         * visible
+         */
         boolean verticalLabelsVisible;
     }
 
+    /**
+     *
+     */
     protected Styles mStyles;
+
+    /**
+     *
+     */
     private final GraphView mGraphView;
+
+    /**
+     *
+     */
     private Map<Integer, Double> mStepsVertical;
+
+    /**
+     *
+     */
     private Map<Integer, Double> mStepsVerticalSecondScale;
+
+    /**
+     *
+     */
     private Map<Integer, Double> mStepsHorizontal;
+
+    /**
+     *
+     */
     private Map<Double, String> mVerticalLabels;
+
+    /**
+     *
+     */
     private Paint mPaintLine;
+
+    /**
+     *
+     */
     private Paint mPaintLabel;
+
+    /**
+     *
+     */
     private Paint mPaintAxisTitle;
+
+    /**
+     *
+     */
     private boolean mIsAdjusted;
+
+    /**
+     *
+     */
     private Integer mLabelVerticalWidth;
+
+    /**
+     *
+     */
     private Integer mLabelVerticalHeight;
+
+    /**
+     *
+     */
     private Integer mLabelVerticalSecondScaleWidth;
+
+    /**
+     *
+     */
     private Integer mLabelVerticalSecondScaleHeight;
+
+    /**
+     *
+     */
     private Integer mLabelHorizontalWidth;
+
+    /**
+     *
+     */
     private Integer mLabelHorizontalHeight;
+
+    /**
+     *
+     */
     private LabelFormatter mLabelFormatter;
+
+    /**
+     *
+     */
     private String mHorizontalAxisTitle;
+
+    /**
+     *
+     */
     private String mVerticalAxisTitle;
+
+    /**
+     *
+     */
     private int mNumVerticalLabels;
+
+    /**
+     *
+     */
     private int mNumHorizontalLabels;
 
     public GridLabelRenderer(GraphView graphView) {

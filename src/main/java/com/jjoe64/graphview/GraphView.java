@@ -255,9 +255,23 @@ public class GraphView extends View {
     }
 
     /**
+     * call this to let the graph redraw and
+     * recalculate the viewport.
+     * This will be called when a new series
+     * was added or removed and when data
+     * was appended via {link BaseSeries#appendData}
+     * or {link BaseSeries#resetData}.
      *
-     * @param keepLabelsSize
-     * @param keepViewport
+     * @param keepLabelsSize true if you don't want
+     *                       to recalculate the size of
+     *                       the labels. It is recommended
+     *                       to use "true" because this will
+     *                       improve performance and prevent
+     *                       a flickering.
+     * @param keepViewport true if you don't want that
+     *                     the viewport will be recalculated.
+     *                     It is recommended to use "true" for
+     *                     performance.
      */
     public void onDataChanged(boolean keepLabelsSize, boolean keepViewport) {
         // adjust grid system
@@ -267,8 +281,9 @@ public class GraphView extends View {
     }
 
     /**
+     * will be called from Android system.
      *
-     * @param canvas
+     * @param canvas Canvas
      */
     @Override
     protected void onDraw(Canvas canvas) {
@@ -293,8 +308,11 @@ public class GraphView extends View {
     }
 
     /**
+     * Draws the Graphs title that will be
+     * shown above the viewport.
+     * Will be called by GraphView.
      *
-     * @param canvas
+     * @param canvas Canvas
      */
     protected void drawTitle(Canvas canvas) {
         if (mTitle != null && mTitle.length()>0) {
@@ -308,8 +326,11 @@ public class GraphView extends View {
     }
 
     /**
+     * Calculates the height of the title.
      *
-     * @return
+     * @return  the actual size of the title.
+     *          if there is no title, 0 will be
+     *          returned.
      */
     protected int getTitleHeight() {
         if (mTitle != null && mTitle.length()>0) {
@@ -320,14 +341,17 @@ public class GraphView extends View {
     }
 
     /**
-     *
-     * @return
+     * @return the viewport of the Graph.
+     * @see com.jjoe64.graphview.Viewport
      */
     public Viewport getViewport() {
         return mViewport;
     }
 
     /**
+     * Called by Android system if the size
+     * of the view was changed. Will recalculate
+     * the viewport and labels.
      *
      * @param w
      * @param h
@@ -341,8 +365,9 @@ public class GraphView extends View {
     }
 
     /**
-     *
-     * @return
+     * @return  the space on the left side of the
+     *          view from the left border to the
+     *          beginning of the graph viewport.
      */
     public int getGraphContentLeft() {
         int border = getGridLabelRenderer().getStyles().padding;
@@ -350,8 +375,9 @@ public class GraphView extends View {
     }
 
     /**
-     *
-     * @return
+     * @return  the space on the top of the
+     *          view from the top border to the
+     *          beginning of the graph viewport.
      */
     public int getGraphContentTop() {
         int border = getGridLabelRenderer().getStyles().padding + getTitleHeight();
@@ -359,8 +385,7 @@ public class GraphView extends View {
     }
 
     /**
-     *
-     * @return
+     * @return  the height of the graph viewport.
      */
     public int getGraphContentHeight() {
         int border = getGridLabelRenderer().getStyles().padding;
@@ -370,8 +395,7 @@ public class GraphView extends View {
     }
 
     /**
-     *
-     * @return
+     * @return  the width of the graph viewport.
      */
     public int getGraphContentWidth() {
         int border = getGridLabelRenderer().getStyles().padding;
@@ -383,6 +407,7 @@ public class GraphView extends View {
     }
 
     /**
+     * will be called from Android system.
      *
      * @param event
      * @return
@@ -418,64 +443,71 @@ public class GraphView extends View {
     }
 
     /**
-     *
-     * @return
+     * @return the legend renderer.
+     * @see com.jjoe64.graphview.LegendRenderer
      */
     public LegendRenderer getLegendRenderer() {
         return mLegendRenderer;
     }
 
     /**
+     * use a specific legend renderer
      *
-     * @param mLegendRenderer
+     * @param mLegendRenderer the new legend renderer
      */
     public void setLegendRenderer(LegendRenderer mLegendRenderer) {
         this.mLegendRenderer = mLegendRenderer;
     }
 
     /**
-     *
-     * @return
+     * @return  the title that will be shown
+     *          above the graph.
      */
     public String getTitle() {
         return mTitle;
     }
 
     /**
+     * Set the title of the graph that will
+     * be shown above the graph's viewport.
      *
-     * @param mTitle
+     * @param mTitle the title
+     * @see #setTitleColor(int) to set the font color
+     * @see #setTitleTextSize(float) to set the font size
      */
     public void setTitle(String mTitle) {
         this.mTitle = mTitle;
     }
 
     /**
-     *
-     * @return
+     * @return the title font size
      */
     public float getTitleTextSize() {
         return mStyles.titleTextSize;
     }
 
     /**
+     * Set the title's font size
      *
-     * @param titleTextSize
+     * @param titleTextSize font size
+     * @see #setTitle(String)
      */
     public void setTitleTextSize(float titleTextSize) {
         mStyles.titleTextSize = titleTextSize;
     }
 
     /**
-     *
-     * @return
+     * @return font color of the title
      */
     public int getTitleColor() {
         return mStyles.titleColor;
     }
 
     /**
+     * Set the title's font color
      *
-     * @param titleColor
+     * @param titleColor font color of the title
+     * @see #setTitle(String)
      */
     public void setTitleColor(int titleColor) {
         mStyles.titleColor = titleColor;
@@ -493,7 +525,7 @@ public class GraphView extends View {
     }
 
     /**
-     *
+     * Removes all series of the graph.
      */
     public void removeAllSeries() {
         mSeries.clear();
@@ -501,6 +533,12 @@ public class GraphView extends View {
     }
 
     /**
+     * Remove a specific series of the graph.
+     * This will also re-render the graph, but
+     * without recalculating the viewport and
+     * label sizes.
+     * If you want this, you have to call {link #onDataChanged}
+     * manually.
      *
      * @param series
      */

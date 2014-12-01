@@ -22,38 +22,73 @@ package com.jjoe64.graphview;
 import java.text.NumberFormat;
 
 /**
- * Created by jonas on 15.08.14.
+ * The label formatter that will be used
+ * by default.
+ * It will use the NumberFormat from Android
+ * and sets the maximal fraction digits
+ * depending on the range between min and max
+ * value of the current viewport.
+ *
+ * It is recommended to use this label formatter
+ * as base class to implement a custom formatter.
+ *
+ * @author jjoe64
  */
 public class DefaultLabelFormatter implements LabelFormatter {
-    protected NumberFormat[] numberformatter = new NumberFormat[2];
+    /**
+     * number formatter for x and y values
+     */
+    protected NumberFormat[] mNumberFormatter = new NumberFormat[2];
+
+    /**
+     * reference to the viewport of the
+     * graph.
+     * Will be used to calculate the current
+     * range of values.
+     */
     protected Viewport mViewport;
 
+    /**
+     *
+     */
     public DefaultLabelFormatter() {
     }
 
+    /**
+     * @param viewport the viewport of the graph
+     */
     @Override
     public void setViewport(Viewport viewport) {
         mViewport = viewport;
     }
 
+    /**
+     * Formats the raw value to a nice
+     * looking label, depending on the
+     * current range of the viewport.
+     *
+     * @param value raw value
+     * @param isValueX true if it's a x value, otherwise false
+     * @return the formatted value as string
+     */
     public String formatLabel(double value, boolean isValueX) {
         int i = isValueX ? 1 : 0;
-        if (numberformatter[i] == null) {
-            numberformatter[i] = NumberFormat.getNumberInstance();
+        if (mNumberFormatter[i] == null) {
+            mNumberFormatter[i] = NumberFormat.getNumberInstance();
             double highestvalue = isValueX ? mViewport.getMaxX(false) : mViewport.getMaxY(false);
             double lowestvalue = isValueX ? mViewport.getMinX(false) : mViewport.getMinY(false);
             if (highestvalue - lowestvalue < 0.1) {
-                numberformatter[i].setMaximumFractionDigits(6);
+                mNumberFormatter[i].setMaximumFractionDigits(6);
             } else if (highestvalue - lowestvalue < 1) {
-                numberformatter[i].setMaximumFractionDigits(4);
+                mNumberFormatter[i].setMaximumFractionDigits(4);
             } else if (highestvalue - lowestvalue < 20) {
-                numberformatter[i].setMaximumFractionDigits(3);
+                mNumberFormatter[i].setMaximumFractionDigits(3);
             } else if (highestvalue - lowestvalue < 100) {
-                numberformatter[i].setMaximumFractionDigits(1);
+                mNumberFormatter[i].setMaximumFractionDigits(1);
             } else {
-                numberformatter[i].setMaximumFractionDigits(0);
+                mNumberFormatter[i].setMaximumFractionDigits(0);
             }
         }
-        return numberformatter[i].format(value);
+        return mNumberFormatter[i].format(value);
     }
 }
