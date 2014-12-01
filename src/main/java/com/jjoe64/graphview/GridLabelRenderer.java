@@ -125,110 +125,127 @@ public class GridLabelRenderer {
     }
 
     /**
-     *
+     * wraps the styles regarding the
+     * grid and labels
      */
     protected Styles mStyles;
 
     /**
-     *
+     * reference to graphview
      */
     private final GraphView mGraphView;
 
     /**
-     *
+     * cache of the vertical steps
+     * (horizontal lines and vertical labels)
+     * Key      = Pixel (y)
+     * Value    = y-value
      */
     private Map<Integer, Double> mStepsVertical;
 
     /**
-     *
+     * cache of the vertical steps for the
+     * second scale, which is on the right side
+     * (horizontal lines and vertical labels)
+     * Key      = Pixel (y)
+     * Value    = y-value
      */
     private Map<Integer, Double> mStepsVerticalSecondScale;
 
     /**
-     *
+     * cache of the horizontal steps
+     * (vertical lines and horizontal labels)
+     * Key      = Pixel (x)
+     * Value    = x-value
      */
     private Map<Integer, Double> mStepsHorizontal;
 
     /**
-     *
-     */
-    private Map<Double, String> mVerticalLabels;
-
-    /**
-     *
+     * the paint to draw the grid lines
      */
     private Paint mPaintLine;
 
     /**
-     *
+     * the paint to draw the labels
      */
     private Paint mPaintLabel;
 
     /**
-     *
+     * the paint to draw axis titles
      */
     private Paint mPaintAxisTitle;
 
     /**
-     *
+     * flag whether is bounds are automatically
+     * adjusted for nice human-readable numbers
      */
     private boolean mIsAdjusted;
 
     /**
-     *
+     * the width of the vertical labels
      */
     private Integer mLabelVerticalWidth;
 
     /**
-     *
+     * the height of the vertical labels
      */
     private Integer mLabelVerticalHeight;
 
     /**
-     *
+     * the width of the vertical labels
+     * of the second scale
      */
     private Integer mLabelVerticalSecondScaleWidth;
 
     /**
-     *
+     * the height of the vertical labels
+     * of the second scale
      */
     private Integer mLabelVerticalSecondScaleHeight;
 
     /**
-     *
+     * the width of the horizontal labels
      */
     private Integer mLabelHorizontalWidth;
 
     /**
-     *
+     * the height of the horizontal labels
      */
     private Integer mLabelHorizontalHeight;
 
     /**
-     *
+     * the label formatter, that converts
+     * the raw numbers to strings
      */
     private LabelFormatter mLabelFormatter;
 
     /**
-     *
+     * the title of the horizontal axis
      */
     private String mHorizontalAxisTitle;
 
     /**
-     *
+     * the title of the vertical axis
      */
     private String mVerticalAxisTitle;
 
     /**
-     *
+     * count of the vertical labels, that
+     * will be shown at one time.
      */
     private int mNumVerticalLabels;
 
     /**
-     *
+     * count of the horizontal labels, that
+     * will be shown at one time.
      */
     private int mNumHorizontalLabels;
 
+    /**
+     * create the default grid label renderer.
+     *
+     * @param graphView the corresponding graphview object
+     */
     public GridLabelRenderer(GraphView graphView) {
         mGraphView = graphView;
         setLabelFormatter(new DefaultLabelFormatter());
@@ -238,6 +255,11 @@ public class GridLabelRenderer {
         mNumHorizontalLabels = 5;
     }
 
+    /**
+     * resets the styles. This loads the style
+     * from reading the values of the current
+     * theme.
+     */
     public void resetStyles() {
         // get matching styles from theme
         TypedValue typedValue = new TypedValue();
@@ -289,6 +311,10 @@ public class GridLabelRenderer {
         reloadStyles();
     }
 
+    /**
+     * will load the styles to the internal
+     * paint objects (color, text size, text align)
+     */
     public void reloadStyles() {
         mPaintLine = new Paint();
         mPaintLine.setColor(mStyles.gridColor);
@@ -302,22 +328,52 @@ public class GridLabelRenderer {
         mPaintAxisTitle.setTextAlign(Paint.Align.CENTER);
     }
 
+    /**
+     * @return the general text size for the axis titles
+     */
     public float getTextSize() {
         return mStyles.textSize;
     }
 
+    /**
+     * @return the font color of the vertical labels
+     */
     public int getVerticalLabelsColor() {
         return mStyles.verticalLabelsColor;
     }
 
+    /**
+     * @return  the alignment of the text of the
+     *          vertical labels
+     */
     public Paint.Align getVerticalLabelsAlign() {
         return mStyles.verticalLabelsAlign;
     }
 
+    /**
+     * @return the font color of the horizontal labels
+     */
     public int getHorizontalLabelsColor() {
         return mStyles.horizontalLabelsColor;
     }
 
+    /**
+     * clears the internal cache and forces
+     * to redraw the grid and labels.
+     * Normally you should always call {@link GraphView#onDataChanged(boolean, boolean)}
+     * which will call this method.
+     *
+     * @param keepLabelsSize true if you don't want
+     *                       to recalculate the size of
+     *                       the labels. It is recommended
+     *                       to use "true" because this will
+     *                       improve performance and prevent
+     *                       a flickering.
+     * @param keepViewport true if you don't want that
+     *                     the viewport will be recalculated.
+     *                     It is recommended to use "true" for
+     *                     performance.
+     */
     public void invalidate(boolean keepLabelsSize, boolean keepViewport) {
         if (!keepViewport) {
             mIsAdjusted = false;
@@ -331,6 +387,15 @@ public class GridLabelRenderer {
         reloadStyles();
     }
 
+    /**
+     * calculates the vertical steps of
+     * the second scale.
+     * This will not do any automatically update
+     * of the bounds.
+     * Use always manual bounds for the second scale.
+     *
+     * @return true if it is ready
+     */
     protected boolean adjustVerticalSecondScale() {
         if (mLabelHorizontalHeight == null) {
             return false;
@@ -383,6 +448,13 @@ public class GridLabelRenderer {
         return true;
     }
 
+    /**
+     * calculates the vertical steps. This will
+     * automatically change the bounds to nice
+     * human-readable min/max.
+     *
+     * @return true if it is ready
+     */
     protected boolean adjustVertical() {
         if (mLabelHorizontalHeight == null) {
             return false;
@@ -469,6 +541,13 @@ public class GridLabelRenderer {
         return true;
     }
 
+    /**
+     * calculates the horizontal steps. This will
+     * automatically change the bounds to nice
+     * human-readable min/max.
+     *
+     * @return true if it is ready
+     */
     protected boolean adjustHorizontal() {
         if (mLabelVerticalWidth == null) {
             return false;
@@ -608,6 +687,9 @@ public class GridLabelRenderer {
 
     /**
      * adjusts the grid and labels to match to the data
+     * this will automatically change the bounds to
+     * nice human-readable values, except the bounds
+     * are manual.
      */
     protected void adjust() {
         mIsAdjusted = adjustVertical();
@@ -615,6 +697,10 @@ public class GridLabelRenderer {
         mIsAdjusted &= adjustHorizontal();
     }
 
+    /**
+     * calculates the vertical label size
+     * @param canvas canvas
+     */
     protected void calcLabelVerticalSize(Canvas canvas) {
         // test label
         double testY = ((mGraphView.getViewport().getMaxY(false) - mGraphView.getViewport().getMinY(false)) * 0.783) + mGraphView.getViewport().getMinY(false);
@@ -632,6 +718,11 @@ public class GridLabelRenderer {
         mLabelVerticalHeight *= lines;
     }
 
+    /**
+     * calculates the vertical second scale
+     * label size
+     * @param canvas canvas
+     */
     protected void calcLabelVerticalSecondScaleSize(Canvas canvas) {
         if (mGraphView.mSecondScale == null) {
             mLabelVerticalSecondScaleWidth = 0;
@@ -655,6 +746,10 @@ public class GridLabelRenderer {
         mLabelVerticalSecondScaleHeight *= lines;
     }
 
+    /**
+     * calculates the horizontal label size
+     * @param canvas canvas
+     */
     protected void calcLabelHorizontalSize(Canvas canvas) {
         // test label
         double testX = ((mGraphView.getViewport().getMaxX(false) - mGraphView.getViewport().getMinX(false)) * 0.783) + mGraphView.getViewport().getMinX(false);
@@ -672,6 +767,11 @@ public class GridLabelRenderer {
         mLabelHorizontalHeight *= lines;
     }
 
+    /**
+     * do the drawing of the grid
+     * and labels
+     * @param canvas canvas
+     */
     public void draw(Canvas canvas) {
         boolean labelSizeChanged = false;
         if (mLabelHorizontalWidth == null) {
@@ -709,6 +809,11 @@ public class GridLabelRenderer {
         drawVerticalAxisTitle(canvas);
     }
 
+    /**
+     * draws the horizontal axis title if
+     * it is set
+     * @param canvas canvas
+     */
     protected void drawHorizontalAxisTitle(Canvas canvas) {
         if (mHorizontalAxisTitle != null && mHorizontalAxisTitle.length() > 0) {
             mPaintAxisTitle.setColor(getHorizontalAxisTitleColor());
@@ -719,6 +824,11 @@ public class GridLabelRenderer {
         }
     }
 
+    /**
+     * draws the vertical axis title if
+     * it is set
+     * @param canvas canvas
+     */
     protected void drawVerticalAxisTitle(Canvas canvas) {
         if (mVerticalAxisTitle != null && mVerticalAxisTitle.length() > 0) {
             mPaintAxisTitle.setColor(getVerticalAxisTitleColor());
@@ -732,6 +842,10 @@ public class GridLabelRenderer {
         }
     }
 
+    /**
+     * @return  the horizontal axis title height
+     *          or 0 if there is no title
+     */
     public int getHorizontalAxisTitleHeight() {
         if (mHorizontalAxisTitle != null && mHorizontalAxisTitle.length() > 0) {
             return (int) getHorizontalAxisTitleTextSize();
@@ -740,6 +854,10 @@ public class GridLabelRenderer {
         }
     }
 
+    /**
+     * @return  the vertical axis title width
+     *          or 0 if there is no title
+     */
     public int getVerticalAxisTitleWidth() {
         if (mVerticalAxisTitle != null && mVerticalAxisTitle.length() > 0) {
             return (int) getVerticalAxisTitleTextSize();
@@ -748,6 +866,12 @@ public class GridLabelRenderer {
         }
     }
 
+    /**
+     * draws the horizontal steps
+     * vertical lines and horizontal labels
+     *
+     * @param canvas canvas
+     */
     protected void drawHorizontalSteps(Canvas canvas) {
         // draw horizontal steps (vertical lines and horizontal labels)
         mPaintLabel.setColor(getHorizontalLabelsColor());
@@ -783,6 +907,12 @@ public class GridLabelRenderer {
         }
     }
 
+    /**
+     * draws the vertical steps for the
+     * second scale on the right side
+     *
+     * @param canvas canvas
+     */
     protected void drawVerticalStepsSecondScale(Canvas canvas) {
         if (mGraphView.mSecondScale == null) {
             return;
@@ -814,6 +944,12 @@ public class GridLabelRenderer {
         }
     }
 
+    /**
+     * draws the vertical steps
+     * horizontal lines and vertical labels
+     *
+     * @param canvas canvas
+     */
     protected void drawVerticalSteps(Canvas canvas) {
         // draw vertical steps (horizontal lines and vertical labels)
         float startLeft = mGraphView.getGraphContentLeft();
@@ -854,6 +990,14 @@ public class GridLabelRenderer {
         }
     }
 
+    /**
+     * this will do rounding to generate
+     * nice human-readable bounds.
+     *
+     * @param in the raw value that is to be rounded
+     * @param roundAlwaysUp true if it shall always round up (ceil)
+     * @return the rounded number
+     */
     protected double humanRound(double in, boolean roundAlwaysUp) {
         // round-up to 1-steps, 2-steps or 5-steps
         int ten = 0;
@@ -890,163 +1034,299 @@ public class GridLabelRenderer {
         return in * Math.pow(10d, ten);
     }
 
+    /**
+     * @return the wrapped styles
+     */
     public Styles getStyles() {
         return mStyles;
     }
 
+    /**
+     * @return  the vertical label width
+     *          0 if there are no vertical labels
+     */
     public int getLabelVerticalWidth() {
         return mLabelVerticalWidth == null || !isVerticalLabelsVisible() ? 0 : mLabelVerticalWidth;
     }
 
+    /**
+     * @return  the horizontal label height
+     *          0 if there are no horizontal labels
+     */
     public int getLabelHorizontalHeight() {
         return mLabelHorizontalHeight == null || !isHorizontalLabelsVisible() ? 0 : mLabelHorizontalHeight;
     }
 
+    /**
+     * @return the grid line color
+     */
     public int getGridColor() {
         return mStyles.gridColor;
     }
 
+    /**
+     * @return whether the line at 0 are highlighted
+     */
     public boolean isHighlightZeroLines() {
         return mStyles.highlightZeroLines;
     }
 
+    /**
+     * @return the padding around the grid and labels
+     */
     public int getPadding() {
         return mStyles.padding;
     }
 
+    /**
+     * @param textSize  the general text size of the axis titles.
+     *                  can be overwritten with {@link #setVerticalAxisTitleTextSize(float)}
+     *                  and {@link #setHorizontalAxisTitleTextSize(float)}
+     */
     public void setTextSize(float textSize) {
         mStyles.textSize = textSize;
     }
 
+    /**
+     * @param verticalLabelsAlign the alignment of the vertical labels
+     */
     public void setVerticalLabelsAlign(Paint.Align verticalLabelsAlign) {
         mStyles.verticalLabelsAlign = verticalLabelsAlign;
     }
 
+    /**
+     * @param verticalLabelsColor the color of the vertical labels
+     */
     public void setVerticalLabelsColor(int verticalLabelsColor) {
         mStyles.verticalLabelsColor = verticalLabelsColor;
     }
 
+    /**
+     * @param horizontalLabelsColor the color of the horizontal labels
+     */
     public void setHorizontalLabelsColor(int horizontalLabelsColor) {
         mStyles.horizontalLabelsColor = horizontalLabelsColor;
     }
 
+    /**
+     * @param gridColor the color of the grid lines
+     */
     public void setGridColor(int gridColor) {
         mStyles.gridColor = gridColor;
     }
 
+    /**
+     * @param highlightZeroLines    flag whether the zero-lines (vertical+
+     *                              horizontal) shall be highlighted
+     */
     public void setHighlightZeroLines(boolean highlightZeroLines) {
         mStyles.highlightZeroLines = highlightZeroLines;
     }
 
+    /**
+     * @param padding the padding around the graph and labels
+     */
     public void setPadding(int padding) {
         mStyles.padding = padding;
     }
 
+    /**
+     * @return  the label formatter, that converts
+     *          the raw numbers to strings
+     */
     public LabelFormatter getLabelFormatter() {
         return mLabelFormatter;
     }
 
+    /**
+     * @param mLabelFormatter   the label formatter, that converts
+     *                          the raw numbers to strings
+     */
     public void setLabelFormatter(LabelFormatter mLabelFormatter) {
         this.mLabelFormatter = mLabelFormatter;
         mLabelFormatter.setViewport(mGraphView.getViewport());
     }
 
+    /**
+     * @return the title of the horizontal axis
+     */
     public String getHorizontalAxisTitle() {
         return mHorizontalAxisTitle;
     }
 
+    /**
+     * @param mHorizontalAxisTitle the title of the horizontal axis
+     */
     public void setHorizontalAxisTitle(String mHorizontalAxisTitle) {
         this.mHorizontalAxisTitle = mHorizontalAxisTitle;
     }
 
+    /**
+     * @return the title of the vertical axis
+     */
     public String getVerticalAxisTitle() {
         return mVerticalAxisTitle;
     }
 
+    /**
+     * @param mVerticalAxisTitle the title of the vertical axis
+     */
     public void setVerticalAxisTitle(String mVerticalAxisTitle) {
         this.mVerticalAxisTitle = mVerticalAxisTitle;
     }
 
+    /**
+     * @return font size of the vertical axis title
+     */
     public float getVerticalAxisTitleTextSize() {
         return mStyles.verticalAxisTitleTextSize;
     }
 
+    /**
+     * @param verticalAxisTitleTextSize font size of the vertical axis title
+     */
     public void setVerticalAxisTitleTextSize(float verticalAxisTitleTextSize) {
         mStyles.verticalAxisTitleTextSize = verticalAxisTitleTextSize;
     }
 
+    /**
+     * @return font color of the vertical axis title
+     */
     public int getVerticalAxisTitleColor() {
         return mStyles.verticalAxisTitleColor;
     }
 
+    /**
+     * @param verticalAxisTitleColor font color of the vertical axis title
+     */
     public void setVerticalAxisTitleColor(int verticalAxisTitleColor) {
         mStyles.verticalAxisTitleColor = verticalAxisTitleColor;
     }
 
+    /**
+     * @return font size of the horizontal axis title
+     */
     public float getHorizontalAxisTitleTextSize() {
         return mStyles.horizontalAxisTitleTextSize;
     }
 
+    /**
+     * @param horizontalAxisTitleTextSize font size of the horizontal axis title
+     */
     public void setHorizontalAxisTitleTextSize(float horizontalAxisTitleTextSize) {
         mStyles.horizontalAxisTitleTextSize = horizontalAxisTitleTextSize;
     }
 
+    /**
+     * @return font color of the horizontal axis title
+     */
     public int getHorizontalAxisTitleColor() {
         return mStyles.horizontalAxisTitleColor;
     }
 
+    /**
+     * @param horizontalAxisTitleColor font color of the horizontal axis title
+     */
     public void setHorizontalAxisTitleColor(int horizontalAxisTitleColor) {
         mStyles.horizontalAxisTitleColor = horizontalAxisTitleColor;
     }
 
+    /**
+     * @return the alignment of the labels on the right side
+     */
     public Paint.Align getVerticalLabelsSecondScaleAlign() {
         return mStyles.verticalLabelsSecondScaleAlign;
     }
 
+    /**
+     * @param verticalLabelsSecondScaleAlign the alignment of the labels on the right side
+     */
     public void setVerticalLabelsSecondScaleAlign(Paint.Align verticalLabelsSecondScaleAlign) {
         mStyles.verticalLabelsSecondScaleAlign = verticalLabelsSecondScaleAlign;
     }
 
+    /**
+     * @return the color of the labels on the right side
+     */
     public int getVerticalLabelsSecondScaleColor() {
         return mStyles.verticalLabelsSecondScaleColor;
     }
 
+    /**
+     * @param verticalLabelsSecondScaleColor the color of the labels on the right side
+     */
     public void setVerticalLabelsSecondScaleColor(int verticalLabelsSecondScaleColor) {
         mStyles.verticalLabelsSecondScaleColor = verticalLabelsSecondScaleColor;
     }
 
+    /**
+     * @return  the width of the vertical labels
+     *          of the second scale
+     */
     public int getLabelVerticalSecondScaleWidth() {
         return mLabelVerticalSecondScaleWidth;
     }
 
+    /**
+     * @return  flag whether the horizontal labels are
+     *          visible
+     */
     public boolean isHorizontalLabelsVisible() {
         return mStyles.horizontalLabelsVisible;
     }
 
+    /**
+     * @param horizontalTitleVisible    flag whether the horizontal labels are
+     *                                  visible
+     */
     public void setHorizontalLabelsVisible(boolean horizontalTitleVisible) {
         mStyles.horizontalLabelsVisible = horizontalTitleVisible;
     }
 
+    /**
+     * @return  flag whether the vertical labels are
+     *          visible
+     */
     public boolean isVerticalLabelsVisible() {
         return mStyles.verticalLabelsVisible;
     }
 
+    /**
+     * @param verticalTitleVisible  flag whether the vertical labels are
+     *                              visible
+     */
     public void setVerticalLabelsVisible(boolean verticalTitleVisible) {
         mStyles.verticalLabelsVisible = verticalTitleVisible;
     }
 
+    /**
+     * @return  count of the vertical labels, that
+     *          will be shown at one time.
+     */
     public int getNumVerticalLabels() {
         return mNumVerticalLabels;
     }
 
+    /**
+     * @param mNumVerticalLabels    count of the vertical labels, that
+     *                              will be shown at one time.
+     */
     public void setNumVerticalLabels(int mNumVerticalLabels) {
         this.mNumVerticalLabels = mNumVerticalLabels;
     }
 
+    /**
+     * @return  count of the horizontal labels, that
+     *          will be shown at one time.
+     */
     public int getNumHorizontalLabels() {
         return mNumHorizontalLabels;
     }
 
+    /**
+     * @param mNumHorizontalLabels  count of the horizontal labels, that
+     *                              will be shown at one time.
+     */
     public void setNumHorizontalLabels(int mNumHorizontalLabels) {
         this.mNumHorizontalLabels = mNumHorizontalLabels;
     }

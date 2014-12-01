@@ -245,7 +245,7 @@ public class GraphView extends View {
     /**
      * important: do not do modifications on the list
      * object that will be returned.
-     * Use {link #removeSeries} and {link #addSeries}
+     * Use {@link #removeSeries(com.jjoe64.graphview.series.Series)} and {@link #addSeries(com.jjoe64.graphview.series.Series)}
      *
      * @return all series
      */
@@ -259,8 +259,8 @@ public class GraphView extends View {
      * recalculate the viewport.
      * This will be called when a new series
      * was added or removed and when data
-     * was appended via {link BaseSeries#appendData}
-     * or {link BaseSeries#resetData}.
+     * was appended via {@link com.jjoe64.graphview.series.BaseSeries#appendData(com.jjoe64.graphview.series.DataPointInterface, boolean, int)}
+     * or {@link com.jjoe64.graphview.series.BaseSeries#resetData(com.jjoe64.graphview.series.DataPointInterface[])}.
      *
      * @param keepLabelsSize true if you don't want
      *                       to recalculate the size of
@@ -537,7 +537,7 @@ public class GraphView extends View {
      * This will also re-render the graph, but
      * without recalculating the viewport and
      * label sizes.
-     * If you want this, you have to call {link #onDataChanged}
+     * If you want this, you have to call {@link #onDataChanged(boolean, boolean)}
      * manually.
      *
      * @param series
