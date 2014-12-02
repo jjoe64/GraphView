@@ -33,9 +33,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by jonas on 14.08.14.
+ * The default renderer for the legend box
+ *
+ * @author jjoe64
  */
 public class LegendRenderer {
+    /**
+     * wrapped styles regarding to the
+     * legend
+     */
     private final class Styles {
         float textSize;
         int spacing;
@@ -47,16 +53,59 @@ public class LegendRenderer {
         LegendAlign align;
     }
 
+    /**
+     * alignment of the legend
+     */
     public enum LegendAlign {
-        TOP, MIDDLE, BOTTOM
+        /**
+         * top right corner
+         */
+        TOP,
+
+        /**
+         * middle right
+         */
+        MIDDLE,
+
+        /**
+         * bottom right corner
+         */
+        BOTTOM
     }
 
+    /**
+     * wrapped styles
+     */
     private Styles mStyles;
+
+    /**
+     * reference to the graphview
+     */
     private final GraphView mGraphView;
+
+    /**
+     * flag whether legend will be
+     * drawn
+     */
     private boolean mIsVisible;
+
+    /**
+     * paint for the drawing
+     */
     private Paint mPaint;
+
+    /**
+     * cached legend width
+     * this will be filled in the drawing.
+     * Can be cleared via {@link #resetStyles()}
+     */
     private int cachedLegendWidth;
 
+    /**
+     * creates legend renderer
+     *
+     * @param graphView regarding graphview
+     */
     public LegendRenderer(GraphView graphView) {
         mGraphView = graphView;
         mIsVisible = false;
@@ -67,6 +116,10 @@ public class LegendRenderer {
         resetStyles();
     }
 
+    /**
+     * resets the styles to the defaults
+     * and clears the legend width cache
+     */
     public void resetStyles() {
         mStyles.align = LegendAlign.MIDDLE;
         mStyles.textSize = mGraphView.getGridLabelRenderer().getTextSize();
@@ -96,6 +149,12 @@ public class LegendRenderer {
         cachedLegendWidth = 0;
     }
 
+    /**
+     * draws the legend if it is visible
+     *
+     * @param canvas canvas
+     * @see #setVisible(boolean)
+     */
     public void draw(Canvas canvas) {
         if (!mIsVisible) return;
 
@@ -162,79 +221,153 @@ public class LegendRenderer {
         }
     }
 
+    /**
+     * @return the flag whether the legend will be drawn
+     */
     public boolean isVisible() {
         return mIsVisible;
     }
 
+    /**
+     * set the flag whether the legend will be drawn
+     *
+     * @param mIsVisible visible flag
+     */
     public void setVisible(boolean mIsVisible) {
         this.mIsVisible = mIsVisible;
     }
 
+    /**
+     * @return font size
+     */
     public float getTextSize() {
         return mStyles.textSize;
     }
 
+    /**
+     * sets the font size. this will clear
+     * the internal legend width cache
+     *
+     * @param textSize font size
+     */
     public void setTextSize(float textSize) {
         mStyles.textSize = textSize;
         cachedLegendWidth = 0;
     }
 
+    /**
+     * @return the spacing between the text lines
+     */
     public int getSpacing() {
         return mStyles.spacing;
     }
 
+    /**
+     * set the spacing between the text lines
+     *
+     * @param spacing the spacing between the text lines
+     */
     public void setSpacing(int spacing) {
         mStyles.spacing = spacing;
     }
 
+    /**
+     * padding is the space between the edge of the box
+     * and the beginning of the text
+     *
+     * @return padding from edge to text
+     */
     public int getPadding() {
         return mStyles.padding;
     }
 
+    /**
+     * padding is the space between the edge of the box
+     * and the beginning of the text
+     *
+     * @param padding padding from edge to text
+     */
     public void setPadding(int padding) {
         mStyles.padding = padding;
     }
 
+    /**
+     * the width of the box exclusive padding
+     *
+     * @return  the width of the box
+     *          0 => auto
+     */
     public int getWidth() {
         return mStyles.width;
     }
 
     /**
-     * 0 => auto
-     * @param width
+     * the width of the box exclusive padding
+     * @param width     the width of the box exclusive padding
+     *                  0 => auto
      */
     public void setWidth(int width) {
         mStyles.width = width;
     }
 
+    /**
+     * @return  background color of the box
+     *          it is recommended to use semi-transparent
+     *          color.
+     */
     public int getBackgroundColor() {
         return mStyles.backgroundColor;
     }
 
+    /**
+     * @param backgroundColor   background color of the box
+     *                          it is recommended to use semi-transparent
+     *                          color.
+     */
     public void setBackgroundColor(int backgroundColor) {
         mStyles.backgroundColor = backgroundColor;
     }
 
+    /**
+     * @return  margin from the edge of the box
+     *          to the corner of the graphview
+     */
     public int getMargin() {
         return mStyles.margin;
     }
 
+    /**
+     * @param margin    margin from the edge of the box
+     *                  to the corner of the graphview
+     */
     public void setMargin(int margin) {
         mStyles.margin = margin;
     }
 
+    /**
+     * @return the vertical alignment of the box
+     */
     public LegendAlign getAlign() {
         return mStyles.align;
     }
 
+    /**
+     * @param align the vertical alignment of the box
+     */
     public void setAlign(LegendAlign align) {
         mStyles.align = align;
     }
 
+    /**
+     * @return font color
+     */
     public int getTextColor() {
         return mStyles.textColor;
     }
 
+    /**
+     * @param textColor font color
+     */
     public void setTextColor(int textColor) {
         mStyles.textColor = textColor;
     }
