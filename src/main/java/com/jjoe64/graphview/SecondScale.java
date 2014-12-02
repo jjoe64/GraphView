@@ -25,18 +25,58 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by jonas on 11.11.14.
+ * To be used to plot a second scale
+ * on the graph.
+ * The second scale has always to have
+ * manual bounds.
+ * Use {@link #setMinY(double)} and {@link #setMaxY(double)}
+ * to set them.
+ * The second scale has it's own array of series.
+ *
+ * @author jjoe64
  */
 public class SecondScale {
-    private List<Series> mSeries;
+    /**
+     * array of series for the second
+     * scale
+     */
+    protected List<Series> mSeries;
+
+    /**
+     * flag whether the y axis bounds
+     * are manual.
+     * For the current version this is always
+     * true.
+     */
     private boolean mYAxisBoundsManual = true;
+
+    /**
+     * min y value for the y axis bounds
+     */
     private double mMinY;
+
+    /**
+     * max y value for the y axis bounds
+     */
     private double mMaxY;
 
-    public SecondScale() {
+    /**
+     * creates the second scale.
+     * normally you do not call this contructor.
+     * Use {@link com.jjoe64.graphview.GraphView#getSecondScale()}
+     * in order to get the instance.
+     */
+    SecondScale() {
         mSeries = new ArrayList<Series>();
     }
 
+    /**
+     * add a series to the second scale.
+     * Don't add this series also to the GraphView
+     * object.
+     *
+     * @param s the series
+     */
     public void addSeries(Series s) {
         mSeries.add(s);
     }
@@ -45,26 +85,48 @@ public class SecondScale {
     //    this.mYAxisBoundsManual = mYAxisBoundsManual;
     //}
 
+    /**
+     * set the min y bounds
+     *
+     * @param d min y value
+     */
     public void setMinY(double d) {
         mMinY = d;
     }
 
+    /**
+     * set the max y bounds
+     *
+     * @param d max y value
+     */
     public void setMaxY(double d) {
         mMaxY = d;
     }
 
+    /**
+     * @return the series of the second scale
+     */
     public List<Series> getSeries() {
         return mSeries;
     }
 
+    /**
+     * @return min y bound
+     */
     public double getMinY() {
         return mMinY;
     }
 
+    /**
+     * @return max y bound
+     */
     public double getMaxY() {
         return mMaxY;
     }
 
+    /**
+     * @return always true for the current implementation
+     */
     public boolean isYAxisBoundsManual() {
         return mYAxisBoundsManual;
     }
