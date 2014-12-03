@@ -655,39 +655,47 @@ public class Viewport {
     }
 
     /**
-     *
-     * @param y
+     * set the maximal y value for the current viewport.
+     * Make sure to set the y bounds to manual via
+     * {@link #setYAxisBoundsManual(boolean)}
+     * @param y max / highest value
      */
     public void setMaxY(double y) {
         mCurrentViewport.top = (float) y;
     }
 
     /**
-     *
-     * @param y
+     * set the minimal y value for the current viewport.
+     * Make sure to set the y bounds to manual via
+     * {@link #setYAxisBoundsManual(boolean)}
+     * @param y min / lowest value
      */
     public void setMinY(double y) {
         mCurrentViewport.bottom = (float) y;
     }
 
     /**
-     *
-     * @param x
+     * set the maximal x value for the current viewport.
+     * Make sure to set the x bounds to manual via
+     * {@link #setXAxisBoundsManual(boolean)}
+     * @param x max / highest value
      */
     public void setMaxX(double x) {
         mCurrentViewport.right = (float) x;
     }
 
     /**
-     *
-     * @param x
+     * set the minimal x value for the current viewport.
+     * Make sure to set the x bounds to manual via
+     * {@link #setXAxisBoundsManual(boolean)}
+     * @param x min / lowest value
      */
     public void setMinX(double x) {
         mCurrentViewport.left = (float) x;
     }
 
     /**
-     *
+     * release the glowing effects
      */
     private void releaseEdgeEffects() {
         mEdgeEffectLeftActive
@@ -698,6 +706,7 @@ public class Viewport {
     }
 
     /**
+     * not used currently
      *
      * @param velocityX
      * @param velocityY
@@ -726,7 +735,7 @@ public class Viewport {
     }
 
     /**
-     *
+     * not used currently
      */
     public void computeScroll() {
         if (true) return;
@@ -858,8 +867,11 @@ public class Viewport {
     }
 
     /**
+     * will be first called in order to draw
+     * the canvas
+     * Used to draw the background
      *
-     * @param c
+     * @param c canvas.
      */
     public void drawFirst(Canvas c) {
         // draw background
@@ -876,40 +888,38 @@ public class Viewport {
     }
 
     /**
+     * draws the glowing edge effect
      *
-     * @param c
+     * @param c canvas
      */
     public void draw(Canvas c) {
         drawEdgeEffectsUnclipped(c);
     }
 
     /**
-     *
-     * @return
+     * @return background of the viewport area
      */
     public int getBackgroundColor() {
         return mBackgroundColor;
     }
 
     /**
-     *
-     * @param mBackgroundColor
+     * @param mBackgroundColor  background of the viewport area
+     *                          use transparent to have no background
      */
     public void setBackgroundColor(int mBackgroundColor) {
         this.mBackgroundColor = mBackgroundColor;
     }
 
     /**
-     *
-     * @return
+     * @return whether the viewport is scalable
      */
     public boolean isScalable() {
         return mIsScalable;
     }
 
     /**
-     *
-     * @param mIsScalable
+     * @param mIsScalable whether the viewport is scalable
      */
     public void setScalable(boolean mIsScalable) {
         this.mIsScalable = mIsScalable;
@@ -919,16 +929,18 @@ public class Viewport {
     }
 
     /**
-     *
-     * @return
+     * @return whether the x axis bounds are manual.
+     * @see #setMinX(double)
+     * @see #setMaxX(double)
      */
     public boolean isXAxisBoundsManual() {
         return mXAxisBoundsManual;
     }
 
     /**
-     *
-     * @param mXAxisBoundsManual
+     * @param mXAxisBoundsManual whether the x axis bounds are manual.
+     * @see #setMinX(double)
+     * @see #setMaxX(double)
      */
     public void setXAxisBoundsManual(boolean mXAxisBoundsManual) {
         this.mXAxisBoundsManual = mXAxisBoundsManual;
@@ -938,16 +950,16 @@ public class Viewport {
     }
 
     /**
-     *
-     * @return
+     * @return whether the y axis bound are manual
      */
     public boolean isYAxisBoundsManual() {
         return mYAxisBoundsManual;
     }
 
     /**
-     *
-     * @param mYAxisBoundsManual
+     * @param mYAxisBoundsManual whether the y axis bounds are manual
+     * @see #setMaxY(double)
+     * @see #setMinY(double)
      */
     public void setYAxisBoundsManual(boolean mYAxisBoundsManual) {
         this.mYAxisBoundsManual = mYAxisBoundsManual;
@@ -957,7 +969,12 @@ public class Viewport {
     }
 
     /**
+     * forces the viewport to scroll to the end
+     * of the range by keeping the current viewport size.
      *
+     * Important: Only takes effect if x axis bounds are manual.
+     *
+     * @see #setXAxisBoundsManual(boolean)
      */
     public void scrollToEnd() {
         if (mXAxisBoundsManual) {

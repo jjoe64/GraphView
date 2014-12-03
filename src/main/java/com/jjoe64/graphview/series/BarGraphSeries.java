@@ -32,27 +32,69 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * Created by jonas on 24.10.14.
+ * Series with Bars to visualize the data.
+ * The Bars are always vertical.
+ *
+ * @author jjoe64
  */
 public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> {
+    /**
+     *
+     */
     private Paint mPaint;
+
+    /**
+     *
+     */
     private int mSpacing;
+
+    /**
+     *
+     */
     private ValueDependentColor<E> mValueDependentColor;
+
+    /**
+     *
+     */
     private boolean mDrawValuesOnTop;
+
+    /**
+     *
+     */
     private int mValuesOnTopColor;
+
+    /**
+     *
+     */
     private float mValuesOnTopSize;
 
+    /**
+     *
+     */
     private Map<RectF, E> mDataPoints = new HashMap<RectF, E>();
 
+    /**
+     *
+     */
     public BarGraphSeries() {
         mPaint = new Paint();
     }
 
+    /**
+     *
+     * @param data
+     */
     public BarGraphSeries(E[] data) {
         super(data);
         mPaint = new Paint();
     }
 
+    /**
+     *
+     * @param graphView
+     * @param canvas
+     * @param isSecondScale
+     */
     @Override
     public void draw(GraphView graphView, Canvas canvas, boolean isSecondScale) {
         mPaint.setTextAlign(Paint.Align.CENTER);
@@ -169,14 +211,26 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
         }
     }
 
+    /**
+     *
+     * @return
+     */
     public ValueDependentColor<E> getValueDependentColor() {
         return mValueDependentColor;
     }
 
+    /**
+     *
+     * @param mValueDependentColor
+     */
     public void setValueDependentColor(ValueDependentColor<E> mValueDependentColor) {
         this.mValueDependentColor = mValueDependentColor;
     }
 
+    /**
+     *
+     * @return
+     */
     public int getSpacing() {
         return mSpacing;
     }
@@ -189,35 +243,68 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
         this.mSpacing = mSpacing;
     }
 
+    /**
+     *
+     * @return
+     */
     public boolean isDrawValuesOnTop() {
         return mDrawValuesOnTop;
     }
 
+    /**
+     *
+     * @param mDrawValuesOnTop
+     */
     public void setDrawValuesOnTop(boolean mDrawValuesOnTop) {
         this.mDrawValuesOnTop = mDrawValuesOnTop;
     }
 
+    /**
+     *
+     * @return
+     */
     public int getValuesOnTopColor() {
         return mValuesOnTopColor;
     }
 
+    /**
+     *
+     * @param mValuesOnTopColor
+     */
     public void setValuesOnTopColor(int mValuesOnTopColor) {
         this.mValuesOnTopColor = mValuesOnTopColor;
     }
 
+    /**
+     *
+     * @return
+     */
     public float getValuesOnTopSize() {
         return mValuesOnTopSize;
     }
 
+    /**
+     *
+     * @param mValuesOnTopSize
+     */
     public void setValuesOnTopSize(float mValuesOnTopSize) {
         this.mValuesOnTopSize = mValuesOnTopSize;
     }
 
+    /**
+     *
+     */
     @Override
     protected void resetDataPoints() {
         mDataPoints.clear();
     }
 
+    /**
+     *
+     * @param x
+     * @param y
+     * @return
+     */
     @Override
     protected E findDataPoint(float x, float y) {
         for (Map.Entry<RectF, E> entry : mDataPoints.entrySet()) {
