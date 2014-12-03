@@ -39,11 +39,28 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Created by jonas on 13.08.14.
+ * This is the default implementation for the viewport.
+ * This implementation so for a normal viewport
+ * where there is a horizontal x-axis and a
+ * vertical y-axis.
+ * This viewport is compatible with
+ *  - {@link com.jjoe64.graphview.series.BarGraphSeries}
+ *  - {@link com.jjoe64.graphview.series.LineGraphSeries}
+ *  - {@link com.jjoe64.graphview.series.PointsGraphSeries}
+ *
+ * @author jjoe64
  */
 public class Viewport {
+    /**
+     * listener for the scale gesture
+     */
     private final ScaleGestureDetector.OnScaleGestureListener mScaleGestureListener
             = new ScaleGestureDetector.OnScaleGestureListener() {
+        /**
+         * called by android
+         * @param detector detector
+         * @return always true
+         */
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
             float viewportWidth = mCurrentViewport.width();
@@ -85,6 +102,12 @@ public class Viewport {
             return true;
         }
 
+        /**
+         * called when scaling begins
+         *
+         * @param detector detector
+         * @return true if it is scalable
+         */
         @Override
         public boolean onScaleBegin(ScaleGestureDetector detector) {
             if (mIsScalable) {
@@ -98,6 +121,12 @@ public class Viewport {
             }
         }
 
+        /**
+         * called when sacling ends
+         * This will re-adjust the viewport.
+         *
+         * @param detector detector
+         */
         @Override
         public void onScaleEnd(ScaleGestureDetector detector) {
             Log.d("Viewport", "onScaleEnd");
@@ -115,6 +144,9 @@ public class Viewport {
         }
     };
 
+    /**
+     * simple gesture listener to track scroll events
+     */
     private final GestureDetector.SimpleOnGestureListener mGestureListener
             = new GestureDetector.SimpleOnGestureListener() {
         @Override
@@ -219,50 +251,189 @@ public class Viewport {
             return true;
         }
     };
+
+    /**
+     * the state of the axis bounds
+     */
+    public enum AxisBoundsStatus {
+        /**
+         * initial means that the bounds gets
+         * auto adjusted if they are not manual.
+         * After adjusting the status comes to
+         * #AUTO_ADJUSTED.
+         */
+        INITIAL,
+
+        /**
+         * after the bounds got auto-adjusted,
+         * this status will set.
+         */
+        AUTO_ADJUSTED,
+
+        /**
+         * this flags the status that a scale was
+         * done and the bounds has to be auto-adjusted
+         * afterwards.
+         */
+        READJUST_AFTER_SCALE,
+
+        /**
+         * means that the bounds are fix (manually) and
+         * are not to be auto-adjusted.
+         */
+        FIX
+    }
+
+    /**
+     * paint to draw background
+     */
     private Paint mPaint;
 
-    public boolean onTouchEvent(MotionEvent event) {
-        boolean b = mScaleGestureDetector.onTouchEvent(event);
-        b |= mGestureDetector.onTouchEvent(event);
-        return b;
-    }
-
-    public enum AxisBoundsStatus {
-        INITIAL, AUTO_ADJUSTED, READJUST_AFTER_SCALE, FIX
-    }
-
+    /**
+     * reference to the graphview
+     */
     private final GraphView mGraphView;
+
+    /**
+     * this holds the current visible viewport
+     * left = minX, right = maxX
+     * bottom = minY, top = maxY
+     */
     protected RectF mCurrentViewport = new RectF();
+
+    /**
+     * this holds the whole range of the data
+     * left = minX, right = maxX
+     * bottom = minY, top = maxY
+     */
     protected RectF mCompleteRange = new RectF();
+
+    /**
+     * flag whether scaling is currently active
+     */
     protected boolean mScalingActive;
+
+    /**
+     * stores the width of the viewport at the time
+     * of beginning of the scaling.
+     */
     protected float mScalingBeginWidth;
+
+    /**
+     * stores the viewport left at the time of
+     * beginning of the scaling.
+     */
     protected float mScalingBeginLeft;
+
+    /**
+     * flag whether the viewport is scrollable
+     */
     private boolean mIsScrollable;
+
+    /**
+     * flag whether the viewport is scalable
+     */
     private boolean mIsScalable;
+
+    /**
+     * gesture detector to detect scrolling
+     */
     protected GestureDetector mGestureDetector;
+
+    /**
+     * detect scaling
+     */
     protected ScaleGestureDetector mScaleGestureDetector;
 
+    /**
+     * not used - for fling
+     */
     protected OverScroller mScroller;
+
+    /**
+     * not used
+     */
     private EdgeEffectCompat mEdgeEffectTop;
+
+    /**
+     * not used
+     */
     private EdgeEffectCompat mEdgeEffectBottom;
+
+    /**
+     * glow effect when scrolling left
+     */
     private EdgeEffectCompat mEdgeEffectLeft;
+
+    /**
+     * glow effect when scrolling right
+     */
     private EdgeEffectCompat mEdgeEffectRight;
+
+    /**
+     * not used
+     */
     private boolean mEdgeEffectTopActive;
+
+    /**
+     * not used
+     */
     private boolean mEdgeEffectBottomActive;
+
+    /**
+     * glow effect when scrolling left
+     */
     private boolean mEdgeEffectLeftActive;
+
+    /**
+     * glow effect when scrolling right
+     */
     private boolean mEdgeEffectRightActive;
+
+    /**
+     * stores  the viewport at the time of
+     * the beginning of scaling
+     */
     private RectF mScrollerStartViewport = new RectF();
+
+    /**
+     * stores the viewport left value at the
+     * time of beginning of the scrolling
+     */
     protected float mScrollingReferenceX = Float.NaN;
 
+    /**
+     * state of the x axis
+     */
     private AxisBoundsStatus mXAxisBoundsStatus;
+
+    /**
+     * state of the y axis
+     */
     private AxisBoundsStatus mYAxisBoundsStatus;
 
+    /**
+     * flag whether the x axis bounds are manual
+     */
     private boolean mXAxisBoundsManual;
+
+    /**
+     * flag whether the y axis bounds are manual
+     */
     private boolean mYAxisBoundsManual;
 
+    /**
+     * background color of the viewport area
+     * it is recommended to use a semi-transparent color
+     */
     private int mBackgroundColor;
 
-    public Viewport(GraphView graphView) {
+    /**
+     * creates the viewport
+     *
+     * @param graphView graphview
+     */
+    Viewport(GraphView graphView) {
         mScroller = new OverScroller(graphView.getContext());
         mEdgeEffectTop = new EdgeEffectCompat(graphView.getContext());
         mEdgeEffectBottom = new EdgeEffectCompat(graphView.getContext());
@@ -278,30 +449,76 @@ public class Viewport {
         mPaint = new Paint();
     }
 
+    /**
+     * will be called on a touch event.
+     * needed to use scaling and scrolling
+     *
+     * @param event
+     * @return true if it was consumed
+     */
+    public boolean onTouchEvent(MotionEvent event) {
+        boolean b = mScaleGestureDetector.onTouchEvent(event);
+        b |= mGestureDetector.onTouchEvent(event);
+        return b;
+    }
+
+    /**
+     * change the state of the x axis.
+     * normally you do not call this method.
+     * If you want to set manual axis use
+     * {@link #setXAxisBoundsManual(boolean)} and {@link #setYAxisBoundsManual(boolean)}
+     *
+     * @param s state
+     */
     public void setXAxisBoundsStatus(AxisBoundsStatus s) {
         mXAxisBoundsStatus = s;
     }
 
+    /**
+     * change the state of the y axis.
+     * normally you do not call this method.
+     * If you want to set manual axis use
+     * {@link #setXAxisBoundsManual(boolean)} and {@link #setYAxisBoundsManual(boolean)}
+     *
+     * @param s state
+     */
     public void setYAxisBoundsStatus(AxisBoundsStatus s) {
         mYAxisBoundsStatus = s;
     }
 
+    /**
+     * @return whether the viewport is scrollable
+     */
     public boolean isScrollable() {
         return mIsScrollable;
     }
 
+    /**
+     * @param mIsScrollable whether is viewport is scrollable
+     */
     public void setScrollable(boolean mIsScrollable) {
         this.mIsScrollable = mIsScrollable;
     }
 
+    /**
+     * @return the x axis state
+     */
     public AxisBoundsStatus getXAxisBoundsStatus() {
         return mXAxisBoundsStatus;
     }
 
+    /**
+     * @return the y axis state
+     */
     public AxisBoundsStatus getYAxisBoundsStatus() {
         return mYAxisBoundsStatus;
     }
 
+    /**
+     * caches the complete range (minX, maxX, minY, maxY)
+     * by iterating all series and all datapoints and
+     * stores it into #mCompleteRange
+     */
     public void calcCompleteRange() {
         List<Series> series = mGraphView.getSeries();
         mCompleteRange.set(0, 0, 0, 0);
@@ -385,6 +602,11 @@ public class Viewport {
         }
     }
 
+    /**
+     * @param completeRange     if true => minX of the complete range of all series
+     *                          if false => minX of the current visible viewport
+     * @return the min x value
+     */
     public double getMinX(boolean completeRange) {
         if (completeRange) {
             return (double) mCompleteRange.left;
@@ -393,6 +615,11 @@ public class Viewport {
         }
     }
 
+    /**
+     * @param completeRange     if true => maxX of the complete range of all series
+     *                          if false => maxX of the current visible viewport
+     * @return the max x value
+     */
     public double getMaxX(boolean completeRange) {
         if (completeRange) {
             return (double) mCompleteRange.right;
@@ -401,6 +628,11 @@ public class Viewport {
         }
     }
 
+    /**
+     * @param completeRange     if true => minY of the complete range of all series
+     *                          if false => minY of the current visible viewport
+     * @return the min y value
+     */
     public double getMinY(boolean completeRange) {
         if (completeRange) {
             return (double) mCompleteRange.bottom;
@@ -409,6 +641,11 @@ public class Viewport {
         }
     }
 
+    /**
+     * @param completeRange     if true => maxY of the complete range of all series
+     *                          if false => maxY of the current visible viewport
+     * @return the max y value
+     */
     public double getMaxY(boolean completeRange) {
         if (completeRange) {
             return (double) mCompleteRange.top;
@@ -417,22 +654,41 @@ public class Viewport {
         }
     }
 
+    /**
+     *
+     * @param y
+     */
     public void setMaxY(double y) {
         mCurrentViewport.top = (float) y;
     }
 
+    /**
+     *
+     * @param y
+     */
     public void setMinY(double y) {
         mCurrentViewport.bottom = (float) y;
     }
 
+    /**
+     *
+     * @param x
+     */
     public void setMaxX(double x) {
         mCurrentViewport.right = (float) x;
     }
 
+    /**
+     *
+     * @param x
+     */
     public void setMinX(double x) {
         mCurrentViewport.left = (float) x;
     }
 
+    /**
+     *
+     */
     private void releaseEdgeEffects() {
         mEdgeEffectLeftActive
                 = mEdgeEffectRightActive
@@ -441,6 +697,11 @@ public class Viewport {
         mEdgeEffectRight.onRelease();
     }
 
+    /**
+     *
+     * @param velocityX
+     * @param velocityY
+     */
     private void fling(int velocityX, int velocityY) {
         Log.d("Viewport", "fling " + velocityX);
         velocityY = 0;
@@ -464,6 +725,9 @@ public class Viewport {
         ViewCompat.postInvalidateOnAnimation(mGraphView);
     }
 
+    /**
+     *
+     */
     public void computeScroll() {
         if (true) return;
 
@@ -593,6 +857,10 @@ public class Viewport {
         }
     }
 
+    /**
+     *
+     * @param c
+     */
     public void drawFirst(Canvas c) {
         // draw background
         if (mBackgroundColor != Color.TRANSPARENT) {
@@ -607,22 +875,42 @@ public class Viewport {
         }
     }
 
+    /**
+     *
+     * @param c
+     */
     public void draw(Canvas c) {
         drawEdgeEffectsUnclipped(c);
     }
 
+    /**
+     *
+     * @return
+     */
     public int getBackgroundColor() {
         return mBackgroundColor;
     }
 
+    /**
+     *
+     * @param mBackgroundColor
+     */
     public void setBackgroundColor(int mBackgroundColor) {
         this.mBackgroundColor = mBackgroundColor;
     }
 
+    /**
+     *
+     * @return
+     */
     public boolean isScalable() {
         return mIsScalable;
     }
 
+    /**
+     *
+     * @param mIsScalable
+     */
     public void setScalable(boolean mIsScalable) {
         this.mIsScalable = mIsScalable;
         if (mIsScalable) {
@@ -630,10 +918,18 @@ public class Viewport {
         }
     }
 
+    /**
+     *
+     * @return
+     */
     public boolean isXAxisBoundsManual() {
         return mXAxisBoundsManual;
     }
 
+    /**
+     *
+     * @param mXAxisBoundsManual
+     */
     public void setXAxisBoundsManual(boolean mXAxisBoundsManual) {
         this.mXAxisBoundsManual = mXAxisBoundsManual;
         if (mXAxisBoundsManual) {
@@ -641,10 +937,18 @@ public class Viewport {
         }
     }
 
+    /**
+     *
+     * @return
+     */
     public boolean isYAxisBoundsManual() {
         return mYAxisBoundsManual;
     }
 
+    /**
+     *
+     * @param mYAxisBoundsManual
+     */
     public void setYAxisBoundsManual(boolean mYAxisBoundsManual) {
         this.mYAxisBoundsManual = mYAxisBoundsManual;
         if (mYAxisBoundsManual) {
@@ -652,6 +956,9 @@ public class Viewport {
         }
     }
 
+    /**
+     *
+     */
     public void scrollToEnd() {
         if (mXAxisBoundsManual) {
             float size = mCurrentViewport.width();
