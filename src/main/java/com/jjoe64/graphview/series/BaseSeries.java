@@ -33,21 +33,68 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 /**
- * Created by jonas on 28.08.14.
+ * Basis implementation for series.
+ * Used for series that are plotted on
+ * a default x/y 2d viewport.
+ *
+ * Extend this class to implement your own custom
+ * graph type.
+ *
+ * @author jjoe64
  */
 public abstract class BaseSeries<E extends DataPointInterface> implements Series<E> {
+    /**
+     * holds the data
+     */
     final private List<E> mData = new ArrayList<E>();
+
+    /**
+     * stores the used coordinates to find the
+     * corresponding data point on a tap
+     *
+     * Key => x/y pixel
+     * Value => Plotted Datapoint
+     *
+     * will be filled while drawing via {@link #registerDataPoint(float, float, DataPointInterface)}
+     */
     private Map<PointF, E> mDataPoints = new HashMap<PointF, E>();
 
+    /**
+     * title for this series that can be displayed
+     * in the legend.
+     */
     private String mTitle;
+
+    /**
+     * base color for this series. will be used also in
+     * the legend
+     */
     private int mColor = 0xff0077cc;
+
+    /**
+     * listener to handle tap events on a data point
+     */
     protected OnDataPointTapListener mOnDataPointTapListener;
+
+    /**
+     * stores the graphviews where this series is used.
+     * Can be more than one.
+     */
     private List<GraphView> mGraphViews;
 
+    /**
+     * creates series without data
+     */
     public BaseSeries() {
         mGraphViews = new ArrayList<GraphView>();
     }
 
+    /**
+     * creates series with data
+     *
+     * @param data  data points
+     *              important: array has to be sorted from lowest x-value to the highest
+     */
     public BaseSeries(E[] data) {
         mGraphViews = new ArrayList<GraphView>();
         for (E d : data) {
@@ -55,16 +102,25 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
         }
     }
 
+    /**
+     * @return the lowest x value, or 0 if there is no data
+     */
     public double getLowestValueX() {
         if (mData.isEmpty()) return 0d;
         return mData.get(0).getX();
     }
 
+    /**
+     * @return the highest x value, or 0 if there is no data
+     */
     public double getHighestValueX() {
         if (mData.isEmpty()) return 0d;
         return mData.get(mData.size()-1).getX();
     }
 
+    /**
+     * @return the lowest y value, or 0 if there is no data
+     */
     public double getLowestValueY() {
         if (mData.isEmpty()) return 0d;
         double l = mData.get(0).getY();
@@ -77,6 +133,9 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
         return l;
     }
 
+    /**
+     * @return the highest y value, or 0 if there is no data
+     */
     public double getHighestValueY() {
         if (mData.isEmpty()) return 0d;
         double h = mData.get(0).getY();
@@ -90,14 +149,14 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
     }
 
     /**
-     * get the values for a given x span. if from and until are bigger or equal than
+     * get the values for a given x range. if from and until are bigger or equal than
      * all the data, the original data is returned.
-     * If it is only a part of the data, the span is returned plus one datapoint
+     * If it is only a part of the data, the range is returned plus one datapoint
      * before and after to get a nice scrolling.
      *
-     * @param from
-     * @param until
-     * @return
+     * @param from minimal x-value
+     * @param until maximal x-value
+     * @return data for the range +/- 1 datapoint
      */
     @Override
     public Iterator<E> getValues(final double from, final double until) {
@@ -168,26 +227,57 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
         }
     }
 
+    /**
+     * @return the title of the series
+     */
     public String getTitle() {
         return mTitle;
     }
 
+    /**
+     * set the title of the series. This will be used in
+     * the legend.
+     *
+     * @param mTitle title of the series
+     */
     public void setTitle(String mTitle) {
         this.mTitle = mTitle;
     }
 
+    /**
+     * @return color of the series
+     */
     public int getColor() {
         return mColor;
     }
 
+    /**
+     * set the color of the series. This will be used in
+     * plotting (depends on the series implementation) and
+     * is used in the legend.
+     *
+     * @param mColor
+     */
     public void setColor(int mColor) {
         this.mColor = mColor;
     }
 
+    /**
+     * set a listener for tap on a data point.
+     *
+     * @param l listener
+     */
     public void setOnDataPointTapListener(OnDataPointTapListener l) {
         this.mOnDataPointTapListener = l;
     }
 
+    /**
+     * called by the tap detector in order to trigger
+     * the on tap on datapoint event.
+     *
+     * @param x pixel
+     * @param y pixel
+     */
     @Override
     public void onTap(float x, float y) {
         if (mOnDataPointTapListener != null) {
@@ -198,6 +288,12 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
         }
     }
 
+    /**
+     *
+     * @param x pixel
+     * @param y pixel
+     * @return
+     */
     protected E findDataPoint(float x, float y) {
         float shortestDistance = Float.NaN;
         E shortest = null;
@@ -233,10 +329,17 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
         mDataPoints.put(new PointF(x, y), dp);
     }
 
+    /**
+     *
+     */
     protected void resetDataPoints() {
         mDataPoints.clear();
     }
 
+    /**
+     *
+     * @param data
+     */
     public void resetData(E[] data) {
         mData.clear();
         for (E d : data) {
@@ -249,11 +352,21 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
         }
     }
 
+    /**
+     *
+     * @param graphView
+     */
     @Override
     public void onGraphViewAttached(GraphView graphView) {
         mGraphViews.add(graphView);
     }
 
+    /**
+     *
+     * @param dataPoint
+     * @param scrollToEnd
+     * @param maxDataPoints
+     */
     public void appendData(E dataPoint, boolean scrollToEnd, int maxDataPoints) {
         if (!mData.isEmpty() && dataPoint.getX() < mData.get(mData.size()-1).getX()) {
             throw new IllegalArgumentException("new x-value must be greater then the last value. x-values has to be ordered in ASC.");
@@ -283,6 +396,10 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
         }
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public boolean isEmpty() {
         return mData.isEmpty();
