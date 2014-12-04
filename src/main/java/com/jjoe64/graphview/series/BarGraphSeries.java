@@ -39,50 +39,60 @@ import java.util.Map;
  */
 public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> {
     /**
-     *
+     * paint to do drawing on canvas
      */
     private Paint mPaint;
 
     /**
-     *
+     * spacing between the bars in percentage.
+     * 0 => no spacing
+     * 100 => the space bewetten the bars is as big as the bars itself
      */
     private int mSpacing;
 
     /**
-     *
+     * callback to generate value-dependent colors
+     * of the bars
      */
     private ValueDependentColor<E> mValueDependentColor;
 
     /**
-     *
+     * flag whether the values should drawn
+     * above the bars as text
      */
     private boolean mDrawValuesOnTop;
 
     /**
+     * color of the text above the bars.
      *
+     * @see #mDrawValuesOnTop
      */
     private int mValuesOnTopColor;
 
     /**
+     * font size of the text above the bars.
      *
+     * @see #mDrawValuesOnTop
      */
     private float mValuesOnTopSize;
 
     /**
-     *
+     * stores the coordinates of the bars to
+     * trigger tap on series events.
      */
     private Map<RectF, E> mDataPoints = new HashMap<RectF, E>();
 
     /**
-     *
+     * creates bar series without any data
      */
     public BarGraphSeries() {
         mPaint = new Paint();
     }
 
     /**
+     * creates bar series with data
      *
-     * @param data
+     * @param data values
      */
     public BarGraphSeries(E[] data) {
         super(data);
@@ -90,10 +100,11 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
     }
 
     /**
+     * draws the bars on the canvas
      *
-     * @param graphView
-     * @param canvas
-     * @param isSecondScale
+     * @param graphView corresponding graphview
+     * @param canvas canvas
+     * @param isSecondScale whether we are plotting the second scale or not
      */
     @Override
     public void draw(GraphView graphView, Canvas canvas, boolean isSecondScale) {
@@ -212,87 +223,88 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
     }
 
     /**
-     *
-     * @return
+     * @return the hook to generate value-dependent color. default null
      */
     public ValueDependentColor<E> getValueDependentColor() {
         return mValueDependentColor;
     }
 
     /**
+     * set a hook to make the color of the bars depending
+     * on the actually value/data.
      *
-     * @param mValueDependentColor
+     * @param mValueDependentColor  hook
+     *                              null to disable
      */
     public void setValueDependentColor(ValueDependentColor<E> mValueDependentColor) {
         this.mValueDependentColor = mValueDependentColor;
     }
 
     /**
-     *
-     * @return
+     * @return the spacing between the bars in percentage
      */
     public int getSpacing() {
         return mSpacing;
     }
 
     /**
-     * 0-100
-     * @param mSpacing
+     * @param mSpacing  spacing between the bars in percentage.
+     *                  0 => no spacing
+     *                  100 => the space bewetten the bars is as big as the bars itself
      */
     public void setSpacing(int mSpacing) {
         this.mSpacing = mSpacing;
     }
 
     /**
-     *
-     * @return
+     * @return whether the values should be drawn above the bars
      */
     public boolean isDrawValuesOnTop() {
         return mDrawValuesOnTop;
     }
 
     /**
-     *
-     * @param mDrawValuesOnTop
+     * @param mDrawValuesOnTop  flag whether the values should drawn
+     *                          above the bars as text
      */
     public void setDrawValuesOnTop(boolean mDrawValuesOnTop) {
         this.mDrawValuesOnTop = mDrawValuesOnTop;
     }
 
     /**
-     *
-     * @return
+     * @return font color of the values on top of the bars
+     * @see #setDrawValuesOnTop(boolean)
      */
     public int getValuesOnTopColor() {
         return mValuesOnTopColor;
     }
 
     /**
-     *
-     * @param mValuesOnTopColor
+     * @param mValuesOnTopColor the font color of the values on top of the bars
+     * @see #setDrawValuesOnTop(boolean)
      */
     public void setValuesOnTopColor(int mValuesOnTopColor) {
         this.mValuesOnTopColor = mValuesOnTopColor;
     }
 
     /**
-     *
-     * @return
+     * @return font size of the values above the bars
+     * @see #setDrawValuesOnTop(boolean)
      */
     public float getValuesOnTopSize() {
         return mValuesOnTopSize;
     }
 
     /**
-     *
-     * @param mValuesOnTopSize
+     * @param mValuesOnTopSize font size of the values above the bars
+     * @see #setDrawValuesOnTop(boolean)
      */
     public void setValuesOnTopSize(float mValuesOnTopSize) {
         this.mValuesOnTopSize = mValuesOnTopSize;
     }
 
     /**
-     *
+     * resets the cached coordinates of the bars
      */
     @Override
     protected void resetDataPoints() {
@@ -300,10 +312,12 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
     }
 
     /**
+     * find the corresponding data point by
+     * coordinates.
      *
-     * @param x
-     * @param y
-     * @return
+     * @param x pixels
+     * @param y pixels
+     * @return datapoint or null
      */
     @Override
     protected E findDataPoint(float x, float y) {
