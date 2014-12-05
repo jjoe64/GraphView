@@ -289,10 +289,12 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
     }
 
     /**
+     * find the data point which is next to the
+     * coordinates
      *
      * @param x pixel
      * @param y pixel
-     * @return
+     * @return the data point or null if nothing was found
      */
     protected E findDataPoint(float x, float y) {
         float shortestDistance = Float.NaN;
@@ -321,24 +323,28 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
 
     /**
      * register the datapoint to find it at a tap
-     * @param x
-     * @param y
-     * @param dp
+     *
+     * @param x pixel
+     * @param y pixel
+     * @param dp the data point to save
      */
     protected void registerDataPoint(float x, float y, E dp) {
         mDataPoints.put(new PointF(x, y), dp);
     }
 
     /**
-     *
+     * clears the cached data point coordinates
      */
     protected void resetDataPoints() {
         mDataPoints.clear();
     }
 
     /**
+     * clears the data of this series and sets new.
+     * will redraw the graph
      *
-     * @param data
+     * @param data the values must be in the correct order!
+     *             x-value has to be ASC. First the lowest x value and at least the highest x value.
      */
     public void resetData(E[] data) {
         mData.clear();
@@ -353,8 +359,9 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
     }
 
     /**
+     * called when the series was added to a graph
      *
-     * @param graphView
+     * @param graphView graphview
      */
     @Override
     public void onGraphViewAttached(GraphView graphView) {
@@ -363,9 +370,11 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
 
     /**
      *
-     * @param dataPoint
-     * @param scrollToEnd
-     * @param maxDataPoints
+     * @param dataPoint values the values must be in the correct order!
+     *                  x-value has to be ASC. First the lowest x value and at least the highest x value.
+     * @param scrollToEnd true => graphview will scroll to the end (maxX)
+     * @param maxDataPoints if max data count is reached, the oldest data
+     *                      value will be lost to avoid memory leaks
      */
     public void appendData(E dataPoint, boolean scrollToEnd, int maxDataPoints) {
         if (!mData.isEmpty() && dataPoint.getX() < mData.get(mData.size()-1).getX()) {
@@ -397,8 +406,7 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
     }
 
     /**
-     *
-     * @return
+     * @return whether there are data points
      */
     @Override
     public boolean isEmpty() {

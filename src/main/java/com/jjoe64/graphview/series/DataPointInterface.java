@@ -20,9 +20,22 @@
 package com.jjoe64.graphview.series;
 
 /**
- * Created by jonas on 28.08.14.
+ * interface of data points. Implement this in order
+ * to use your class in {@link com.jjoe64.graphview.series.Series}.
+ *
+ * You can also use the default implementation {@link com.jjoe64.graphview.series.DataPoint} so
+ * you do not have to implement it for yourself.
+ *
+ * @author jjoe64
  */
 public interface DataPointInterface {
+    /**
+     * @return the x value
+     */
     public double getX();
+
+    /**
+     * @return the y value
+     */
     public double getY();
 }

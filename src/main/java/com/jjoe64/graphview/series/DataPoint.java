@@ -24,7 +24,10 @@ import android.provider.ContactsContract;
 import java.util.Date;
 
 /**
- * Created by jonas on 28.08.14.
+ * default data point implementation.
+ * This stores the x and y values.
+ *
+ * @author jjoe64
  */
 public class DataPoint implements DataPointInterface {
     private double x;
