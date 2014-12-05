@@ -24,9 +24,6 @@ import android.os.Build;
 import android.widget.OverScroller;
 
 /**
- * Created by jonas on 15.11.14.
- */
-/**
  * A utility class for using {@link android.widget.OverScroller} in a backward-compatible fashion.
  */
 public class OverScrollerCompat {

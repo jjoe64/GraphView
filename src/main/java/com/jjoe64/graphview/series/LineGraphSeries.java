@@ -29,33 +29,108 @@ import com.jjoe64.graphview.GraphView;
 import java.util.Iterator;
 
 /**
- * Created by jonas on 13.08.14.
+ * Series to plot the data as line.
+ * The line can be styled with many options.
+ *
+ * @author jjoe64
  */
 public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E> {
+    /**
+     * wrapped styles regarding the line
+     */
     private final class Styles {
+        /**
+         * the thickness of the line.
+         * This option will be ignored if you are
+         * using a custom paint via {@link #setCustomPaint(android.graphics.Paint)}
+         */
         private int thickness = 5;
+
+        /**
+         * flag whether the area under the line to the bottom
+         * of the viewport will be filled with a
+         * specific background color.
+         *
+         * @see #backgroundColor
+         */
         private boolean drawBackground = false;
+
+        /**
+         * flag whether the data points are highlighted as
+         * a visible point.
+         *
+         * @see #dataPointsRadius
+         */
         private boolean drawDataPoints = false;
+
+        /**
+         * the radius for the data points.
+         *
+         * @see #drawDataPoints
+         */
         private float dataPointsRadius = 10f;
+
+        /**
+         * the background color for the filling under
+         * the line.
+         *
+         * @see #drawBackground
+         */
         private int backgroundColor = Color.argb(100, 172, 218, 255);
     }
-    
+
+    /**
+     * wrapped styles
+     */
     private Styles mStyles;
+
+    /**
+     * internal paint object
+     */
     private Paint mPaint;
+
+    /**
+     * paint for the background
+     */
     private Paint mPaintBackground;
+
+    /**
+     * path for the background filling
+     */
     private Path mPathBackground;
+
+    /**
+     * path to the line
+     */
     private Path mPath;
+
+    /**
+     * custom paint that can be used.
+     * this will ignore the thickness and color styles.
+     */
     private Paint mCustomPaint;
 
+    /**
+     * creates a series without data
+     */
     public LineGraphSeries() {
         init();
     }
 
+    /**
+     * creates a series with data
+     *
+     * @param data data points
+     */
     public LineGraphSeries(E[] data) {
         super(data);
         init();
     }
 
+    /**
+     * do the initialization
+     * creates internal objects
+     */
     protected void init() {
         mStyles = new Styles();
         mPaint = new Paint();
@@ -67,6 +142,14 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
         mPath = new Path();
     }
 
+    /**
+     * plots the series
+     * draws the line and the background
+     *
+     * @param graphView graphview
+     * @param canvas canvas
+     * @param isSecondScale flag if it is the second scale
+     */
     @Override
     public void draw(GraphView graphView, Canvas canvas, boolean isSecondScale) {
         resetDataPoints();
@@ -212,46 +295,114 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
 
     }
 
+    /**
+     * the thickness of the line.
+     * This option will be ignored if you are
+     * using a custom paint via {@link #setCustomPaint(android.graphics.Paint)}
+     *
+     * @return the thickness of the line
+     */
     public int getThickness() {
         return mStyles.thickness;
     }
 
+    /**
+     * the thickness of the line.
+     * This option will be ignored if you are
+     * using a custom paint via {@link #setCustomPaint(android.graphics.Paint)}
+     *
+     * @param thickness thickness of the line
+     */
     public void setThickness(int thickness) {
         mStyles.thickness = thickness;
     }
 
+    /**
+     * flag whether the area under the line to the bottom
+     * of the viewport will be filled with a
+     * specific background color.
+     *
+     * @return whether the background will be drawn
+     * @see #getBackgroundColor()
+     */
     public boolean isDrawBackground() {
         return mStyles.drawBackground;
     }
 
+    /**
+     * flag whether the area under the line to the bottom
+     * of the viewport will be filled with a
+     * specific background color.
+     *
+     * @param drawBackground whether the background will be drawn
+     * @see #setBackgroundColor(int)
+     */
     public void setDrawBackground(boolean drawBackground) {
         mStyles.drawBackground = drawBackground;
     }
 
+    /**
+     * flag whether the data points are highlighted as
+     * a visible point.
+     *
+     * @return flag whether the data points are highlighted
+     * @see #setDataPointsRadius(float)
+     */
     public boolean isDrawDataPoints() {
         return mStyles.drawDataPoints;
     }
 
+    /**
+     * flag whether the data points are highlighted as
+     * a visible point.
+     *
+     * @param drawDataPoints flag whether the data points are highlighted
+     * @see #setDataPointsRadius(float)
+     */
     public void setDrawDataPoints(boolean drawDataPoints) {
         mStyles.drawDataPoints = drawDataPoints;
     }
 
+    /**
+     * @return the radius for the data points.
+     * @see #setDrawDataPoints(boolean)
+     */
     public float getDataPointsRadius() {
         return mStyles.dataPointsRadius;
     }
 
+    /**
+     * @param dataPointsRadius the radius for the data points.
+     * @see #setDrawDataPoints(boolean)
+     */
     public void setDataPointsRadius(float dataPointsRadius) {
         mStyles.dataPointsRadius = dataPointsRadius;
     }
 
+    /**
+     * @return  the background color for the filling under
+     *          the line.
+     * @see #setDrawBackground(boolean)
+     */
     public int getBackgroundColor() {
         return mStyles.backgroundColor;
     }
 
+    /**
+     * @param backgroundColor  the background color for the filling under
+     *                          the line.
+     * @see #setDrawBackground(boolean)
+     */
     public void setBackgroundColor(int backgroundColor) {
         mStyles.backgroundColor = backgroundColor;
     }
 
+    /**
+     * custom paint that can be used.
+     * this will ignore the thickness and color styles.
+     *
+     * @param customPaint the custom paint to be used for rendering the line
+     */
     public void setCustomPaint(Paint customPaint) {
         this.mCustomPaint = customPaint;
     }
