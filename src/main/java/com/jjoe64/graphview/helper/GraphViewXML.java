@@ -36,9 +36,40 @@ import com.jjoe64.graphview.series.PointsGraphSeries;
 import com.jjoe64.graphview.series.Series;
 
 /**
- * Created by jonas on 18.11.14.
+ * helper class to use GraphView directly
+ * in a XML layout file.
+ *
+ * You can set the data via attribute <b>app:seriesData</b>
+ * in the format: "X=Y;X=Y;..." e.g. "0=5.0;1=5;2=4;3=9"
+ *
+ * Other styling options:
+ * <li>app:seriesType="line|bar|points"</li>
+ * <li>app:seriesColor="#ff0000"</li>
+ * <li>app:seriesTitle="foobar"</li>
+ * <li>android:title="foobar"</li>
+ *
+ * Example:
+ * <pre>
+ * {@code
+ *  <com.jjoe64.graphview.helper.GraphViewXML
+ *      android:layout_width="match_parent"
+ *      android:layout_height="100dip"
+ *      app:seriesData="0=5;2=5;3=0;4=2"
+ *      app:seriesType="line"
+ *      app:seriesColor="#ee0000" />
+ * }
+ * </pre>
+ *
+ * @author jjoe64
  */
 public class GraphViewXML extends GraphView {
+    /**
+     * creates the graphview object with data and
+     * other options from xml attributes.
+     *
+     * @param context
+     * @param attrs
+     */
     public GraphViewXML(Context context, AttributeSet attrs) {
         super(context, attrs);
 
