@@ -30,35 +30,107 @@ import com.jjoe64.graphview.GraphView;
 import java.util.Iterator;
 
 /**
- * Created by jonas on 13.11.14.
+ * Series that plots the data as points.
+ * The points can be different shapes or a
+ * complete custom drawing.
+ *
+ * @author jjoe64
  */
 public class PointsGraphSeries<E extends DataPointInterface> extends BaseSeries<E> {
+    /**
+     * interface to implement a custom
+     * drawing for the data points.
+     */
     public static interface CustomShape {
+        /**
+         * called when drawing a single data point.
+         * use the x and y coordinates to render your
+         * drawing at this point.
+         *
+         * @param canvas canvas to draw on
+         * @param paint internal paint object. this has the correct color.
+         *              But you can use your own paint.
+         * @param x x-coordinate the point has to be drawn to
+         * @param y y-coordinate the point has to be drawn to
+         */
         void draw(Canvas canvas, Paint paint, float x, float y);
     }
 
+    /**
+     * choose a predefined shape to render for
+     * each data point.
+     * You can also render a custom drawing via {@link com.jjoe64.graphview.series.PointsGraphSeries.CustomShape}
+     */
     public enum Shape {
-        POINT, TRIANGLE, RECTANGLE
+        /**
+         * draws a point / circle
+         */
+        POINT,
+
+        /**
+         * draws a triangle
+         */
+        TRIANGLE,
+
+        /**
+         * draws a rectangle
+         */
+        RECTANGLE
     }
 
+    /**
+     * wrapped styles for this series
+     */
     private final class Styles {
+        /**
+         * this is used for the size of the shape that
+         * will be drawn.
+         * This is useless if you are using a custom shape.
+         */
         float size;
+
+        /**
+         * the shape that will be drawn for each point.
+         */
         Shape shape;
     }
 
+    /**
+     * wrapped styles
+     */
     private Styles mStyles;
+
+    /**
+     * internal paint object
+     */
     private Paint mPaint;
+
+    /**
+     * handler to use a custom drawing
+     */
     private CustomShape mCustomShape;
 
+    /**
+     * creates the series without data
+     */
     public PointsGraphSeries() {
         init();
     }
 
+    /**
+     * creates the series with data
+     *
+     * @param data datapoints
+     */
     public PointsGraphSeries(E[] data) {
         super(data);
         init();
     }
 
+    /**
+     * inits the internal objects
+     * set the defaults
+     */
     protected void init() {
         mStyles = new Styles();
         mStyles.size = 20f;
@@ -67,6 +139,13 @@ public class PointsGraphSeries<E extends DataPointInterface> extends BaseSeries<
         setShape(Shape.POINT);
     }
 
+    /**
+     * plot the data to the viewport
+     *
+     * @param graphView graphview
+     * @param canvas canvas to draw on
+     * @param isSecondScale whether it is the second scale
+     */
     @Override
     public void draw(GraphView graphView, Canvas canvas, boolean isSecondScale) {
         resetDataPoints();
@@ -158,8 +237,14 @@ public class PointsGraphSeries<E extends DataPointInterface> extends BaseSeries<
 
     }
 
+    /**
+     * helper to render triangle
+     *
+     * @param point array with 3 coordinates
+     * @param canvas canvas to draw on
+     * @param paint paint object
+     */
     private void drawArrows(Point[] point, Canvas canvas, Paint paint) {
-
         float [] points  = new float[8];
         points[0] = point[0].x;
         points[1] = point[0].y;
@@ -176,26 +261,50 @@ public class PointsGraphSeries<E extends DataPointInterface> extends BaseSeries<
         path.lineTo(point[1].x,point[1].y);
         path.lineTo(point[2].x,point[2].y);
         canvas.drawPath(path,paint);
-
     }
 
-
+    /**
+     * This is used for the size of the shape that
+     * will be drawn.
+     * This is useless if you are using a custom shape.
+     *
+     * @return the size of the shape
+     */
     public float getSize() {
         return mStyles.size;
     }
 
+    /**
+     * This is used for the size of the shape that
+     * will be drawn.
+     * This is useless if you are using a custom shape.
+     *
+     * @param radius the size of the shape
+     */
     public void setSize(float radius) {
         mStyles.size = radius;
     }
 
+    /**
+     * @return the shape that will be drawn for each point
+     */
     public Shape getShape() {
         return mStyles.shape;
     }
 
+    /**
+     * @param s the shape that will be drawn for each point
+     */
     public void setShape(Shape s) {
         mStyles.shape = s;
     }
 
+    /**
+     * Use a custom handler to render your own
+     * drawing for each data point.
+     *
+     * @param shape handler to use a custom drawing
+     */
     public void setCustomShape(CustomShape shape) {
         mCustomShape = shape;
     }
