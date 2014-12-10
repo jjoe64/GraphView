@@ -71,7 +71,9 @@ public class BarGraphView extends GraphView {
 	@Override
 	public void drawSeries(Canvas canvas, GraphViewDataInterface[] values, float graphwidth, float graphheight,
 			float border, double minX, double minY, double diffX, double diffY,
-			float horstart, GraphViewSeriesStyle style) {
+			float horstart, GraphViewSeries series) {
+        GraphViewSeriesStyle style = series.style;
+
 		float colwidth = graphwidth / (values.length);
 
 		paint.setStrokeWidth(style.thickness);
