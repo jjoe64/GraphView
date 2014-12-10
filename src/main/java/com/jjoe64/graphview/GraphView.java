@@ -19,6 +19,7 @@
 
 package com.jjoe64.graphview;
 
+import java.nio.charset.Charset;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -96,7 +97,12 @@ abstract public class GraphView extends LinearLayout {
 				double testX = ((getMaxX(true)-getMinX(true))*0.783)+getMinX(true);
 				String testLabel = formatLabel(testX, true);
 				paint.getTextBounds(testLabel, 0, testLabel.length(), textBounds);
-				labelTextHeight = (textBounds.height());
+                // multiline
+                int lines = 1;
+                for (byte c : testLabel.getBytes()) {
+                    if (c == '\n') lines++;
+                }
+                labelTextHeight = textBounds.height()*lines;
 				horLabelTextWidth = (textBounds.width());
 			}
             border += labelTextHeight;
@@ -106,9 +112,13 @@ abstract public class GraphView extends LinearLayout {
 
 			if (horlabels == null) {
 				horlabels = generateHorlabels(graphwidth);
+            } else if (getGraphViewStyle().getNumHorizontalLabels() > 0) {
+                Log.w("GraphView", "when you use static labels (via setHorizontalLabels) the labels will just be shown exactly in that way, that you have set it. setNumHorizontalLabels does not have any effect.");
 			}
 			if (verlabels == null) {
 				verlabels = generateVerlabels(graphheight);
+            } else if (getGraphViewStyle().getNumVerticalLabels() > 0) {
+                Log.w("GraphView", "when you use static labels (via setVerticalLabels) the labels will just be shown exactly in that way, that you have set it. setNumVerticalLabels does not have any effect.");
 			}
 
 			// horizontal lines
@@ -288,7 +298,9 @@ abstract public class GraphView extends LinearLayout {
 
 			if (verlabels == null) {
 				verlabels = generateVerlabels(graphheight);
-			}
+			} else if (getGraphViewStyle().getNumVerticalLabels() > 0) {
+                Log.w("GraphView", "when you use static labels (via setVerticalLabels) the labels will just be shown exactly in that way, that you have set it. setNumVerticalLabels does not have any effect.");
+            }
 
 			// vertical labels
 			paint.setTextAlign(getGraphViewStyle().getVerticalLabelsAlign());
@@ -303,8 +315,14 @@ abstract public class GraphView extends LinearLayout {
 			for (int i = 0; i < verlabels.length; i++) {
 				float y = ((graphheight / vers) * i) + border;
 				paint.setColor(graphViewStyle.getVerticalLabelsColor());
-				canvas.drawText(verlabels[i], labelsOffset, y, paint);
-			}
+
+                String[] lines = verlabels[i].split("\n");
+                for (int li=0; li<lines.length; li++) {
+                    // for the last line y = height
+                    float y2 = y - (lines.length-li-1)*graphViewStyle.getTextSize()*1.1f;
+                    canvas.drawText(lines[li], labelsOffset, y2, paint);
+                }
+            }
 
 			// reset
 			paint.setTextAlign(Align.LEFT);
@@ -432,7 +450,12 @@ abstract public class GraphView extends LinearLayout {
                 if (i==0)
                     paint.setTextAlign(Align.LEFT);
                 paint.setColor(graphViewStyle.getHorizontalLabelsColor());
-                canvas.drawText(horlabels[i], x, height - 4, paint);
+                String[] lines = horlabels[i].split("\n");
+                for (int li=0; li<lines.length; li++) {
+                    // for the last line y = height
+                    float y = (height-4) - (lines.length-li-1)*graphViewStyle.getTextSize()*1.1f;
+                    canvas.drawText(lines[li], x, y, paint);
+                }
             }
 		}
 	}
@@ -444,7 +467,7 @@ abstract public class GraphView extends LinearLayout {
 		int legendWidth = getGraphViewStyle().getLegendWidth();
 
 		int shapeSize = (int) (textSize*0.8d);
-		Log.d("GraphView", "draw legend size: "+paint.getTextSize());
+        //Log.d("GraphView", "draw legend size: "+paint.getTextSize());
 
 		// rect
 		paint.setARGB(180, 100, 100, 100);
@@ -524,7 +547,7 @@ abstract public class GraphView extends LinearLayout {
 
 	private String[] generateHorlabels(float graphwidth) {
 		int numLabels = getGraphViewStyle().getNumHorizontalLabels()-1;
-		if (numLabels < 0) {
+		if (numLabels < 0) { // automatic
 			if (graphwidth <= 0) graphwidth = 1f;
 			numLabels = (int) (graphwidth/(horLabelTextWidth*2));
 		}
@@ -540,7 +563,7 @@ abstract public class GraphView extends LinearLayout {
 
 	synchronized private String[] generateVerlabels(float graphheight) {
 		int numLabels = getGraphViewStyle().getNumVerticalLabels()-1;
-		if (numLabels < 0) {
+		if (numLabels < 0) { // automatic
 			if (graphheight <= 0) graphheight = 1f;
 			numLabels = (int) (graphheight/(labelTextHeight*3));
 			if (numLabels == 0) {

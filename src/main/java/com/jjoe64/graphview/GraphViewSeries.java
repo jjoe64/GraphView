@@ -148,7 +148,7 @@ public class GraphViewSeries {
 			} else {
 				// we have to trim one data
 				newValues = new GraphViewDataInterface[maxDataCount];
-				System.arraycopy(values, 1, newValues, 0, curDataCount-1);
+				System.arraycopy(values, curDataCount-maxDataCount+1, newValues, 0, maxDataCount-1);
 				// append new data
 				newValues[maxDataCount-1] = value;
 			}
@@ -193,13 +193,15 @@ public class GraphViewSeries {
 	}
 
     private void checkValueOrder() {
-        if (values.length>0) {
+        if (values.length>1) {
             double lx = values[0].getX();
             for (int i=1;i<values.length;i++) {
-                if (lx > values[i].getX()) {
-                    throw new IllegalArgumentException("The order of the values is not correct. X-Values have to be ordered ASC. First the lowest x value and at least the highest x value.");
+                if (values[i].getX() != Double.NaN) {
+                    if (lx > values[i].getX()) {
+                        throw new IllegalArgumentException("The order of the values is not correct. X-Values have to be ordered ASC. First the lowest x value and at least the highest x value.");
+                    }
+                    lx = values[i].getX();
                 }
-                lx = values[i].getX();
             }
         }
     }

@@ -48,3 +48,24 @@ See GraphView-Demos for examples.
 <a href="https://github.com/jjoe64/GraphView-Demos">https://github.com/jjoe64/GraphView-Demos<br/>
 <a href="http://android-graphview.org">View GraphView page http://android-graphview.org</a>
 
+How to create a new version for maven repo
+--------------------------------------------
+create sources.jar
+$ jar cvf sources.jar src
+
+create java doc jar
+$ mkdir javadoc
+$ javadoc -d javadoc -sourcepath src/main/java/ -subpackages com.jjoe64
+$ jar cvf javadoc.jar javadoc
+
+change version in gradle.properties
+
+run gradle task uploadArchives
+
+open https://oss.sonatype.org
+login
+Staging Repositiories
+search: jjoe64
+Close entry
+Refresh/Wait
+Release entry
