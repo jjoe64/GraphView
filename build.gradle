@@ -1,18 +1,17 @@
-apply plugin: 'android-library'
+apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 20
+    compileSdkVersion 21
     buildToolsVersion "20"
 
     defaultConfig {
         minSdkVersion 7
-        targetSdkVersion 20
+        targetSdkVersion 21
         versionCode 2
-        versionName "1.0"
+        versionName "2.0"
     }
     buildTypes {
         release {
-            runProguard false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
     }
@@ -35,4 +34,4 @@ task makeJar(type: Copy) {
 
 makeJar.dependsOn(clearJar, build)
 
-apply from: './maven_push.gradle'
+//apply from: './maven_push.gradle'
