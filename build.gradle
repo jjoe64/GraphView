@@ -1,25 +1,26 @@
-apply plugin: 'com.android.library'
+apply plugin: 'android-library'
 
 android {
-    compileSdkVersion 21
+    compileSdkVersion 20
     buildToolsVersion "20"
 
     defaultConfig {
         minSdkVersion 7
-        targetSdkVersion 21
+        targetSdkVersion 20
         versionCode 1
         versionName "1.0"
     }
     buildTypes {
         release {
+            runProguard false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
     }
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:21.0.2'
-    compile 'com.android.support:support-v4:21.0.2'
+    compile 'com.android.support:appcompat-v7:20.+'
+    compile 'com.android.support:support-v4:20.+'
 }
 
 // This is the actual solution, as in http://stackoverflow.com/a/19037807/1002054
