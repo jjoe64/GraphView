@@ -45,7 +45,7 @@ import com.jjoe64.graphview.series.Series;
  * Other styling options:
  * <li>app:seriesType="line|bar|points"</li>
  * <li>app:seriesColor="#ff0000"</li>
- * <li>app:seriesTitle="foobar"</li>
+ * <li>app:seriesTitle="foobar" - if this is set, the legend will be drawn</li>
  * <li>android:title="foobar"</li>
  *
  * Example:

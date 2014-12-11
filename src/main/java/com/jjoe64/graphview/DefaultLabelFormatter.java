@@ -49,9 +49,20 @@ public class DefaultLabelFormatter implements LabelFormatter {
     protected Viewport mViewport;
 
     /**
-     *
+     * uses the default number format for the labels
      */
     public DefaultLabelFormatter() {
+    }
+
+    /**
+     * use custom number format
+     *
+     * @param xFormat the number format for the x labels
+     * @param yFormat the number format for the y labels
+     */
+    public DefaultLabelFormatter(NumberFormat xFormat, NumberFormat yFormat) {
+        mNumberFormatter[0] = yFormat;
+        mNumberFormatter[1] = xFormat;
     }
 
     /**
