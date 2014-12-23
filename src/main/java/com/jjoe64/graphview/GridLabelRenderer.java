@@ -122,6 +122,21 @@ public class GridLabelRenderer {
          * visible
          */
         boolean verticalLabelsVisible;
+
+        /**
+         * defines which lines will be drawn in the background
+         */
+        GridStyle gridStyle;
+    }
+
+    /**
+     * Definition which lines will be drawn in the background
+     */
+    public enum GridStyle {
+        BOTH, VERTICAL, HORIZONTAL, NONE;
+
+        public boolean drawVertical() { return this == BOTH || this == VERTICAL && this != NONE; }
+        public boolean drawHorizontal() { return this == BOTH || this == HORIZONTAL && this != NONE; }
     }
 
     /**
@@ -307,6 +322,8 @@ public class GridLabelRenderer {
 
         mStyles.horizontalLabelsVisible = true;
         mStyles.verticalLabelsVisible = true;
+
+        mStyles.gridStyle = GridStyle.BOTH;
 
         reloadStyles();
     }
@@ -885,7 +902,9 @@ public class GridLabelRenderer {
                     mPaintLine.setStrokeWidth(0);
                 }
             }
-            canvas.drawLine(e.getKey(), mGraphView.getGraphContentTop(), e.getKey(), mGraphView.getGraphContentTop() + mGraphView.getGraphContentHeight(), mPaintLine);
+            if (mStyles.gridStyle.drawVertical()) {
+                canvas.drawLine(e.getKey(), mGraphView.getGraphContentTop(), e.getKey(), mGraphView.getGraphContentTop() + mGraphView.getGraphContentHeight(), mPaintLine);
+            }
 
             // draw label
             if (isHorizontalLabelsVisible()) {
@@ -964,7 +983,9 @@ public class GridLabelRenderer {
                     mPaintLine.setStrokeWidth(0);
                 }
             }
-            canvas.drawLine(startLeft, e.getKey(), startLeft + mGraphView.getGraphContentWidth(), e.getKey(), mPaintLine);
+            if (mStyles.gridStyle.drawHorizontal()) {
+                canvas.drawLine(startLeft, e.getKey(), startLeft + mGraphView.getGraphContentWidth(), e.getKey(), mPaintLine);
+            }
 
             // draw label
             if (isVerticalLabelsVisible()) {
@@ -1329,5 +1350,21 @@ public class GridLabelRenderer {
      */
     public void setNumHorizontalLabels(int mNumHorizontalLabels) {
         this.mNumHorizontalLabels = mNumHorizontalLabels;
+    }
+
+    /**
+     * @return the grid style
+     */
+    public GridStyle getGridStyle() {
+        return mStyles.gridStyle;
+    }
+
+    /**
+     * Define which grid lines shall be drawn
+     *
+     * @param gridStyle the grid style
+     */
+    public void setGridStyle(GridStyle gridStyle) {
+        mStyles.gridStyle = gridStyle;
     }
 }
