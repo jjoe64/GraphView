@@ -21,6 +21,9 @@ dependencies {
     compile 'com.android.support:appcompat-v7:20.0.0'
 }
 
+/*
+//this is used to generate .jar files and push to maven repo
+
 // This is the actual solution, as in http://stackoverflow.com/a/19037807/1002054
 task clearJar(type: Delete) {
     delete 'build/libs/myCompiledLibrary.jar'
@@ -36,3 +39,5 @@ task makeJar(type: Copy) {
 makeJar.dependsOn(clearJar, build)
 
 apply from: './maven_push.gradle'
+*/
+
