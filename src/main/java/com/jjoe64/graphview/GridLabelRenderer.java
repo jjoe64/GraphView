@@ -678,7 +678,6 @@ public class GridLabelRenderer {
 
         }
 
-
         // scrolling
         if (!Float.isNaN(mGraphView.getViewport().mScrollingReferenceX)) {
             scrolled = mGraphView.getViewport().mScrollingReferenceX - (float) newMinX;
@@ -694,7 +693,10 @@ public class GridLabelRenderer {
         v += scrolled;
 
         for (int i = 0; i < numHorizontalLabels; i++) {
-            mStepsHorizontal.put(p, v);
+            // don't draw steps before 0 (scrolling)
+            if (p >= mGraphView.getGraphContentLeft()) {
+                mStepsHorizontal.put(p, v);
+            }
             p += pixelStep;
             v += exactSteps;
         }
