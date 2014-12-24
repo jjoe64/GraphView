@@ -355,6 +355,7 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
         for (E d : data) {
             mData.add(d);
         }
+        checkValueOrder(null);
 
         // update graphview
         for (GraphView gv : mGraphViews) {
@@ -381,6 +382,8 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
      *                      value will be lost to avoid memory leaks
      */
     public void appendData(E dataPoint, boolean scrollToEnd, int maxDataPoints) {
+        checkValueOrder(dataPoint);
+
         if (!mData.isEmpty() && dataPoint.getX() < mData.get(mData.size()-1).getX()) {
             throw new IllegalArgumentException("new x-value must be greater then the last value. x-values has to be ordered in ASC.");
         }
@@ -415,5 +418,33 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
     @Override
     public boolean isEmpty() {
         return mData.isEmpty();
+    }
+
+    /**
+     * checks that the data is in the correct order
+     *
+     * @param onlyLast  if not null, it will only check that this
+     *                  datapoint is after the last point.
+     */
+    protected void checkValueOrder(DataPointInterface onlyLast) {
+        if (mData.size()>1) {
+            if (onlyLast != null) {
+                // only check last
+                if (onlyLast.getX() < mData.get(mData.size()-1).getX()) {
+                    throw new IllegalArgumentException("new x-value must be greater then the last value. x-values has to be ordered in ASC.");
+                }
+            } else {
+                double lx = mData.get(0).getX();
+
+                for (int i = 1; i < mData.size(); i++) {
+                    if (mData.get(i).getX() != Double.NaN) {
+                        if (lx > mData.get(i).getX()) {
+                            throw new IllegalArgumentException("The order of the values is not correct. X-Values have to be ordered ASC. First the lowest x value and at least the highest x value.");
+                        }
+                        lx = mData.get(i).getX();
+                    }
+                }
+            }
+        }
     }
 }
