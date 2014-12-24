@@ -719,13 +719,19 @@ public class GridLabelRenderer {
      * @param canvas canvas
      */
     protected void calcLabelVerticalSize(Canvas canvas) {
-        // test label
-        double testY = ((mGraphView.getViewport().getMaxY(false) - mGraphView.getViewport().getMinY(false)) * 0.783) + mGraphView.getViewport().getMinY(false);
-        String testLabel = mLabelFormatter.formatLabel(testY, false);
+        // test label with first and last label
+        String testLabel = mLabelFormatter.formatLabel(mGraphView.getViewport().getMaxY(false), false);
         Rect textBounds = new Rect();
         mPaintLabel.getTextBounds(testLabel, 0, testLabel.length(), textBounds);
         mLabelVerticalWidth = textBounds.width();
         mLabelVerticalHeight = textBounds.height();
+
+        testLabel = mLabelFormatter.formatLabel(mGraphView.getViewport().getMinY(false), false);
+        mPaintLabel.getTextBounds(testLabel, 0, testLabel.length(), textBounds);
+        mLabelVerticalWidth = Math.max(mLabelVerticalWidth, textBounds.width());
+
+        // add some pixel to get a margin
+        mLabelVerticalWidth += 6;
 
         // multiline
         int lines = 1;
