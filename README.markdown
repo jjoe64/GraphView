@@ -51,21 +51,30 @@ See GraphView-Demos for examples.
 How to create a new version for maven repo
 --------------------------------------------
 create sources.jar
-$ jar cvf sources.jar src
+- $ jar cvf sources.jar src
 
 create java doc jar
-$ mkdir javadoc
-$ javadoc -d javadoc -sourcepath src/main/java/ -subpackages com.jjoe64
-$ jar cvf javadoc.jar javadoc
+- $ mkdir javadoc
+- $ javadoc -d javadoc -sourcepath src/main/java/ -subpackages com.jjoe64
+- $ jar cvf javadoc.jar javadoc
 
 change version in gradle.properties
 
+uncomment part for publishing in build.gradle
+
 run gradle task uploadArchives
+- ...
 
 open https://oss.sonatype.org
+
 login
+
 Staging Repositiories
+
 search: jjoe64
+
 Close entry
+
 Refresh/Wait
+
 Release entry
