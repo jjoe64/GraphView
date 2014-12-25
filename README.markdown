@@ -78,3 +78,5 @@ Close entry
 Refresh/Wait
 
 Release entry
+
+Wait some days
