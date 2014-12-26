@@ -63,7 +63,7 @@ change version in gradle.properties
 uncomment part for publishing in build.gradle
 
 run gradle task uploadArchives
--  ../gradlew --rerun-tasks uploadArchives
+-  ./gradlew --rerun-tasks uploadArchives
 
 open https://oss.sonatype.org
 
