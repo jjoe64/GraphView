@@ -19,27 +19,21 @@
 
 package com.jjoe64.graphview;
 
-import java.nio.charset.Charset;
-import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.List;
-
 import android.content.Context;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
+import android.graphics.*;
 import android.graphics.Paint.Align;
-import android.graphics.Rect;
-import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.LinearLayout;
-
 import com.jjoe64.graphview.GraphViewSeries.GraphViewSeriesStyle;
-import com.jjoe64.graphview.GraphViewStyle.GridStyle;
 import com.jjoe64.graphview.compatible.ScaleGestureDetector;
+
+import java.nio.charset.Charset;
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * GraphView is a Android View for creating zoomable and scrollable graphs.
@@ -113,12 +107,12 @@ abstract public class GraphView extends LinearLayout {
 			if (horlabels == null) {
 				horlabels = generateHorlabels(graphwidth);
             } else if (getGraphViewStyle().getNumHorizontalLabels() > 0) {
-                Log.w("GraphView", "when you use static labels (via setHorizontalLabels) the labels will just be shown exactly in that way, that you have set it. setNumHorizontalLabels does not have any effect.");
+//                Log.w("GraphView", "when you use static labels (via setHorizontalLabels) the labels will just be shown exactly in that way, that you have set it. setNumHorizontalLabels does not have any effect.");
 			}
 			if (verlabels == null) {
 				verlabels = generateVerlabels(graphheight);
             } else if (getGraphViewStyle().getNumVerticalLabels() > 0) {
-                Log.w("GraphView", "when you use static labels (via setVerticalLabels) the labels will just be shown exactly in that way, that you have set it. setNumVerticalLabels does not have any effect.");
+//                Log.w("GraphView", "when you use static labels (via setVerticalLabels) the labels will just be shown exactly in that way, that you have set it. setNumVerticalLabels does not have any effect.");
 			}
 
 			// horizontal lines
@@ -158,6 +152,7 @@ abstract public class GraphView extends LinearLayout {
 			}
 
 			if (showLegend) drawLegend(canvas, height, width);
+			invalidate();
 		}
 
 		private void onMoveGesture(float f) {
