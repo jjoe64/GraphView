@@ -32,8 +32,8 @@ import com.jjoe64.graphview.GraphViewSeries.GraphViewSeriesStyle;
  * @author Muhammad Shahab Hameed
  */
 public class BarGraphView extends GraphView {
-	private boolean drawValuesOnTop;
-	private int valuesOnTopColor = Color.WHITE;
+	protected boolean drawValuesOnTop;
+	protected int valuesOnTopColor = Color.WHITE;
 
 	public BarGraphView(Context context, AttributeSet attrs) {
 		super(context, attrs);
