@@ -11,7 +11,20 @@ These new classes allow the user to have their graphs animated when shown.
 
 Both bar graphs and line graphs will animate the loading of their data. 
 
-<h5>Line Graphs</h5>
+<h4>Line Graphs</h4>
 
 Line graphs animate from left to right by default.
 
+![Line graph animation](public/lineFill.gif "Line Graph Animation")
+
+<h4>Bar Graphs</h4>
+
+Bar graphs can be animated in two different ways:
+
+<h6>Fill all bars at once</h6>
+
+
+
+<h6>Fill the bars one at a time</h6>
+
+![One at a time animation](public/barByBarFill.gif "One at a Time Animation")
