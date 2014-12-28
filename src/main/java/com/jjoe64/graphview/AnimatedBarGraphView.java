@@ -32,7 +32,7 @@ public class AnimatedBarGraphView extends BarGraphView {
         mAnimationStyle = animationStyle;
     }
 
-    public void setMaxSize(int size) {
+    public void setMaxXSize(int size) {
         mMaxSize = size;
     }
 
