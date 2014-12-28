@@ -51,6 +51,6 @@ animatedBarGraphView.setBarAnimationStyle(BarAnimationStyle.ALL_AT_ONCE);
 
 I also added (for my own use) the ability to have the graph go beyond what's filled. For example, if you want your graph's x-axis to extend to 50, but only have x values up to 25, you can call 
 ```java
-setMaxXSize(size);
+animatedBarGraphView.setMaxXSize(size);
 ```
 
