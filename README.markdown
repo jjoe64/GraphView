@@ -81,3 +81,9 @@ Release entry
 
 Wait some days
 
+How to create a new .jar file
+--------------------------------
+run this gradle task
+- ./gradlew --rerun-tasks clearJar makeJar
+copy myCompiledLibrary.jar from build/libs/ to public/GraphView-x.x.x.jar
+
