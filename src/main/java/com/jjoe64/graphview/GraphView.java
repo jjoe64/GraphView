@@ -147,7 +147,7 @@ abstract public class GraphView extends LinearLayout {
 			double diffY = maxY - minY;
 			paint.setStrokeCap(Paint.Cap.ROUND);
 
-			for (int i=0; i<graphSeries.size(); i++) {
+			for (int i=0; i < graphSeries.size(); i++) {
 				drawSeries(canvas, _values(i), graphwidth, graphheight, border, minX, minY, diffX, diffY, horstart, graphSeries.get(i).style);
 			}
 
@@ -244,6 +244,7 @@ abstract public class GraphView extends LinearLayout {
 		public double getY() {
 			return valueY;
 		}
+
 	}
 
 	public enum LegendAlign {
@@ -426,6 +427,20 @@ abstract public class GraphView extends LinearLayout {
 		series.addGraphView(this);
 		graphSeries.add(series);
 		redrawAll();
+	}
+
+	public void appendData(GraphViewData data) {
+		GraphViewSeries series = graphSeries.get(0);
+		series.appendData(data, false);
+		redrawAll();
+	}
+
+	public double increaseData(GraphViewData data) {
+
+		GraphViewSeries series = graphSeries.get(0);
+		double oldValue = series.increaseData(data);
+		redrawAll();
+		return oldValue;
 	}
 
 	protected void drawHorizontalLabels(Canvas canvas, float border,

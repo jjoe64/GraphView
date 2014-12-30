@@ -124,6 +124,19 @@ public class GraphViewSeries {
 		}
 	}
 
+	public double increaseData(GraphView.GraphViewData value) {
+		for(int i = 0; i < values.length; i++) {
+			if(values[i].getX() == value.getX()) {
+				double oldVal = values[i].getY();
+				GraphView.GraphViewData newValue = new GraphView.GraphViewData(value.getX(), value.getY() + values[i].getY());
+				values[i] = newValue;
+				return oldVal;
+			}
+		}
+
+		throw new IllegalArgumentException("x-value must match existing GraphViewData element.");
+	}
+
 	/**
 	 * add one data to current data
      * the values must be in the correct order! x-value has to be ASC. First the lowest x value and at least the highest x value.

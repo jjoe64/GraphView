@@ -5,6 +5,9 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.util.AttributeSet;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 /**
  * @author nick
  */
@@ -14,6 +17,11 @@ public class AnimatedBarGraphView extends BarGraphView {
     private BarAnimationStyle mAnimationStyle = BarAnimationStyle.BAR_AT_A_TIME;
     private int mAnimateBar = 0;
     protected int mMaxSize = 0;
+    protected ArrayList<GraphViewDataInterface> mGraphViewDataValues;
+    protected boolean mIncreasedData = false;
+    protected GraphViewData mDataIncreased = null;
+    protected double mIncreasedBy = -1;
+    protected double mNewIncreasedValue = -1;
 
     public enum BarAnimationStyle {
         ALL_AT_ONCE,
@@ -37,9 +45,36 @@ public class AnimatedBarGraphView extends BarGraphView {
     }
 
     @Override
+    public double increaseData(GraphViewData data) {
+        mIncreasedData = true;
+        mIncreasedBy = data.getY();
+        double oldValY = super.increaseData(data);
+        mDataIncreased = new GraphViewData(data.getX(), oldValY);
+        //This return value is ignored;
+        return 0;
+    }
+
+    @Override
     public void drawSeries(Canvas canvas, GraphViewDataInterface[] values, float graphwidth, float graphheight, float border, double minX, double minY, double diffX, double diffY, float horstart, GraphViewSeries.GraphViewSeriesStyle style) {
         double max = 0;
-        if(mAnimationStyle == BarAnimationStyle.ALL_AT_ONCE) {
+
+
+        if(mIncreasedData) {
+            for(int i = 0; i < values.length; i++) {
+                if(values[i].getX() == mDataIncreased.getX()) {
+
+                    double newY = Math.min(Math.min(mDataIncreased.getY() + 600, values[i].getY()), diffY);
+                    mDataIncreased = new GraphViewData(mDataIncreased.getX(), newY);
+                    if(mDataIncreased.getY() == values[i].getY() || mDataIncreased.getY() == diffY) {
+                        mIncreasedData = false;
+                    }
+                    values[i] = mDataIncreased;
+                }
+            }
+
+            drawSeries(canvas, values, mMaxSize, graphwidth, graphheight, border, minX, minY, diffX, diffY, horstart, style);
+
+        } else if(mAnimationStyle == BarAnimationStyle.ALL_AT_ONCE) {
             for (int i = 0; i < values.length; i++) {
                 GraphViewDataInterface value = values[i];
                 if (value.getY() > mMaxGraphY) {
@@ -48,10 +83,12 @@ public class AnimatedBarGraphView extends BarGraphView {
                 max = Math.max(max, value.getY());
             }
             mMaxGraphY = (float) Math.min(mMaxGraphY + 600, max);
-            super.drawSeries(canvas, values, graphwidth, graphheight, border, minX, minY, diffX, diffY, horstart, style);
+            mMaxSize = Math.max(mMaxSize, values.length);
+
+            drawSeries(canvas, values, mMaxSize, graphwidth, graphheight, border, minX, minY, diffX, diffY, horstart, style);
         } else {
             if(mAnimateBar == values.length) {
-                super.drawSeries(canvas, values, graphwidth, graphheight, border, minX, minY, diffX, diffY, horstart, style);
+                drawSeries(canvas, values, mMaxSize, graphwidth, graphheight, border, minX, minY, diffX, diffY, horstart, style);
                 return;
             }
 
@@ -72,6 +109,14 @@ public class AnimatedBarGraphView extends BarGraphView {
                 mAnimateBar = Math.min(++mAnimateBar, values.length);
             }
 
+            if(mGraphViewDataValues == null) {
+                mGraphViewDataValues = new ArrayList<GraphViewDataInterface>();
+            } else {
+                mGraphViewDataValues.clear();
+            }
+
+            mGraphViewDataValues.addAll(Arrays.asList(values));
+
 
             mMaxSize = Math.max(mMaxSize, values.length);
 
@@ -86,6 +131,7 @@ public class AnimatedBarGraphView extends BarGraphView {
     public void drawSeries(Canvas canvas, GraphViewDataInterface[] values, float totalValues, float graphwidth, float graphheight,
                            float border, double minX, double minY, double diffX, double diffY,
                            float horstart, GraphViewSeries.GraphViewSeriesStyle style) {
+//        float widthRatio = totalValues/values.length;
         float colwidth = graphwidth / totalValues;
 
         paint.setStrokeWidth(style.thickness);
