@@ -127,6 +127,11 @@ public class GridLabelRenderer {
          * defines which lines will be drawn in the background
          */
         GridStyle gridStyle;
+
+        /**
+         * the space between the labels text and the graph content
+         */
+        int labelsSpace;
     }
 
     /**
@@ -310,6 +315,7 @@ public class GridLabelRenderer {
         mStyles.gridColor = color2;
         mStyles.textSize = size;
         mStyles.padding = size2;
+        mStyles.labelsSpace = (int) mStyles.textSize/5;
 
         mStyles.verticalLabelsAlign = Paint.Align.RIGHT;
         mStyles.verticalLabelsSecondScaleAlign = Paint.Align.LEFT;
@@ -735,6 +741,9 @@ public class GridLabelRenderer {
         // add some pixel to get a margin
         mLabelVerticalWidth += 6;
 
+        // space between text and graph content
+        mLabelVerticalWidth += mStyles.labelsSpace;
+
         // multiline
         int lines = 1;
         for (byte c : testLabel.getBytes()) {
@@ -790,6 +799,9 @@ public class GridLabelRenderer {
             if (c == '\n') lines++;
         }
         mLabelHorizontalHeight *= lines;
+
+        // space between text and graph content
+        mLabelHorizontalHeight += mStyles.labelsSpace;
     }
 
     /**
@@ -926,7 +938,7 @@ public class GridLabelRenderer {
                 String[] lines = mLabelFormatter.formatLabel(e.getValue(), true).split("\n");
                 for (int li = 0; li < lines.length; li++) {
                     // for the last line y = height
-                    float y = (canvas.getHeight() - mStyles.padding - getHorizontalAxisTitleHeight()) - (lines.length - li - 1) * getTextSize() * 1.1f;
+                    float y = (canvas.getHeight() - mStyles.padding - getHorizontalAxisTitleHeight()) - (lines.length - li - 1) * getTextSize() * 1.1f + mStyles.labelsSpace;
                     canvas.drawText(lines[li], e.getKey(), y, mPaintLabel);
                 }
             }
@@ -1001,6 +1013,7 @@ public class GridLabelRenderer {
                 int labelsOffset = 0;
                 if (getVerticalLabelsAlign() == Paint.Align.RIGHT) {
                     labelsOffset = labelsWidth;
+                    labelsOffset -= mStyles.labelsSpace;
                 } else if (getVerticalLabelsAlign() == Paint.Align.CENTER) {
                     labelsOffset = labelsWidth / 2;
                 }
@@ -1374,5 +1387,21 @@ public class GridLabelRenderer {
      */
     public void setGridStyle(GridStyle gridStyle) {
         mStyles.gridStyle = gridStyle;
+    }
+
+    /**
+     * @return the space between the labels text and the graph content
+     */
+    public int getLabelsSpace() {
+        return mStyles.labelsSpace;
+    }
+
+    /**
+     * the space between the labels text and the graph content
+     *
+     * @param labelsSpace the space between the labels text and the graph content
+     */
+    public void setLabelsSpace(int labelsSpace) {
+        mStyles.labelsSpace = labelsSpace;
     }
 }
