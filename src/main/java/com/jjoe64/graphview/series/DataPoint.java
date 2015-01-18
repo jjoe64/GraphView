@@ -17,25 +17,44 @@
  * with the "Linking Exception" along with this program; if not,
  * write to the author Jonas Gehring <g.jjoe64@gmail.com>.
  */
+package com.jjoe64.graphview.series;
 
-package com.jjoe64.graphview;
+import android.provider.ContactsContract;
 
-import com.jjoe64.graphview.series.DataPointInterface;
+import java.util.Date;
 
 /**
- * you can change the color depending on the value.
- * takes only effect for BarGraphSeries.
+ * default data point implementation.
+ * This stores the x and y values.
  *
- * @see com.jjoe64.graphview.series.BarGraphSeries#setValueDependentColor(ValueDependentColor)
+ * @author jjoe64
  */
-public interface ValueDependentColor<T extends DataPointInterface> {
-    /**
-     * this is called when a bar is about to draw
-     * and the color is be loaded.
-     *
-     * @param data the current input value
-     * @return  the color that the bar should be drawn with
-     *          Generate the int via the android.graphics.Color class.
-     */
-    public int get(T data);
+public class DataPoint implements DataPointInterface {
+    private double x;
+    private double y;
+
+    public DataPoint(double x, double y) {
+        this.x=x;
+        this.y=y;
+    }
+
+    public DataPoint(Date x, double y) {
+        this.x = x.getTime();
+        this.y = y;
+    }
+
+    @Override
+    public double getX() {
+        return x;
+    }
+
+    @Override
+    public double getY() {
+        return y;
+    }
+
+    @Override
+    public String toString() {
+        return "["+x+"/"+y+"]";
+    }
 }

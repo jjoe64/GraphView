@@ -54,3 +54,36 @@ I also added (for my own use) the ability to have the graph go beyond what's fil
 animatedBarGraphView.setMaxXSize(size);
 ```
 
+How to create a new version for maven repo
+--------------------------------------------
+create sources.jar
+- $ jar cvf sources.jar src
+
+create java doc jar
+- $ mkdir javadoc
+- $ javadoc -d javadoc -sourcepath src/main/java/ -subpackages com.jjoe64
+- $ jar cvf javadoc.jar javadoc
+
+change version in gradle.properties
+
+uncomment part for publishing in build.gradle
+
+run gradle task uploadArchives
+-  ../gradlew --rerun-tasks uploadArchives
+
+open https://oss.sonatype.org
+
+login
+
+Staging Repositiories
+
+search: jjoe64
+
+Close entry
+
+Refresh/Wait
+
+Release entry
+
+Wait some days
+

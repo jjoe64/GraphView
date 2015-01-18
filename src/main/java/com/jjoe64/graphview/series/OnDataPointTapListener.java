@@ -17,25 +17,22 @@
  * with the "Linking Exception" along with this program; if not,
  * write to the author Jonas Gehring <g.jjoe64@gmail.com>.
  */
-
-package com.jjoe64.graphview;
-
-import com.jjoe64.graphview.series.DataPointInterface;
+package com.jjoe64.graphview.series;
 
 /**
- * you can change the color depending on the value.
- * takes only effect for BarGraphSeries.
+ * Listener for the tap event which will be
+ * triggered when the user touches on a datapoint.
  *
- * @see com.jjoe64.graphview.series.BarGraphSeries#setValueDependentColor(ValueDependentColor)
+ * Use this in {@link com.jjoe64.graphview.series.BaseSeries#setOnDataPointTapListener(OnDataPointTapListener)}
+ *
+ * @author jjoe64
  */
-public interface ValueDependentColor<T extends DataPointInterface> {
+public interface OnDataPointTapListener {
     /**
-     * this is called when a bar is about to draw
-     * and the color is be loaded.
+     * gets called when the user touches on a datapoint.
      *
-     * @param data the current input value
-     * @return  the color that the bar should be drawn with
-     *          Generate the int via the android.graphics.Color class.
+     * @param series the corresponding series
+     * @param dataPoint the data point that was tapped on
      */
-    public int get(T data);
+    void onTap(Series series, DataPointInterface dataPoint);
 }

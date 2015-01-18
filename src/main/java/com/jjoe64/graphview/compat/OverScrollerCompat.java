@@ -17,25 +17,30 @@
  * with the "Linking Exception" along with this program; if not,
  * write to the author Jonas Gehring <g.jjoe64@gmail.com>.
  */
+package com.jjoe64.graphview.compat;
 
-package com.jjoe64.graphview;
-
-import com.jjoe64.graphview.series.DataPointInterface;
+import android.annotation.TargetApi;
+import android.os.Build;
+import android.widget.OverScroller;
 
 /**
- * you can change the color depending on the value.
- * takes only effect for BarGraphSeries.
- *
- * @see com.jjoe64.graphview.series.BarGraphSeries#setValueDependentColor(ValueDependentColor)
+ * A utility class for using {@link android.widget.OverScroller} in a backward-compatible fashion.
  */
-public interface ValueDependentColor<T extends DataPointInterface> {
+public class OverScrollerCompat {
     /**
-     * this is called when a bar is about to draw
-     * and the color is be loaded.
-     *
-     * @param data the current input value
-     * @return  the color that the bar should be drawn with
-     *          Generate the int via the android.graphics.Color class.
+     * Disallow instantiation.
      */
-    public int get(T data);
+    private OverScrollerCompat() {
+    }
+    /**
+     * @see android.view.ScaleGestureDetector#getCurrentSpanY()
+     */
+    @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+    public static float getCurrVelocity(OverScroller overScroller) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+            return overScroller.getCurrVelocity();
+        } else {
+            return 0;
+        }
+    }
 }
