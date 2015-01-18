@@ -122,4 +122,10 @@ public interface Series<E extends DataPointInterface> {
      * @return whether there are data points
      */
     boolean isEmpty();
+
+    /**
+     * Adds a new data element
+     * @param data : DataPointInterface to add to the Series
+     */
+    public double appendData(E data);
 }

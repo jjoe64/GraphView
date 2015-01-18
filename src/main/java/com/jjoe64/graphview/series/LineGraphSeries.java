@@ -38,13 +38,13 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
     /**
      * wrapped styles regarding the line
      */
-    private final class Styles {
+    protected final class Styles {
         /**
          * the thickness of the line.
          * This option will be ignored if you are
          * using a custom paint via {@link #setCustomPaint(android.graphics.Paint)}
          */
-        private int thickness = 5;
+        protected int thickness = 5;
 
         /**
          * flag whether the area under the line to the bottom
@@ -53,7 +53,7 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
          *
          * @see #backgroundColor
          */
-        private boolean drawBackground = false;
+        protected boolean drawBackground = false;
 
         /**
          * flag whether the data points are highlighted as
@@ -61,14 +61,14 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
          *
          * @see #dataPointsRadius
          */
-        private boolean drawDataPoints = false;
+        protected boolean drawDataPoints = false;
 
         /**
          * the radius for the data points.
          *
          * @see #drawDataPoints
          */
-        private float dataPointsRadius = 10f;
+        protected float dataPointsRadius = 10f;
 
         /**
          * the background color for the filling under
@@ -76,39 +76,39 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
          *
          * @see #drawBackground
          */
-        private int backgroundColor = Color.argb(100, 172, 218, 255);
+        protected int backgroundColor = Color.argb(100, 172, 218, 255);
     }
 
     /**
      * wrapped styles
      */
-    private Styles mStyles;
+    protected Styles mStyles;
 
     /**
      * internal paint object
      */
-    private Paint mPaint;
+    protected Paint mPaint;
 
     /**
      * paint for the background
      */
-    private Paint mPaintBackground;
+    protected Paint mPaintBackground;
 
     /**
      * path for the background filling
      */
-    private Path mPathBackground;
+    protected Path mPathBackground;
 
     /**
      * path to the line
      */
-    private Path mPath;
+    protected Path mPath;
 
     /**
      * custom paint that can be used.
      * this will ignore the thickness and color styles.
      */
-    private Paint mCustomPaint;
+    protected Paint mCustomPaint;
 
     /**
      * creates a series without data
@@ -142,6 +142,7 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
         mPath = new Path();
     }
 
+    
     /**
      * plots the series
      * draws the line and the background

@@ -21,16 +21,9 @@ package com.jjoe64.graphview.series;
 
 import android.graphics.PointF;
 import android.util.Log;
-
 import com.jjoe64.graphview.GraphView;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Basis implementation for series.
@@ -50,7 +43,7 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
     /**
      * holds the data
      */
-    final private List<E> mData = new ArrayList<E>();
+    final protected List<E> mData = new ArrayList<E>();
 
     /**
      * stores the used coordinates to find the
@@ -101,11 +94,42 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
      */
     public BaseSeries(E[] data) {
         mGraphViews = new ArrayList<GraphView>();
-        for (E d : data) {
-            mData.add(d);
-        }
+        Collections.addAll(mData, data);
     }
 
+
+    /**
+     * Adds a new element to the Data ArrayList
+     * @param data : DataPointInterface to add to the Series
+     * @return : returns the Y value before it's modified, if it's an old point. If it's a new point,
+     * it returns 0.
+     */
+    public double appendData(E data) {
+        int index = -1;
+        for(int i = 0; i < mData.size(); i++) {
+            if(mData.get(i).getX() == data.getX()) {
+                double oldY = mData.get(i).getY();
+                double y = oldY + data.getY();
+                mData.remove(i);
+                mData.add(i, (E) new DataPoint(data.getX(), y));
+                return oldY;
+                
+            }
+        }
+        
+        mData.add(data);
+        return 0;
+    }
+
+    public int getIndexOfDataX(E data) {
+        for(int i = 0; i < mData.size(); i++) {
+            if(mData.get(i).getX() == data.getX()) {
+                return i;
+            }
+        }
+        return -1;
+    }
+    
     /**
      * @return the lowest x value, or 0 if there is no data
      */
@@ -231,6 +255,84 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
         }
     }
 
+
+    /**
+     * get the values for a given x range. if from and until are bigger or equal than
+     * all the data, the original data is returned.
+     * If it is only a part of the data, the range is returned plus one datapoint
+     * before and after to get a nice scrolling.
+     *
+     * @param from minimal x-value
+     * @param until maximal x-value
+     * @return data for the range +/- 1 datapoint
+     */
+    public Iterator<E> getValuesFromData(final double from, final double until, final List<E> data) {
+        if (from <= getLowestValueX() && until >= getHighestValueX()) {
+            return data.iterator();
+        } else {
+            return new Iterator<E>() {
+                Iterator<E> org = data.iterator();
+                E nextValue = null;
+                E nextNextValue = null;
+                boolean plusOne = true;
+
+                {
+                    // go to first
+                    boolean found = false;
+                    E prevValue = null;
+                    if (org.hasNext()) {
+                        prevValue = org.next();
+                    }
+                    if (prevValue.getX() >= from) {
+                        nextValue = prevValue;
+                        found = true;
+                    } else {
+                        while (org.hasNext()) {
+                            nextValue = org.next();
+                            if (nextValue.getX() >= from) {
+                                found = true;
+                                nextNextValue = nextValue;
+                                nextValue = prevValue;
+                                break;
+                            }
+                            prevValue = nextValue;
+                        }
+                    }
+                    if (!found) {
+                        nextValue = null;
+                    }
+                }
+
+                @Override
+                public void remove() {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public E next() {
+                    if (hasNext()) {
+                        E r = nextValue;
+                        if (r.getX() > until) {
+                            plusOne = false;
+                        }
+                        if (nextNextValue != null) {
+                            nextValue = nextNextValue;
+                            nextNextValue = null;
+                        } else if (org.hasNext()) nextValue = org.next();
+                        else nextValue = null;
+                        return r;
+                    } else {
+                        throw new NoSuchElementException();
+                    }
+                }
+
+                @Override
+                public boolean hasNext() {
+                    return nextValue != null && (nextValue.getX() <= until || plusOne);
+                }
+            };
+        }
+    }
     /**
      * @return the title of the series
      */

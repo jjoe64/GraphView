@@ -41,51 +41,51 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
     /**
      * paint to do drawing on canvas
      */
-    private Paint mPaint;
+    protected Paint mPaint;
 
     /**
      * spacing between the bars in percentage.
      * 0 => no spacing
      * 100 => the space bewetten the bars is as big as the bars itself
      */
-    private int mSpacing;
+    protected int mSpacing;
 
     /**
      * callback to generate value-dependent colors
      * of the bars
      */
-    private ValueDependentColor<E> mValueDependentColor;
+    protected ValueDependentColor<E> mValueDependentColor;
 
     /**
      * flag whether the values should drawn
      * above the bars as text
      */
-    private boolean mDrawValuesOnTop;
+    protected boolean mDrawValuesOnTop;
 
     /**
      * color of the text above the bars.
      *
      * @see #mDrawValuesOnTop
      */
-    private int mValuesOnTopColor;
+    protected int mValuesOnTopColor;
 
     /**
      * font size of the text above the bars.
      *
      * @see #mDrawValuesOnTop
      */
-    private float mValuesOnTopSize;
+    protected float mValuesOnTopSize;
 
     /**
      * stores the coordinates of the bars to
      * trigger tap on series events.
      */
-    private Map<RectF, E> mDataPoints = new HashMap<RectF, E>();
+    protected Map<RectF, E> mDataPoints = new HashMap<RectF, E>();
 
     /**
      * creates bar series without any data
      */
-    public BarGraphSeries() {
+    protected BarGraphSeries() {
         mPaint = new Paint();
     }
 

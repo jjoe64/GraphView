@@ -23,13 +23,13 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Point;
 import android.graphics.PointF;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-
+import com.jjoe64.graphview.series.AnimatedGraphInterface;
+import com.jjoe64.graphview.series.DataPointInterface;
 import com.jjoe64.graphview.series.Series;
 
 import java.util.ArrayList;
@@ -242,6 +242,23 @@ public class GraphView extends View {
         onDataChanged(false, false);
     }
 
+
+    /**
+     * Adds a new DataPointInterface to the passed-in Series
+     * @param s: Series to add data to
+     * @param data: DataPointInterface to add to the Series
+     */
+    public void appendDataToSeries(Series s, DataPointInterface data) {
+        if(mSeries.contains(s)) {
+            mSeries.remove(s);
+        }
+        
+        s.appendData(data);
+        mSeries.add(s);
+        
+        onDataChanged(true, true);
+    }
+    
     /**
      * important: do not do modifications on the list
      * object that will be returned.
@@ -294,7 +311,11 @@ public class GraphView extends View {
             drawTitle(canvas);
             mViewport.drawFirst(canvas);
             mGridLabelRenderer.draw(canvas);
+            boolean hasAnimated = false;
             for (Series s : mSeries) {
+                if(s instanceof AnimatedGraphInterface) {
+                    hasAnimated = ((AnimatedGraphInterface) s).requiresRedraw();
+                }
                 s.draw(this, canvas, false);
             }
             if (mSecondScale != null) {
@@ -304,6 +325,9 @@ public class GraphView extends View {
             }
             mViewport.draw(canvas);
             mLegendRenderer.draw(canvas);
+            if(hasAnimated) {
+                invalidate();
+            }
         }
     }
 
