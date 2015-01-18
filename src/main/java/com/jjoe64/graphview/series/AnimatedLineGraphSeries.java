@@ -47,16 +47,20 @@ public class AnimatedLineGraphSeries<E extends DataPointInterface> extends LineG
 
     @Override
     public double appendData(E data) {
+        mIncreasingPointIndex = getIndexOfDataX(data);
+        mMaxGraphX = (float) getHighestValueX();
+
         mIncreasingPointY = (float) super.appendData(data);
         
         mMaxGraphY = (float) (mIncreasingPointY + data.getY());
-        mIncreasingPointIndex = getIndexOfDataX(data);
         mIncreasingPointBool = mIncreasingPointIndex != -1;
         if(!mIncreasingPointBool) {
             mLineAnimationType = LineAnimationType.HORIZONTAL_ANIMATION;
+            mMaxChange = ((data.getX() - mMaxGraphX) / 100.0);
+        } else {
+
+            mMaxChange = 0;
         }
-        
-        mMaxChange = 0;
         mRequiresRedraw = true;
         return 0;
     }

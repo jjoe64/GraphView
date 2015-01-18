@@ -130,6 +130,8 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
         return -1;
     }
     
+    
+    
     /**
      * @return the lowest x value, or 0 if there is no data
      */
