@@ -130,6 +130,18 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
 
         Iterator<E> values = getValues(minX, maxX);
 
+        int numBarSeries = 0;
+        int myIndex = 0;
+        for(Series curSeries: graphView.getSeries()) {
+            if(curSeries instanceof BarGraphSeries) {
+                if(curSeries == this) {
+                    myIndex = numBarSeries;
+                }
+                numBarSeries++;
+            }
+        }
+        Log.d("BarGraphSeries","Bar introsepction: " + numBarSeries + "/" + myIndex);
+
         // this works only if the data has no "hole" and if the interval is always the same
         // TODO do a check
         double minGap = 0;
@@ -150,10 +162,11 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
 
         values = getValues(minX, maxX);
 
-        float colwidth = graphView.getGraphContentWidth() / (numOfBars-1);
+        float totalwidth = graphView.getGraphContentWidth() / (numOfBars-1);
+        float colwidth = totalwidth / numBarSeries;
         Log.d("BarGraphSeries", "numBars=" + numOfBars);
 
-        float spacing = Math.min((float) colwidth*mSpacing/100, colwidth*0.98f);
+        float spacing = Math.min((float) totalwidth*mSpacing/100, totalwidth*0.98f);
         float offset = colwidth/2;
 
         double diffY = maxY - minY;
@@ -187,7 +200,7 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
                 mPaint.setColor(getColor());
             }
 
-            float left = (float)x + contentLeft - offset + spacing/2;
+            float left = (float)x + contentLeft - offset + spacing/2 + myIndex*colwidth;
             float top = (contentTop - (float)y) + contentHeight;
             float right = left + colwidth - spacing;
             float bottom = (contentTop - (float)y0) + contentHeight - (graphView.getGridLabelRenderer().isHighlightZeroLines()?4:1);
