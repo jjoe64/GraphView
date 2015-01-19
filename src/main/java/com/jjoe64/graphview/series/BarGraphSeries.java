@@ -132,14 +132,21 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
 
         // this works only if the data has no "hole" and if the interval is always the same
         // TODO do a check
-        int numOfBars = 0;
-        while (values.hasNext()) {
-            values.next();
-            numOfBars++;
+        double minGap = 0;
+        if (values.hasNext()) {
+            E lastVal = values.next();
+            while (values.hasNext()) {
+                double curGap = Math.abs(values.next().getX() - lastVal.getX());
+                if (minGap == 0 || (curGap > 0 && curGap < minGap)) {
+                    minGap = curGap;
+                }
+            }
         }
-        if (numOfBars == 0) {
+        if (minGap == 0) {
             return;
         }
+
+        int numOfBars = (int)Math.round((maxX - minX)/minGap);
 
         values = getValues(minX, maxX);
 
