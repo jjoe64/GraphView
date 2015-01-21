@@ -130,44 +130,56 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
 
         Iterator<E> values = getValues(minX, maxX);
 
+        // Iterate through all bar graph series
+        // so we know how wide to make our bar,
+        // and in what position to put it in
         int numBarSeries = 0;
-        int myIndex = 0;
+        int currentSeriesOrder = 0;
         for(Series curSeries: graphView.getSeries()) {
             if(curSeries instanceof BarGraphSeries) {
                 if(curSeries == this) {
-                    myIndex = numBarSeries;
+                    currentSeriesOrder = numBarSeries;
                 }
                 numBarSeries++;
             }
         }
-        Log.d("BarGraphSeries","Bar introsepction: " + numBarSeries + "/" + myIndex);
 
-        // this works only if the data has no "hole" and if the interval is always the same
-        // TODO do a check
+        // calculate the number of slots for bars based on the minimum distance between
+        // x coordinates in the series.  This is divided into the range to find
+        // the placement and width of bar slots
+        // (sections of the x axis for each bar or set of bars)
+        // TODO factor in all series of this type
         double minGap = 0;
+        int numValues = 0;
         if (values.hasNext()) {
             E lastVal = values.next();
+            numValues++;
             while (values.hasNext()) {
                 double curGap = Math.abs(values.next().getX() - lastVal.getX());
                 if (minGap == 0 || (curGap > 0 && curGap < minGap)) {
                     minGap = curGap;
                 }
+                numValues++;
             }
         }
-        if (minGap == 0) {
+        if (numValues == 0) {
             return;
         }
-
-        int numOfBars = (int)Math.round((maxX - minX)/minGap);
+        int numBarSlots = (int)Math.round((maxX - minX)/minGap);
 
         values = getValues(minX, maxX);
 
-        float totalwidth = graphView.getGraphContentWidth() / (numOfBars-1);
-        float colwidth = totalwidth / numBarSeries;
-        Log.d("BarGraphSeries", "numBars=" + numOfBars);
+        // Calculate the overall bar slot width - this includes all bars across
+        // all series, and any spacing between sets of bars
+        float barSlotWidth = graphView.getGraphContentWidth() / (numBarSlots-1);
+        Log.d("BarGraphSeries", "numBars=" + numBarSlots);
 
-        float spacing = Math.min((float) totalwidth*mSpacing/100, totalwidth*0.98f);
-        float offset = colwidth/2;
+        // Total spacing (both sides) between sets of bars
+        float spacing = Math.min((float) barSlotWidth*mSpacing/100, barSlotWidth*0.98f);
+        // Width of an individual bar
+        float barWidth = (barSlotWidth - spacing) / numBarSeries;
+        // Offset from the center of a given bar to start drawing
+        float offset = barSlotWidth/2;
 
         double diffY = maxY - minY;
         double diffX = maxX - minX;
@@ -200,9 +212,9 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
                 mPaint.setColor(getColor());
             }
 
-            float left = (float)x + contentLeft - offset + spacing/2 + myIndex*colwidth;
+            float left = (float)x + contentLeft - offset + spacing/2 + currentSeriesOrder*barWidth;
             float top = (contentTop - (float)y) + contentHeight;
-            float right = left + colwidth - spacing;
+            float right = left + barWidth;
             float bottom = (contentTop - (float)y0) + contentHeight - (graphView.getGridLabelRenderer().isHighlightZeroLines()?4:1);
 
             boolean reverse = top > bottom;
