@@ -30,6 +30,8 @@ import com.jjoe64.graphview.ValueDependentColor;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * Series with Bars to visualize the data.
@@ -128,50 +130,63 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
             minY = graphView.getViewport().getMinY(false);
         }
 
-        Iterator<E> values = getValues(minX, maxX);
-
         // Iterate through all bar graph series
         // so we know how wide to make our bar,
         // and in what position to put it in
         int numBarSeries = 0;
         int currentSeriesOrder = 0;
-        for(Series curSeries: graphView.getSeries()) {
-            if(curSeries instanceof BarGraphSeries) {
-                if(curSeries == this) {
+        int numValues = 0;
+        boolean isCurrentSeries;
+        SortedSet<Double> xVals = new TreeSet<Double>();
+        for(Series inspectedSeries: graphView.getSeries()) {
+            if(inspectedSeries instanceof BarGraphSeries) {
+                isCurrentSeries = (inspectedSeries == this);
+                if(isCurrentSeries) {
                     currentSeriesOrder = numBarSeries;
                 }
                 numBarSeries++;
-            }
-        }
 
-        // calculate the number of slots for bars based on the minimum distance between
-        // x coordinates in the series.  This is divided into the range to find
-        // the placement and width of bar slots
-        // (sections of the x axis for each bar or set of bars)
-        // TODO factor in all series of this type
-        double minGap = 0;
-        int numValues = 0;
-        if (values.hasNext()) {
-            E lastVal = values.next();
-            numValues++;
-            while (values.hasNext()) {
-                double curGap = Math.abs(values.next().getX() - lastVal.getX());
-                if (minGap == 0 || (curGap > 0 && curGap < minGap)) {
-                    minGap = curGap;
+                // calculate the number of slots for bars based on the minimum distance between
+                // x coordinates in the series.  This is divided into the range to find
+                // the placement and width of bar slots
+                // (sections of the x axis for each bar or set of bars)
+                // TODO: Move this somewhere more general and cache it, so we don't recalculate it for each series
+                Iterator<E> curValues = inspectedSeries.getValues(minX, maxX);
+                if (curValues.hasNext()) {
+                    xVals.add(curValues.next().getX());
+                    if(isCurrentSeries) { numValues++; }
+                    while (curValues.hasNext()) {
+                        xVals.add(curValues.next().getX());
+                        if(isCurrentSeries) { numValues++; }
+                    }
                 }
-                numValues++;
             }
         }
         if (numValues == 0) {
             return;
         }
-        int numBarSlots = (int)Math.round((maxX - minX)/minGap);
 
-        values = getValues(minX, maxX);
+        Double lastVal = null;
+        double minGap = 0;
+        for(Double curVal: xVals) {
+            if(lastVal != null) {
+                double curGap = Math.abs(curVal - lastVal);
+                if (minGap == 0 || (curGap > 0 && curGap < minGap)) {
+                    minGap = curGap;
+                }
+            }
+            lastVal = curVal;
+        }
+
+        int numBarSlots = (minGap == 0) ? 1 : (int)Math.round((maxX - minX)/minGap) + 1;
+
+        Iterator<E> values = getValues(minX, maxX);
 
         // Calculate the overall bar slot width - this includes all bars across
         // all series, and any spacing between sets of bars
-        float barSlotWidth = graphView.getGraphContentWidth() / (numBarSlots-1);
+        float barSlotWidth = numBarSlots == 1
+            ? graphView.getGraphContentWidth()
+            : graphView.getGraphContentWidth() / (numBarSlots-1);
         Log.d("BarGraphSeries", "numBars=" + numBarSlots);
 
         // Total spacing (both sides) between sets of bars
