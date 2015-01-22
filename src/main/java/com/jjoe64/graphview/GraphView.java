@@ -425,6 +425,9 @@ public class GraphView extends View {
         int graphwidth = getWidth() - (2 * border) - getGridLabelRenderer().getLabelVerticalWidth();
         if (mSecondScale != null) {
             graphwidth -= getGridLabelRenderer().getLabelVerticalSecondScaleWidth();
+            if(mSecondScale.getVerticalAxisTitle() != null) {
+                graphwidth -= mSecondScale.getVerticalAxisTitleTextSize();
+            }
         }
         return graphwidth;
     }

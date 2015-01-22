@@ -882,6 +882,11 @@ public class GridLabelRenderer {
 
         drawHorizontalAxisTitle(canvas);
         drawVerticalAxisTitle(canvas);
+        final SecondScale secondScale = mGraphView.getSecondScale();
+        final String ssTitle = secondScale.getVerticalAxisTitle();
+        if(ssTitle != null && ssTitle.length()!=0 ) {
+            secondScale.drawVerticalAxisTitle(canvas);
+        }
     }
 
     /**
