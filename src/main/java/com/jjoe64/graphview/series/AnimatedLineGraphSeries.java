@@ -2,7 +2,6 @@ package com.jjoe64.graphview.series;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.util.Log;
 import com.jjoe64.graphview.GraphView;
 
 import java.util.ArrayList;
@@ -62,7 +61,7 @@ public class AnimatedLineGraphSeries<E extends DataPointInterface> extends LineG
             mMaxChange = 0;
         }
         mRequiresRedraw = true;
-        return 0;
+        return mMaxGraphY;
     }
     
 
@@ -129,8 +128,7 @@ public class AnimatedLineGraphSeries<E extends DataPointInterface> extends LineG
         }
 
         if (mIncreasingPointBool) {
-
-            if(mIncreasingPointY + mMaxChange > mMaxGraphY || mIncreasingPointY + mMaxChange >= maxY) {
+            if(mIncreasingPointY + mMaxChange > mMaxGraphY) { // || mIncreasingPointY + mMaxChange >= maxY) {
                 drawLines(graphView, canvas, minX, minY, getValues(minX, maxX), paint, diffY, diffX);
                 mRequiresRedraw = false;
                 mIncreasingPointBool = false;
@@ -141,7 +139,13 @@ public class AnimatedLineGraphSeries<E extends DataPointInterface> extends LineG
                     dataPoint = dataPoints.get(i);
 
                     if(i == mIncreasingPointIndex) {
-                        double y = Math.min(mIncreasingPointY + mMaxChange, maxY);
+//                        double y = Math.min(mIncreasingPointY + mMaxChange, maxY);
+                        double y = mIncreasingPointY + mMaxChange;
+                        if(graphView.getViewport().getMaxY(false) < y) {
+                            graphView.getViewport().setMaxY(y);
+                            diffY = y - minY;
+                            graphView.onDataChanged(true, false);
+                        }
                         newDataPoints.add(i, new DataPoint(dataPoint.getX(), y));
                     } else {
                         newDataPoints.add(i, dataPoint);
@@ -317,10 +321,8 @@ public class AnimatedLineGraphSeries<E extends DataPointInterface> extends LineG
                     if (i==1) {
                         firstX = startX;
                         mPathBackground.moveTo(startX, Math.max(0, startY));
-                        Log.d("AnimatedLineGraphSeries", "start: " + startX + ", " + Math.max(0, startY));
                     }
                     mPathBackground.lineTo(endX, Math.max(0, endY));
-                    Log.d("AnimatedLineGraphSeries", "end: " + endX + ", " + Math.max(0, endY));
                 }
                 lastUsedEndX = endX;
             } else if (mStyles.drawDataPoints) {
@@ -337,10 +339,8 @@ public class AnimatedLineGraphSeries<E extends DataPointInterface> extends LineG
         if (mStyles.drawBackground) {
             // end / close path
             mPathBackground.lineTo((float) lastUsedEndX, Math.max(0, graphHeight + graphTop));
-            Log.d("AnimatedLineGraphSeries", "second last end: " + lastUsedEndX + ", " + Math.max(0, graphHeight + graphTop));
 
             mPathBackground.lineTo(firstX, Math.max(0, graphHeight + graphTop));
-            Log.d("AnimatedLineGraphSeries", "last last: " + firstX + ", " + Math.max(0, graphHeight + graphTop));
 
             mPathBackground.close();
             canvas.drawPath(mPathBackground, mPaintBackground);

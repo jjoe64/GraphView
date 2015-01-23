@@ -27,6 +27,8 @@ public class AnimatedBarGraphSeries<E extends DataPointInterface> extends BarGra
     protected int mAnimateBar = 0;
     protected float mMaxGraphY = 0;
     protected double mHighestYValue = Float.MIN_VALUE;
+    
+    protected boolean mAddingElement = false;
 
 
     public AnimatedBarGraphSeries(E[] data) {
@@ -50,9 +52,11 @@ public class AnimatedBarGraphSeries<E extends DataPointInterface> extends BarGra
     public double appendData(E data) {
         mAnimationStyle = BarAnimationStyle.BAR_AT_A_TIME;
         
+        int preAddIndex = getIndexOfDataX(data);
         mMaxGraphY = (float) super.appendData(data);
         mAnimateBar = getIndexOfDataX(data);
-        
+        mAddingElement = true;
+        mRequiresRedraw = true;
         return 0;
     }
 
@@ -85,13 +89,42 @@ public class AnimatedBarGraphSeries<E extends DataPointInterface> extends BarGra
             List<DataPointInterface> dataArrayList = new ArrayList<DataPointInterface>();
 
             // this works only if the data has no "hole" and if the interval is always the same
-            // TODO do a check
             int numOfBars = 0;
             int i = 0;
             double currentPointHighest = 0;
 
+        if(mAddingElement) {
+            while (values.hasNext()) {
 
-        if(mAnimationStyle == BarAnimationStyle.ALL_AT_ONCE) {
+                DataPoint dataPoint = (DataPoint) values.next();
+                if (i == mAnimateBar && mRequiresRedraw) {
+                    mMaxGraphY = mMaxGraphY + 100;
+                    currentPointHighest = dataPoint.getY();
+                    dataPoint = new DataPoint(dataPoint.getX(), Math.min(mMaxGraphY, currentPointHighest));
+
+                    if(graphView.getViewport().getMaxY(false) < mMaxGraphY) {
+                        maxY = Math.min(mMaxGraphY, currentPointHighest);
+                        graphView.getViewport().setMaxY(maxY);
+                        graphView.onDataChanged(true, false);
+                    }
+                }
+
+                dataArrayList.add(dataPoint);
+                i++;
+                numOfBars++;
+                
+            }
+            if (numOfBars == 0) {
+                return;
+            }
+            if (mMaxGraphY < currentPointHighest) {
+                values = getValuesFromData(minX, maxX, (List<E>) dataArrayList);
+            } else {
+                values = getValues(minX, maxX);
+                mRequiresRedraw = false;
+            }
+
+        } else if(mAnimationStyle == BarAnimationStyle.ALL_AT_ONCE) {
             while (values.hasNext()) {
 
                 DataPoint dataPoint = (DataPoint) values.next();
@@ -132,9 +165,8 @@ public class AnimatedBarGraphSeries<E extends DataPointInterface> extends BarGra
             }
             if (mMaxGraphY >= currentPointHighest) {
                 mMaxGraphY = 0;
-                mAnimateBar = Math.min(++mAnimateBar, numOfBars + 1);
+                mAnimateBar = Math.min(mAnimateBar+1, numOfBars + 1);
             }
-
             if (mAnimateBar < numOfBars + 1) {
                 values = getValuesFromData(minX, maxX, (List<E>) dataArrayList);
             } else {
@@ -152,7 +184,7 @@ public class AnimatedBarGraphSeries<E extends DataPointInterface> extends BarGra
         float colwidth = graphView.getGraphContentWidth() / (numOfBars-1);
 //        Log.d("BarGraphSeries", "numBars=" + numOfBars);
 
-        float spacing = Math.min((float) colwidth*mSpacing/100, colwidth*0.98f);
+        float spacing = Math.min(colwidth*mSpacing/100, colwidth*0.98f);
         float offset = colwidth/2;
 
         double diffY = maxY - minY;

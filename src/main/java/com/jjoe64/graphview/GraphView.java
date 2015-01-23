@@ -252,8 +252,11 @@ public class GraphView extends View {
         if(mSeries.contains(s)) {
             mSeries.remove(s);
         }
-        
-        s.appendData(data);
+
+        double topY = s.appendData(data);
+//        if (topY > mViewport.getMaxY(true)) {
+//            mViewport.setMaxY(topY);
+//        }
         mSeries.add(s);
         
         onDataChanged(true, true);
@@ -314,7 +317,7 @@ public class GraphView extends View {
             boolean hasAnimated = false;
             for (Series s : mSeries) {
                 if(s instanceof AnimatedGraphInterface) {
-                    hasAnimated = ((AnimatedGraphInterface) s).requiresRedraw();
+                    hasAnimated = hasAnimated || ((AnimatedGraphInterface) s).requiresRedraw();
                 }
                 s.draw(this, canvas, false);
             }
