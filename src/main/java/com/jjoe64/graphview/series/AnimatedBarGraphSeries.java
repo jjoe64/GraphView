@@ -29,6 +29,9 @@ public class AnimatedBarGraphSeries<E extends DataPointInterface> extends BarGra
     protected double mHighestYValue = Float.MIN_VALUE;
     
     protected boolean mAddingElement = false;
+    
+    protected boolean mIncreaseGrid = false;
+
 
 
     public AnimatedBarGraphSeries(E[] data) {
@@ -43,6 +46,18 @@ public class AnimatedBarGraphSeries<E extends DataPointInterface> extends BarGra
     }
 
 
+    /**
+     * Sets whether or not to increase the upper barrier of the grid as values increase.
+     * @param increaseGrid : whether or not to increase the grid size.
+     */
+    public void setIncreaseGrid(boolean increaseGrid) {
+        mIncreaseGrid = increaseGrid;
+    }
+    
+    public boolean getIncreasesGrid() {
+        return mIncreaseGrid;
+    }
+    
     /**
      * Adds the data point, and sets the variables to the correct points.
      * @param data : DataPointInterface to add to the Series
@@ -82,8 +97,6 @@ public class AnimatedBarGraphSeries<E extends DataPointInterface> extends BarGra
                 minY = graphView.getViewport().getMinY(false);
             }
 
-
-
             Iterator<E> values = getValues(minX, maxX);
 
             List<DataPointInterface> dataArrayList = new ArrayList<DataPointInterface>();
@@ -102,7 +115,7 @@ public class AnimatedBarGraphSeries<E extends DataPointInterface> extends BarGra
                     currentPointHighest = dataPoint.getY();
                     dataPoint = new DataPoint(dataPoint.getX(), Math.min(mMaxGraphY, currentPointHighest));
 
-                    if(graphView.getViewport().getMaxY(false) < mMaxGraphY) {
+                    if(graphView.getViewport().getMaxY(false) < mMaxGraphY && mIncreaseGrid) {
                         maxY = Math.min(mMaxGraphY, currentPointHighest);
                         graphView.getViewport().setMaxY(maxY);
                         graphView.onDataChanged(true, false);
@@ -181,6 +194,12 @@ public class AnimatedBarGraphSeries<E extends DataPointInterface> extends BarGra
 
 
     private void drawColumns(GraphView graphView, Canvas canvas, double maxX, double minX, double maxY, double minY, Iterator<E> values, int numOfBars) {
+
+        if(mDefinedNumOfCols != 0) {
+            numOfBars = mDefinedNumOfCols;
+        }
+
+
         float colwidth = graphView.getGraphContentWidth() / (numOfBars-1);
 //        Log.d("BarGraphSeries", "numBars=" + numOfBars);
 

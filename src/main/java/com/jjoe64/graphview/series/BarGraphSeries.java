@@ -22,8 +22,6 @@ package com.jjoe64.graphview.series;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
-import android.util.Log;
-
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.ValueDependentColor;
 
@@ -76,6 +74,12 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
      */
     protected float mValuesOnTopSize;
 
+
+    /**
+     * If there is a pre-defined number of columns. 
+     */
+    protected int mDefinedNumOfCols = 0;
+
     /**
      * stores the coordinates of the bars to
      * trigger tap on series events.
@@ -99,6 +103,16 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
         mPaint = new Paint();
     }
 
+
+    /**
+     * Function to define how many bars will be drawn a single space of the graph. 
+     * This number is used for spacing.
+     * @param cols : the number of columns that will be on the graph.
+     */
+    public void setNumberOfColumns(int cols) {
+        mDefinedNumOfCols = cols;
+    }
+    
     /**
      * draws the bars on the canvas
      *
@@ -143,8 +157,11 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
 
         values = getValues(minX, maxX);
 
+        if(mDefinedNumOfCols != 0) {
+            numOfBars = mDefinedNumOfCols;
+        }
+        
         float colwidth = graphView.getGraphContentWidth() / (numOfBars-1);
-        Log.d("BarGraphSeries", "numBars=" + numOfBars);
 
         float spacing = Math.min((float) colwidth*mSpacing/100, colwidth*0.98f);
         float offset = colwidth/2;
