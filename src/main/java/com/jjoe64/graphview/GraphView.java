@@ -161,6 +161,14 @@ public class GraphView extends View {
     private Paint mPreviewPaint;
 
     /**
+     * In explicit refresh mode, the view is not automatically invalidated when data is changed.
+     * Refreshes must be requested explicitly.
+     */
+    private boolean mExplicitRefreshMode=false;
+
+    private boolean mWaitingForRefresh = false;
+
+    /**
      * Initialize the GraphView view
      * @param context
      */
@@ -214,7 +222,7 @@ public class GraphView extends View {
         mTapDetector = new TapDetector();
 
         loadStyles();
-    }
+}
 
     /**
      * loads the font
@@ -230,6 +238,10 @@ public class GraphView extends View {
     public GridLabelRenderer getGridLabelRenderer() {
         return mGridLabelRenderer;
     }
+
+    public void setExplicitRefreshMode(boolean b) {mExplicitRefreshMode=b;}
+
+    public boolean getExplicitRefreshMode() {return mExplicitRefreshMode;}
 
     /**
      * Add a new series to the graph. This will
@@ -254,6 +266,16 @@ public class GraphView extends View {
         return mSeries;
     }
 
+    public void forceRefresh(boolean keepLabelsSize, boolean keepViewport) {
+        if(!mWaitingForRefresh) {
+            // adjust grid system
+            mViewport.calcCompleteRange();
+            mGridLabelRenderer.invalidate(keepLabelsSize, keepViewport);
+            invalidate();
+            mWaitingForRefresh = true;
+        }
+    }
+
     /**
      * call this to let the graph redraw and
      * recalculate the viewport.
@@ -274,10 +296,10 @@ public class GraphView extends View {
      *                     performance.
      */
     public void onDataChanged(boolean keepLabelsSize, boolean keepViewport) {
-        // adjust grid system
-        mViewport.calcCompleteRange();
-        mGridLabelRenderer.invalidate(keepLabelsSize, keepViewport);
-        invalidate();
+        // In explicit refresh mode, we don't care if the data changed.
+        if(!mExplicitRefreshMode) {
+            forceRefresh(keepLabelsSize,keepViewport);
+        }
     }
 
     /**
@@ -305,6 +327,7 @@ public class GraphView extends View {
             mViewport.draw(canvas);
             mLegendRenderer.draw(canvas);
         }
+        mWaitingForRefresh = false;
     }
 
     /**
