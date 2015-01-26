@@ -95,6 +95,8 @@ public class SecondScale {
         mSeries.add(s);
     }
 
+    public void removeAllSeries() { mSeries.clear(); }
+
     //public void setYAxisBoundsManual(boolean mYAxisBoundsManual) {
     //    this.mYAxisBoundsManual = mYAxisBoundsManual;
     //}
