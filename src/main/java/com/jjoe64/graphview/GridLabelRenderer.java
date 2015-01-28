@@ -271,6 +271,14 @@ public class GridLabelRenderer {
      */
     private int mNumHorizontalLabels;
 
+    public void setLabelVerticalWidth(int new_width) {
+        mLabelVerticalWidth = new_width;
+    }
+
+    public void setSecondScaleLabelVerticalWidth(int new_width) {
+        mLabelVerticalSecondScaleWidth = new_width;
+    }
+
     /**
      * create the default grid label renderer.
      *
