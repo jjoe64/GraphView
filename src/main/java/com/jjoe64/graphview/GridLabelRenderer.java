@@ -1075,7 +1075,6 @@ public class GridLabelRenderer {
                         y += (lines.length * getTextSize() * 1.1f) + 5;
                         break;
                 }
-                // text above vertically line
 
                 for (int li = 0; li < lines.length; li++) {
                     // for the last line y = height
