@@ -38,6 +38,26 @@ import java.util.Map;
  * @author jjoe64
  */
 public class GridLabelRenderer {
+
+    /**
+     * Hoziontal label alignment
+     */
+    public enum HorizontalLabelAlign{
+        /**
+         * Above vertical line
+         */
+        ABOVE,
+        /**
+         * Mid vertical line
+         */
+        MID,
+        /**
+         * Below vertical line
+         */
+        BELOW
+    }
+
+
     /**
      * wrapper for the styles regarding
      * to the grid and the labels
@@ -132,6 +152,11 @@ public class GridLabelRenderer {
          * the space between the labels text and the graph content
          */
         int labelsSpace;
+
+        /**
+         * Horizontal label align
+         */
+        HorizontalLabelAlign horizontalLabelAlign = HorizontalLabelAlign.MID;
     }
 
     /**
@@ -990,10 +1015,20 @@ public class GridLabelRenderer {
      * @param canvas canvas
      */
     protected void drawVerticalSteps(Canvas canvas) {
+        int bonusLineWidth = 0;
+        // need draw the horizontal line from the begin of label
+        if (mStyles.horizontalLabelAlign == HorizontalLabelAlign.ABOVE
+                || mStyles.horizontalLabelAlign == HorizontalLabelAlign.BELOW){
+            bonusLineWidth = mLabelVerticalWidth;
+        }
         // draw vertical steps (horizontal lines and vertical labels)
-        float startLeft = mGraphView.getGraphContentLeft();
+        float startLeft = mGraphView.getGraphContentLeft() - bonusLineWidth; //line need underline the label,too.
         mPaintLabel.setColor(getVerticalLabelsColor());
         mPaintLabel.setTextAlign(getVerticalLabelsAlign());
+
+        int numberOfLine = mStepsVertical.size();
+        int currentLine = 1;
+
         for (Map.Entry<Integer, Double> e : mStepsVertical.entrySet()) {
             // draw line
             if (mStyles.highlightZeroLines) {
@@ -1004,11 +1039,18 @@ public class GridLabelRenderer {
                 }
             }
             if (mStyles.gridStyle.drawHorizontal()) {
-                canvas.drawLine(startLeft, e.getKey(), startLeft + mGraphView.getGraphContentWidth(), e.getKey(), mPaintLine);
+                canvas.drawLine(startLeft, e.getKey(), startLeft + mGraphView.getGraphContentWidth() + bonusLineWidth, e.getKey(), mPaintLine);
+            }
+
+            //if draw the label above or below the line, we mustn't draw the first for last label, for beautiful design.
+            boolean isDrawLabel = true;
+            if ((mStyles.horizontalLabelAlign == HorizontalLabelAlign.ABOVE && currentLine == 1)
+                    || (mStyles.horizontalLabelAlign == HorizontalLabelAlign.BELOW && currentLine == numberOfLine)){
+                isDrawLabel = false;
             }
 
             // draw label
-            if (isVerticalLabelsVisible()) {
+            if (isVerticalLabelsVisible() && isDrawLabel) {
                 int labelsWidth = mLabelVerticalWidth;
                 int labelsOffset = 0;
                 if (getVerticalLabelsAlign() == Paint.Align.RIGHT) {
@@ -1022,13 +1064,27 @@ public class GridLabelRenderer {
                 float y = e.getKey();
 
                 String[] lines = mLabelFormatter.formatLabel(e.getValue(), false).split("\n");
-                y += (lines.length * getTextSize() * 1.1f) / 2; // center text vertically
+                switch (mStyles.horizontalLabelAlign){
+                    case MID:
+                        y += (lines.length * getTextSize() * 1.1f) / 2; // center text vertically
+                        break;
+                    case ABOVE:
+                        y -= 5;
+                        break;
+                    case BELOW:
+                        y += (lines.length * getTextSize() * 1.1f) + 5;
+                        break;
+                }
+                // text above vertically line
+
                 for (int li = 0; li < lines.length; li++) {
                     // for the last line y = height
                     float y2 = y - (lines.length - li - 1) * getTextSize() * 1.1f;
                     canvas.drawText(lines[li], labelsOffset, y2, mPaintLabel);
                 }
             }
+
+            currentLine ++;
         }
     }
 
@@ -1403,5 +1459,22 @@ public class GridLabelRenderer {
      */
     public void setLabelsSpace(int labelsSpace) {
         mStyles.labelsSpace = labelsSpace;
+    }
+
+
+    /**
+     * set horizontal label align
+     * @param align
+     */
+    public void setHorizontalLabelAlign(HorizontalLabelAlign align){
+        mStyles.horizontalLabelAlign = align;
+    }
+
+    /**
+     * Get horizontal label align
+     * @return align
+     */
+    public HorizontalLabelAlign getHorizontalLabelAlign(){
+        return mStyles.horizontalLabelAlign;
     }
 }
