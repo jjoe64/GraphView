@@ -143,6 +143,8 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
 
         values = getValues(minX, maxX);
 
+        if (numOfBars == 1) numOfBars++;
+
         float colwidth = graphView.getGraphContentWidth() / (numOfBars-1);
         Log.d("BarGraphSeries", "numBars=" + numOfBars);
 
