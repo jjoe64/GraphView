@@ -23,6 +23,7 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.util.TypedValue;
@@ -51,6 +52,7 @@ public class LegendRenderer {
         int textColor;
         int margin;
         LegendAlign align;
+        Point fixedPosition;
     }
 
     /**
@@ -192,17 +194,24 @@ public class LegendRenderer {
 
         // rect
         float legendHeight = (mStyles.textSize+mStyles.spacing)*allSeries.size() -mStyles.spacing;
-        float lLeft = mGraphView.getGraphContentLeft()+mGraphView.getGraphContentWidth() - legendWidth - mStyles.margin;
+        float lLeft;
         float lTop;
-        switch (mStyles.align) {
-            case TOP:
-                lTop = mGraphView.getGraphContentTop() + mStyles.margin;
-                break;
-            case MIDDLE:
-                lTop = mGraphView.getHeight()/2 - legendHeight/2;
-                break;
-            default:
-                lTop = mGraphView.getGraphContentTop()+mGraphView.getGraphContentHeight() - mStyles.margin;
+        if (mStyles.fixedPosition != null) {
+            // use fied position
+            lLeft = mGraphView.getGraphContentLeft() + mStyles.margin + mStyles.fixedPosition.x;
+            lTop = mGraphView.getGraphContentTop() + mStyles.margin + mStyles.fixedPosition.y;
+        } else {
+            lLeft = mGraphView.getGraphContentLeft() + mGraphView.getGraphContentWidth() - legendWidth - mStyles.margin;
+            switch (mStyles.align) {
+                case TOP:
+                    lTop = mGraphView.getGraphContentTop() + mStyles.margin;
+                    break;
+                case MIDDLE:
+                    lTop = mGraphView.getHeight() / 2 - legendHeight / 2;
+                    break;
+                default:
+                    lTop = mGraphView.getGraphContentTop() + mGraphView.getGraphContentHeight() - mStyles.margin;
+            }
         }
         float lRight = lLeft+legendWidth;
         float lBottom = lTop+legendHeight+2*mStyles.padding;
@@ -370,5 +379,16 @@ public class LegendRenderer {
      */
     public void setTextColor(int textColor) {
         mStyles.textColor = textColor;
+    }
+
+    /**
+     * Use fixed coordinates to position the legend.
+     * This will override the align setting.
+     *
+     * @param x x coordinates in pixel
+     * @param y y coordinates in pixel
+     */
+    public void setFixedPosition(int x, int y) {
+        mStyles.fixedPosition = new Point(x, y);
     }
 }
