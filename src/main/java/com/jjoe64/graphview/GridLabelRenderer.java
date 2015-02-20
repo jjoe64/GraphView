@@ -729,12 +729,16 @@ public class GridLabelRenderer {
     protected void calcLabelVerticalSize(Canvas canvas) {
         // test label with first and last label
         String testLabel = mLabelFormatter.formatLabel(mGraphView.getViewport().getMaxY(false), false);
+        if (testLabel == null) testLabel = "";
+
         Rect textBounds = new Rect();
         mPaintLabel.getTextBounds(testLabel, 0, testLabel.length(), textBounds);
         mLabelVerticalWidth = textBounds.width();
         mLabelVerticalHeight = textBounds.height();
 
         testLabel = mLabelFormatter.formatLabel(mGraphView.getViewport().getMinY(false), false);
+        if (testLabel == null) testLabel = "";
+
         mPaintLabel.getTextBounds(testLabel, 0, testLabel.length(), textBounds);
         mLabelVerticalWidth = Math.max(mLabelVerticalWidth, textBounds.width());
 
@@ -788,6 +792,9 @@ public class GridLabelRenderer {
         // test label
         double testX = ((mGraphView.getViewport().getMaxX(false) - mGraphView.getViewport().getMinX(false)) * 0.783) + mGraphView.getViewport().getMinX(false);
         String testLabel = mLabelFormatter.formatLabel(testX, true);
+        if (testLabel == null) {
+            testLabel = "";
+        }
         Rect textBounds = new Rect();
         mPaintLabel.getTextBounds(testLabel, 0, testLabel.length(), textBounds);
         mLabelHorizontalWidth = textBounds.width();
@@ -935,7 +942,11 @@ public class GridLabelRenderer {
                     mPaintLabel.setTextAlign(Paint.Align.LEFT);
 
                 // multiline labels
-                String[] lines = mLabelFormatter.formatLabel(e.getValue(), true).split("\n");
+                String label = mLabelFormatter.formatLabel(e.getValue(), true);
+                if (label == null) {
+                    label = "";
+                }
+                String[] lines = label.split("\n");
                 for (int li = 0; li < lines.length; li++) {
                     // for the last line y = height
                     float y = (canvas.getHeight() - mStyles.padding - getHorizontalAxisTitleHeight()) - (lines.length - li - 1) * getTextSize() * 1.1f + mStyles.labelsSpace;
@@ -1021,7 +1032,11 @@ public class GridLabelRenderer {
 
                 float y = e.getKey();
 
-                String[] lines = mLabelFormatter.formatLabel(e.getValue(), false).split("\n");
+                String label = mLabelFormatter.formatLabel(e.getValue(), false);
+                if (label == null) {
+                    label = "";
+                }
+                String[] lines = label.split("\n");
                 y += (lines.length * getTextSize() * 1.1f) / 2; // center text vertically
                 for (int li = 0; li < lines.length; li++) {
                     // for the last line y = height
