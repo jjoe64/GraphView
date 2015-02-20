@@ -308,7 +308,7 @@ public class GraphView extends View {
      * @param canvas Canvas
      */
     @Override
-    protected void onDraw(Canvas canvas) {
+    protected synchronized void onDraw(Canvas canvas) {
         if (isInEditMode()) {
             canvas.drawColor(Color.rgb(200, 200, 200));
             canvas.drawText("GraphView: No Preview available", canvas.getWidth()/2, canvas.getHeight()/2, mPreviewPaint);

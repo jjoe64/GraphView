@@ -151,7 +151,7 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
      * @param isSecondScale flag if it is the second scale
      */
     @Override
-    public void draw(GraphView graphView, Canvas canvas, boolean isSecondScale) {
+    public synchronized void draw(GraphView graphView, Canvas canvas, boolean isSecondScale) {
         resetDataPoints();
 
         // get data

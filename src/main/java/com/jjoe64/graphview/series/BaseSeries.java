@@ -111,7 +111,14 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
      */
     public double getLowestValueX() {
         if (mData.isEmpty()) return 0d;
-        return mData.get(0).getX();
+        double l = mData.get(0).getX();
+        for (int i = 1; i < mData.size(); i++) {
+            double c = mData.get(i).getX();
+            if (l > c) {
+                l = c;
+            }
+        }
+        return l;
     }
 
     /**
@@ -119,7 +126,14 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
      */
     public double getHighestValueX() {
         if (mData.isEmpty()) return 0d;
-        return mData.get(mData.size()-1).getX();
+        double h = mData.get(0).getX();
+        for (int i = 1; i < mData.size(); i++) {
+            double c = mData.get(i).getX();
+            if (h < c) {
+                h = c;
+            }
+        }
+        return h;
     }
 
     /**
@@ -380,11 +394,11 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
      *                      value will be lost to avoid memory leaks
      */
     public void appendData(E dataPoint, boolean scrollToEnd, int maxDataPoints) {
-        checkValueOrder(dataPoint);
+        //checkValueOrder(dataPoint);
 
-        if (!mData.isEmpty() && dataPoint.getX() < mData.get(mData.size()-1).getX()) {
-            throw new IllegalArgumentException("new x-value must be greater then the last value. x-values has to be ordered in ASC.");
-        }
+        //if (!mData.isEmpty() && dataPoint.getX() < mData.get(mData.size()-1).getX()) {
+        //    throw new IllegalArgumentException("new x-value must be greater then the last value. x-values has to be ordered in ASC.");
+        //}
         synchronized (mData) {
             int curDataCount = mData.size();
             if (curDataCount < maxDataPoints) {
