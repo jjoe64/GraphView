@@ -600,6 +600,10 @@ public class Viewport {
             }
             mCurrentViewport.top = (float) d;
         }
+
+        // fixes blank screen when range is zero
+        if (mCurrentViewport.left == mCurrentViewport.right) mCurrentViewport.right++;
+        if (mCurrentViewport.top == mCurrentViewport.bottom) mCurrentViewport.top++;
     }
 
     /**
