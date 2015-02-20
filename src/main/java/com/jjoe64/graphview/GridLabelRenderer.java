@@ -207,9 +207,19 @@ public class GridLabelRenderer {
     private Integer mLabelVerticalWidth;
 
     /**
+     * indicates if the width was set manually
+     */
+    private boolean mLabelVerticalWidthFixed;
+
+    /**
      * the height of the vertical labels
      */
     private Integer mLabelVerticalHeight;
+
+    /**
+     * indicates if the height was set manually
+     */
+    private boolean mLabelHorizontalHeightFixed;
 
     /**
      * the width of the vertical labels
@@ -402,7 +412,9 @@ public class GridLabelRenderer {
             mIsAdjusted = false;
         }
         if (!keepLabelsSize) {
-            mLabelVerticalWidth = null;
+            if (!mLabelVerticalWidthFixed) {
+                mLabelVerticalWidth = null;
+            }
             mLabelVerticalHeight = null;
             mLabelVerticalSecondScaleWidth = null;
             mLabelVerticalSecondScaleHeight = null;
@@ -798,14 +810,17 @@ public class GridLabelRenderer {
         Rect textBounds = new Rect();
         mPaintLabel.getTextBounds(testLabel, 0, testLabel.length(), textBounds);
         mLabelHorizontalWidth = textBounds.width();
-        mLabelHorizontalHeight = textBounds.height();
 
-        // multiline
-        int lines = 1;
-        for (byte c : testLabel.getBytes()) {
-            if (c == '\n') lines++;
+        if (!mLabelHorizontalHeightFixed) {
+            mLabelHorizontalHeight = textBounds.height();
+
+            // multiline
+            int lines = 1;
+            for (byte c : testLabel.getBytes()) {
+                if (c == '\n') lines++;
+            }
+            mLabelHorizontalHeight *= lines;
         }
-        mLabelHorizontalHeight *= lines;
 
         // space between text and graph content
         mLabelHorizontalHeight += mStyles.labelsSpace;
@@ -1107,11 +1122,37 @@ public class GridLabelRenderer {
     }
 
     /**
+     * sets a manual and fixed with of the space for
+     * the vertical labels. This will prevent GraphView to
+     * calculate the width automatically.
+     *
+     * @param width     the width of the space for the vertical labels.
+     *                  Use null to let GraphView automatically calculate the width.
+     */
+    public void setLabelVerticalWidth(Integer width) {
+        mLabelVerticalWidth = width;
+        mLabelVerticalWidthFixed = mLabelVerticalWidth != null;
+    }
+
+    /**
      * @return  the horizontal label height
      *          0 if there are no horizontal labels
      */
     public int getLabelHorizontalHeight() {
         return mLabelHorizontalHeight == null || !isHorizontalLabelsVisible() ? 0 : mLabelHorizontalHeight;
+    }
+
+    /**
+     * sets a manual and fixed height of the space for
+     * the horizontal labels. This will prevent GraphView to
+     * calculate the height automatically.
+     *
+     * @param height     the height of the space for the horizontal labels.
+     *                  Use null to let GraphView automatically calculate the height.
+     */
+    public void setLabelHorizontalHeight(Integer height) {
+        mLabelHorizontalHeight = height;
+        mLabelHorizontalHeightFixed = mLabelHorizontalHeight != null;
     }
 
     /**
