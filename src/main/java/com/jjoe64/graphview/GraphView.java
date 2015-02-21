@@ -361,7 +361,7 @@ public class GraphView extends View {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        onDataChanged(true, true);
+        onDataChanged(false, false);
     }
 
     /**
