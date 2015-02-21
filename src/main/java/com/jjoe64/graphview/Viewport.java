@@ -985,6 +985,7 @@ public class Viewport {
             float size = mCurrentViewport.width();
             mCurrentViewport.right = mCompleteRange.right;
             mCurrentViewport.left = mCompleteRange.right - size;
+            mScrollingReferenceX = Float.NaN;
             mGraphView.onDataChanged(true, false);
         } else {
             Log.w("GraphView", "scrollToEnd works only with manual x axis bounds");
