@@ -43,6 +43,9 @@ public class AnimatedLineGraphSeries<E extends DataPointInterface> extends LineG
         return mRequiresRedraw;
     }
 
+    public void setLineAnimationType(LineAnimationType type) {
+        mLineAnimationType = type;
+    }
 
     @Override
     public double appendData(E data) {
