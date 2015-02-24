@@ -1,58 +1,52 @@
 Chart and Graph Library for Android
 ====================================
 
-<h2>What is this project?</h2>
-This is an extension on <a href="https://github.com/jjoe64/GraphView">jjoe64's GraphView</a> (specifically the 3.1.3 version distributed on Gradle) that adds two new classes: AnimatedBarGraphView and LineBarGraph.
+<h2>What is GraphView</h2>
+GraphView is a library for Android to programmatically create flexible and nice-looking diagramms. It is easy to understand, to integrate and to customize it.
+At the moment there are two different types:
+<ul>
+<li>Line Charts</li>
+<li>Bar Charts</li>
+</ul>
 
-These new classes allow the user to have their graphs animated when shown. 
+Tested on Android 1.6, 2.2, 2.3 and 3.0 (honeycomb, tablet), 4.0.
 
+<img src="https://github.com/jjoe64/GraphView/raw/master/GVLine.jpg" height="200" />
+<img src="https://github.com/jjoe64/GraphView/raw/master/GVBar.png" height="200" />
+<img src="http://3.bp.blogspot.com/-BkLSSJSeCt8/TkD4xpeRyGI/AAAAAAAAA6M/sVC_1s_Bf-0/s1600/multi2.png" height="200" />
 
 <h2>Features</h2>
 
-Both bar graphs and line graphs will animate the loading of their data. 
+* Two chart types
+Line Chart and Bar Chart.
+* Draw multiple series of data
+Let the diagram show more that one series in a graph. You can set a color and a description for every series.
+* Show legend
+A legend can be displayed inline the chart. You can set the width and the vertical align (top, middle, bottom).
+* Custom labels
+The labels for the x- and y-axis are generated automatically. But you can set your own labels, Strings are possible.
+* Handle incomplete data
+It's possible to give the data in different frequency.
+* Viewport
+You can limit the viewport so that only a part of the data will be displayed.
+* Scrolling
+You can scroll with a finger touch move gesture.
+* Scaling / Zooming
+Since Android 2.3! With two-fingers touch scale gesture (Multi-touch), the viewport can be changed.
+* Background (line graph)
+Optionally draws a light background under the diagram stroke.
+* Manual Y axis limits
+* Realtime Graph (Live)
+* And more
 
-<h4>Line Graphs</h4>
+<h2>How to use</h2>
+<a href="http://android-graphview.org">View GraphView page <br/> http://android-graphview.org</a>
 
-Line graphs animate from left to right by default.
-
-![Line graph animation](public/lineFill.gif "Line Graph Animation")
-
-<h4>Bar Graphs</h4>
-
-Bar graphs can be animated in two different ways:
-
-<h6>Fill all bars at once</h6>
-
-![Fill all bars animation](public/fullBarsFill.gif?raw=true "Fill All Bars Animation")
-
-
-<h6>Fill the bars one at a time</h6>
-
-![One at a time animation](public/barByBarFill.gif?raw=truee "One at a Time Animation")
-
-
-<h2>How to Use</h2>
-
-Use the jjoe64's library like usual, except, instead of using BarGraphView or LineGraphView, use <b>AnimatedBarGraphView</b> and <b>AnimatedLineGraphView</b> respectively.
-
-For AnimatedLineGraphView, that's it!
-
-For AnimatedBarGraphView, there's some added functionality. You can set which version of animation you prefer by using ```setBarAnimationStyle(BarAnimationStyle)```
-
-```java
-AnimatedBarGraphView animatedBarGraphView = new AnimatedBarGraphView(context, "Graph Title!");
-
-// For the bar-by-bar animation style
-animatedBarGraphView.setBarAnimationStyle(BarAnimationStyle.BAR_AT_A_TIME);
-
-// For the all bars animation style
-animatedBarGraphView.setBarAnimationStyle(BarAnimationStyle.ALL_AT_ONCE);
-```
-
-I also added (for my own use) the ability to have the graph go beyond what's filled. For example, if you want your graph's x-axis to extend to 50, but only have x values up to 25, you can call 
-```java
-animatedBarGraphView.setMaxXSize(size);
-```
+<h2>Important</h2>
+To show you how to integrate the library into an existing project see the GraphView-Demos project!
+See GraphView-Demos for examples.
+<a href="https://github.com/jjoe64/GraphView-Demos">https://github.com/jjoe64/GraphView-Demos<br/>
+<a href="http://android-graphview.org">View GraphView page http://android-graphview.org</a>
 
 How to create a new version for maven repo
 --------------------------------------------
