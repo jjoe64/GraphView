@@ -19,7 +19,6 @@ public class AnimatedLineGraphSeries<E extends DataPointInterface> extends LineG
     private double mMaxChange = 0.0;
     private float mMaxGraphX = 0.0f;
     private float mMaxGraphY = 0.0f;
-
     
     private float mIncreasingPointY = 0;
     private boolean mIncreasingPointBool = false;
@@ -38,15 +37,32 @@ public class AnimatedLineGraphSeries<E extends DataPointInterface> extends LineG
     }
 
 
+    /**
+     * Function defining if new values need to be recomputed. Used from containing GraphView 
+     * @return : boolean as to whether new data was added. 
+     */
     @Override
     public boolean requiresRedraw() {
         return mRequiresRedraw;
     }
 
+
+    /**
+     * Function for defining the type of animation.
+     * VERTICAL_ANIMATION -- the line graph fills in from the bottom.
+     * HORIZONTAL_ANIMATION -- the line graph fills in from left to right.
+     * @param type : which animation should be used to fill the graph.
+     */
     public void setLineAnimationType(LineAnimationType type) {
         mLineAnimationType = type;
     }
 
+
+    /**
+     * Function for adding data to the Series.
+     * @param data : DataPointInterface to add to the Series
+     * @return : the highest Y value. Relic of its super class.
+     */
     @Override
     public double appendData(E data) {
         mIncreasingPointIndex = getIndexOfDataX(data);
@@ -130,6 +146,7 @@ public class AnimatedLineGraphSeries<E extends DataPointInterface> extends LineG
             return;
         }
 
+        /** If we are increasing a point, we need to handle that **/
         if (mIncreasingPointBool) {
             if(mIncreasingPointY + mMaxChange > mMaxGraphY) { // || mIncreasingPointY + mMaxChange >= maxY) {
                 drawLines(graphView, canvas, minX, minY, getValues(minX, maxX), paint, diffY, diffX);
@@ -162,6 +179,8 @@ public class AnimatedLineGraphSeries<E extends DataPointInterface> extends LineG
 
                 drawLines(graphView, canvas, minX, minY, newValues, paint, diffY, diffX);
             }
+            
+        /** If we should be animating from the bottom **/
         } else if (mLineAnimationType == LineAnimationType.VERTICAL_ANIMATION) {
 
             if(mMaxChange > highestY) {
@@ -183,6 +202,8 @@ public class AnimatedLineGraphSeries<E extends DataPointInterface> extends LineG
 
                 drawLines(graphView, canvas, minX, minY, newValues, paint, diffY, diffX);
             }
+
+        /** Else statement happens when we are not increasing a single value and we are animating horizontally **/
         } else {
 
             if (mMaxChange == 0.0) {
@@ -240,6 +261,7 @@ public class AnimatedLineGraphSeries<E extends DataPointInterface> extends LineG
 
     }
 
+    
     private void drawLines(GraphView graphView, Canvas canvas, double minX, double minY, Iterator<E> values, Paint paint, double diffY, double diffX) {
 
         // draw background
