@@ -100,11 +100,6 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
     private Path mPathBackground;
 
     /**
-     * path to the line
-     */
-    private Path mPath;
-
-    /**
      * custom paint that can be used.
      * this will ignore the thickness and color styles.
      */
@@ -139,7 +134,6 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
         mPaintBackground = new Paint();
 
         mPathBackground = new Path();
-        mPath = new Path();
     }
 
     /**
@@ -262,10 +256,7 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
                 }
                 registerDataPoint(endX, endY, value);
 
-                mPath.reset();
-                mPath.moveTo(startX, startY);
-                mPath.lineTo(endX, endY);
-                canvas.drawPath(mPath, paint);
+                canvas.drawLine(startX, startY, endX, endY, paint);
                 if (mStyles.drawBackground) {
                     if (i==1) {
                         firstX = startX;
