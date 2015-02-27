@@ -101,7 +101,7 @@ public class GraphViewXML extends GraphView {
                     i++;
                 }
             } catch (Exception e) {
-                Log.d("GraphViewXML", e.toString());
+                Log.e("GraphViewXML", e.toString());
                 throw new IllegalArgumentException("Attribute seriesData is broken. Use this format: 0=5.0;1=5;2=4;3=9");
             }
         }

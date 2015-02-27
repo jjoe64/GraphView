@@ -442,8 +442,6 @@ public class GridLabelRenderer {
         double minY = mGraphView.mSecondScale.getMinY();
         double maxY = mGraphView.mSecondScale.getMaxY();
 
-        Log.d("GridLabelRenderer", "minY=" + minY + "/maxY=" + maxY);
-
         // TODO find the number of labels
         int numVerticalLabels = mNumVerticalLabels;
 
@@ -501,8 +499,6 @@ public class GridLabelRenderer {
         if (minY == maxY) {
             return false;
         }
-
-        Log.d("GridLabelRenderer", "minY=" + minY + "/maxY=" + maxY);
 
         // TODO find the number of labels
         int numVerticalLabels = mNumVerticalLabels;
@@ -607,14 +603,12 @@ public class GridLabelRenderer {
 
                 //numHorizontalLabels *= (mGraphView.getViewport().mCurrentViewport.width()+oldStep)/(mGraphView.getViewport().mScalingBeginWidth+oldStep);
                 //numHorizontalLabels = (float) Math.ceil(numHorizontalLabels);
-                Log.d("GridLabelRenderer", "hhier scaling");
             }
 
             newMinX = minX;
             double rangeX = maxX - newMinX;
             exactSteps = rangeX / (numHorizontalLabels - 1);
         } else {
-            Log.d("GridLabelRenderer", "find good steps for: " + minX + "/" + maxX);
             // find good steps
             boolean adjusting = true;
             newMinX = minX;
@@ -688,7 +682,6 @@ public class GridLabelRenderer {
 
             //numHorizontalLabels *= (mGraphView.getViewport().mCurrentViewport.width()+oldStep)/(mGraphView.getViewport().mScalingBeginWidth+oldStep);
             //numHorizontalLabels = (float) Math.ceil(numHorizontalLabels);
-            Log.d("GridLabelRenderer", "hhier scaling");
 
             //scrolled = ((float) mGraphView.getViewport().getMinX(false) - mGraphView.getViewport().mScalingBeginLeft)*2;
             float newWidth = width * 1f / factor;
@@ -1091,7 +1084,6 @@ public class GridLabelRenderer {
                 in = 10d;
             }
         } else { // always round down
-            Log.d("GridLabelRenderer", "round down " + in);
             if (in == 1d) {
             } else if (in <= 4.9d) {
                 in = 2d;
@@ -1100,8 +1092,6 @@ public class GridLabelRenderer {
             } else if (in < 15d) {
                 in = 10d;
             }
-            Log.d("GridLabelRenderer", "-> " + in);
-
         }
         return in * Math.pow(10d, ten);
     }

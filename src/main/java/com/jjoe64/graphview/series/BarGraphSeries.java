@@ -146,7 +146,6 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
         if (numOfBars == 1) numOfBars++;
 
         float colwidth = graphView.getGraphContentWidth() / (numOfBars-1);
-        Log.d("BarGraphSeries", "numBars=" + numOfBars);
 
         float spacing = Math.min((float) colwidth*mSpacing/100, colwidth*0.98f);
         float offset = colwidth/2;

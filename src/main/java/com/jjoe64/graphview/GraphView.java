@@ -419,7 +419,6 @@ public class GraphView extends View {
 
         // is it a click?
         if (mTapDetector.onTouchEvent(event)) {
-            Log.d("GraphView", "tap detected");
             for (Series s : mSeries) {
                 s.onTap(event.getX(), event.getY());
             }

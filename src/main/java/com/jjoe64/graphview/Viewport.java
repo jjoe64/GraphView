@@ -111,7 +111,6 @@ public class Viewport {
         @Override
         public boolean onScaleBegin(ScaleGestureDetector detector) {
             if (mIsScalable) {
-                Log.d("Viewport", "onScaleBegin");
                 mScalingBeginWidth = mCurrentViewport.width();
                 mScalingBeginLeft = mCurrentViewport.left;
                 mScalingActive = true;
@@ -129,7 +128,6 @@ public class Viewport {
          */
         @Override
         public void onScaleEnd(ScaleGestureDetector detector) {
-            Log.d("Viewport", "onScaleEnd");
             mScalingActive = false;
 
             // re-adjust
@@ -165,8 +163,6 @@ public class Viewport {
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
             if (!mIsScrollable || mScalingActive) return false;
-
-            Log.d("Viewport", "on Scroll");
 
             if (Float.isNaN(mScrollingReferenceX)) {
                 mScrollingReferenceX = mCurrentViewport.left;
@@ -226,7 +222,6 @@ public class Viewport {
                 mEdgeEffectBottomActive = true;
             }
             if (canScrollX && scrolledX > completeWidth - mGraphView.getGraphContentWidth()) {
-                Log.d("Viewport", "hier "+scrolledX+"/"+completeWidth);
                 mEdgeEffectRight.onPull((scrolledX - completeWidth + mGraphView.getGraphContentWidth())
                         / (float) mGraphView.getGraphContentWidth());
                 mEdgeEffectRightActive = true;
@@ -716,7 +711,6 @@ public class Viewport {
      * @param velocityY
      */
     private void fling(int velocityX, int velocityY) {
-        Log.d("Viewport", "fling " + velocityX);
         velocityY = 0;
         releaseEdgeEffects();
         // Flings use math in pixels (as opposed to math based on the viewport).

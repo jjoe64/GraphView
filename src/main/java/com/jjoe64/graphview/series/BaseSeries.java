@@ -318,8 +318,6 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
         if (shortest != null) {
             if (shortestDistance < 120) {
                 return shortest;
-            } else {
-                Log.d("BaseSeries", "point too far: " + shortestDistance);
             }
         }
         return null;
