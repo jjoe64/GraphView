@@ -1352,7 +1352,7 @@ public class GridLabelRenderer {
      *          of the second scale
      */
     public int getLabelVerticalSecondScaleWidth() {
-        return mLabelVerticalSecondScaleWidth;
+        return mLabelVerticalSecondScaleWidth==null?0:mLabelVerticalSecondScaleWidth;
     }
 
     /**
