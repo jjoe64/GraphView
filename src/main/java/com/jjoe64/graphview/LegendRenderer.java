@@ -210,7 +210,7 @@ public class LegendRenderer {
                     lTop = mGraphView.getHeight() / 2 - legendHeight / 2;
                     break;
                 default:
-                    lTop = mGraphView.getGraphContentTop() + mGraphView.getGraphContentHeight() - mStyles.margin;
+                    lTop = mGraphView.getGraphContentTop() + mGraphView.getGraphContentHeight() - mStyles.margin - legendHeight - 2*mStyles.padding;
             }
         }
         float lRight = lLeft+legendWidth;
