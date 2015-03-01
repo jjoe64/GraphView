@@ -775,7 +775,7 @@ public class GridLabelRenderer {
 
         // test label
         double testY = ((mGraphView.mSecondScale.getMaxY() - mGraphView.mSecondScale.getMinY()) * 0.783) + mGraphView.mSecondScale.getMinY();
-        String testLabel = mLabelFormatter.formatLabel(testY, false);
+        String testLabel = mGraphView.mSecondScale.getLabelFormatter().formatLabel(testY, false);
         Rect textBounds = new Rect();
         mPaintLabel.getTextBounds(testLabel, 0, testLabel.length(), textBounds);
         mLabelVerticalSecondScaleWidth = textBounds.width();
@@ -992,7 +992,7 @@ public class GridLabelRenderer {
 
             float y = e.getKey();
 
-            String[] lines = mLabelFormatter.formatLabel(e.getValue(), false).split("\n");
+            String[] lines = mGraphView.mSecondScale.mLabelFormatter.formatLabel(e.getValue(), false).split("\n");
             y += (lines.length * getTextSize() * 1.1f) / 2; // center text vertically
             for (int li = 0; li < lines.length; li++) {
                 // for the last line y = height

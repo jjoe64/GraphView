@@ -518,7 +518,7 @@ public class GraphView extends View {
      */
     public SecondScale getSecondScale() {
         if (mSecondScale == null) {
-            mSecondScale = new SecondScale();
+            mSecondScale = new SecondScale(mViewport);
         }
         return mSecondScale;
     }

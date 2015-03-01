@@ -37,6 +37,11 @@ import java.util.List;
  */
 public class SecondScale {
     /**
+     * reference to the viewport of the graph
+     */
+    protected final Viewport mViewport;
+
+    /**
      * array of series for the second
      * scale
      */
@@ -61,13 +66,22 @@ public class SecondScale {
     private double mMaxY;
 
     /**
+     * label formatter for the y labels
+     * on the right side
+     */
+    protected LabelFormatter mLabelFormatter;
+
+    /**
      * creates the second scale.
      * normally you do not call this contructor.
      * Use {@link com.jjoe64.graphview.GraphView#getSecondScale()}
      * in order to get the instance.
      */
-    SecondScale() {
+    SecondScale(Viewport viewport) {
+        mViewport = viewport;
         mSeries = new ArrayList<Series>();
+        mLabelFormatter = new DefaultLabelFormatter();
+        mLabelFormatter.setViewport(mViewport);
     }
 
     /**
@@ -129,5 +143,23 @@ public class SecondScale {
      */
     public boolean isYAxisBoundsManual() {
         return mYAxisBoundsManual;
+    }
+
+    /**
+     * @return label formatter for the y labels on the right side
+     */
+    public LabelFormatter getLabelFormatter() {
+        return mLabelFormatter;
+    }
+
+    /**
+     * Set a custom label formatter that is used
+     * for the y labels on the right side.
+     *
+     * @param formatter label formatter for the y labels
+     */
+    public void setLabelFormatter(LabelFormatter formatter) {
+        mLabelFormatter = formatter;
+        mLabelFormatter.setViewport(mViewport);
     }
 }
