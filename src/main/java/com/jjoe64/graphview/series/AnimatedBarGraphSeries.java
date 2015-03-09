@@ -15,12 +15,7 @@ import java.util.List;
 public class AnimatedBarGraphSeries<E extends DataPointInterface> extends BarGraphSeries<E> implements AnimatedGraphInterface {
 
 
-    public enum BarAnimationStyle {
-        ALL_AT_ONCE,
-        BAR_AT_A_TIME
-    }
-
-    private BarAnimationStyle mAnimationStyle = BarAnimationStyle.ALL_AT_ONCE;
+    private AnimationType mAnimationType = AnimationType.HORIZONTAL_ANIMATION;
 
     protected boolean mRequiresRedraw = true;
 
@@ -47,6 +42,19 @@ public class AnimatedBarGraphSeries<E extends DataPointInterface> extends BarGra
 
 
     /**
+     * Function for defining the type of animation.
+     * VERTICAL_ANIMATION -- the bar graph fills all columns at the same time.
+     * HORIZONTAL_ANIMATION -- the bar graph fills each column from left to right
+     * NONE -- Don't animate the graph filling
+     * @param animationType : which animation should be used to fill the graph.
+     */
+    @Override
+    public void setAnimationType(AnimationType animationType) {
+        mAnimationType = animationType;
+    }
+    
+    
+    /**
      * Sets whether or not to increase the upper barrier of the grid as values increase.
      * @param increaseGrid : whether or not to increase the grid size.
      */
@@ -65,7 +73,7 @@ public class AnimatedBarGraphSeries<E extends DataPointInterface> extends BarGra
      */
     @Override
     public double appendData(E data) {
-        mAnimationStyle = BarAnimationStyle.BAR_AT_A_TIME;
+        mAnimationType = AnimationType.VERTICAL_ANIMATION;
         
         int preAddIndex = getIndexOfDataX(data);
         mMaxGraphY = (float) super.appendData(data);
@@ -77,6 +85,10 @@ public class AnimatedBarGraphSeries<E extends DataPointInterface> extends BarGra
 
     @Override
     public void draw(GraphView graphView, Canvas canvas, boolean isSecondScale) {
+        if(mAnimationType == AnimationType.NONE) {
+            super.draw(graphView, canvas, isSecondScale);
+            return;
+        }
             mPaint.setTextAlign(Paint.Align.CENTER);
             if (mValuesOnTopSize == 0) {
                 mValuesOnTopSize = graphView.getGridLabelRenderer().getTextSize();
@@ -137,7 +149,7 @@ public class AnimatedBarGraphSeries<E extends DataPointInterface> extends BarGra
                 mRequiresRedraw = false;
             }
 
-        } else if(mAnimationStyle == BarAnimationStyle.ALL_AT_ONCE) {
+        } else if(mAnimationType == AnimationType.HORIZONTAL_ANIMATION) {
             while (values.hasNext()) {
 
                 DataPoint dataPoint = (DataPoint) values.next();
@@ -157,7 +169,7 @@ public class AnimatedBarGraphSeries<E extends DataPointInterface> extends BarGra
 
             values = getValuesFromData(minX, maxX, (List<E>) dataArrayList);
 
-        } else if(mAnimationStyle == BarAnimationStyle.BAR_AT_A_TIME) {
+        } else if(mAnimationType == AnimationType.VERTICAL_ANIMATION) {
             while (values.hasNext()) {
 
                 DataPoint dataPoint = (DataPoint) values.next();

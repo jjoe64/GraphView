@@ -31,8 +31,10 @@ import android.view.View;
 import com.jjoe64.graphview.series.AnimatedGraphInterface;
 import com.jjoe64.graphview.series.DataPointInterface;
 import com.jjoe64.graphview.series.Series;
+import com.jjoe64.graphview.series.SeriesComparator;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -244,6 +246,20 @@ public class GraphView extends View {
 
 
     /**
+     * Add a new series to the graph. This will
+     * automatically redraw the graph.
+     * Use this version if you don't want the graph
+     * to flash when you add a series.
+     * @param s the series to be added
+     */
+    public void addSeriesWithoutRerender(Series s) {
+        s.onGraphViewAttached(this);
+        mSeries.add(s);
+        invalidate();
+    }
+
+
+    /**
      * Adds a new DataPointInterface to the passed-in Series
      * @param s: Series to add data to
      * @param data: DataPointInterface to add to the Series
@@ -315,6 +331,7 @@ public class GraphView extends View {
             mViewport.drawFirst(canvas);
             mGridLabelRenderer.draw(canvas);
             boolean hasAnimated = false;
+            Collections.sort(mSeries, new SeriesComparator());
             for (Series s : mSeries) {
                 if(s instanceof AnimatedGraphInterface) {
                     hasAnimated = hasAnimated || ((AnimatedGraphInterface) s).requiresRedraw();
@@ -572,5 +589,19 @@ public class GraphView extends View {
     public void removeSeries(Series<?> series) {
         mSeries.remove(series);
         onDataChanged(false, false);
+    }
+
+    /**
+     * Remove a specific series of the graph.
+     * This will NOT re-render the graph. If 
+     * you want the viewport or label sizes 
+     * recalculated, you have to call  {@link #removeSeries(com.jjoe64.graphview.series.Series)}
+     * manually.
+     *
+     * @param series
+     */
+    public void removeSeriesWithoutRerender(Series<?> series) {
+        mSeries.remove(series);
+        invalidate();
     }
 }

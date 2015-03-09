@@ -24,12 +24,7 @@ public class AnimatedLineGraphSeries<E extends DataPointInterface> extends LineG
     private boolean mIncreasingPointBool = false;
     private int mIncreasingPointIndex = -1;
 
-    private LineAnimationType mLineAnimationType = LineAnimationType.VERTICAL_ANIMATION;
-
-    public enum LineAnimationType {
-        HORIZONTAL_ANIMATION,
-        VERTICAL_ANIMATION
-    }
+    private AnimationType mAnimationType = AnimationType.VERTICAL_ANIMATION;
 
 
     public AnimatedLineGraphSeries(E[] data) {
@@ -51,10 +46,12 @@ public class AnimatedLineGraphSeries<E extends DataPointInterface> extends LineG
      * Function for defining the type of animation.
      * VERTICAL_ANIMATION -- the line graph fills in from the bottom.
      * HORIZONTAL_ANIMATION -- the line graph fills in from left to right.
-     * @param type : which animation should be used to fill the graph.
+     * NONE -- Don't animate the graph filling
+     * @param animationType : which animation should be used to fill the graph.
      */
-    public void setLineAnimationType(LineAnimationType type) {
-        mLineAnimationType = type;
+    @Override
+    public void setAnimationType(AnimationType animationType) {
+        mAnimationType = animationType;
     }
 
 
@@ -73,7 +70,7 @@ public class AnimatedLineGraphSeries<E extends DataPointInterface> extends LineG
         mMaxGraphY = (float) (mIncreasingPointY + data.getY());
         mIncreasingPointBool = mIncreasingPointIndex != -1;
         if(!mIncreasingPointBool) {
-            mLineAnimationType = LineAnimationType.HORIZONTAL_ANIMATION;
+            mAnimationType = AnimationType.HORIZONTAL_ANIMATION;
             mMaxChange = ((data.getX() - mMaxGraphX) / 100.0);
         } else {
 
@@ -86,6 +83,11 @@ public class AnimatedLineGraphSeries<E extends DataPointInterface> extends LineG
 
     @Override
     public void draw(GraphView graphView, Canvas canvas, boolean isSecondScale) {
+        
+        if(mAnimationType == AnimationType.NONE) {
+            super.draw(graphView, canvas, isSecondScale);
+            return;
+        }
         resetDataPoints();
 
         // get data
@@ -181,7 +183,7 @@ public class AnimatedLineGraphSeries<E extends DataPointInterface> extends LineG
             }
             
         /** If we should be animating from the bottom **/
-        } else if (mLineAnimationType == LineAnimationType.VERTICAL_ANIMATION) {
+        } else if (mAnimationType == AnimationType.VERTICAL_ANIMATION) {
 
             if(mMaxChange > highestY) {
                 drawLines(graphView, canvas, minX, minY, getValues(minX, maxX), paint, diffY, diffX);

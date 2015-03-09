@@ -516,6 +516,7 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
         }
     }
 
+
     /**
      * @return whether there are data points
      */
@@ -551,4 +552,6 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
             }
         }
     }
+    
+
 }
