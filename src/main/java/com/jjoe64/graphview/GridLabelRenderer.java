@@ -813,6 +813,8 @@ public class GridLabelRenderer {
                 if (c == '\n') lines++;
             }
             mLabelHorizontalHeight *= lines;
+
+            mLabelHorizontalHeight = (int) Math.max(mLabelHorizontalHeight, mStyles.textSize);
         }
 
         // space between text and graph content
