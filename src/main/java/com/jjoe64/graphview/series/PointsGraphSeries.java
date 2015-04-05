@@ -52,8 +52,9 @@ public class PointsGraphSeries<E extends DataPointInterface> extends BaseSeries<
          *              But you can use your own paint.
          * @param x x-coordinate the point has to be drawn to
          * @param y y-coordinate the point has to be drawn to
+         * @param dataPoint the related data point
          */
-        void draw(Canvas canvas, Paint paint, float x, float y);
+        void draw(Canvas canvas, Paint paint, float x, float y, DataPointInterface dataPoint);
     }
 
     /**
@@ -218,7 +219,7 @@ public class PointsGraphSeries<E extends DataPointInterface> extends BaseSeries<
             // draw data point
             if (!overdraw) {
                 if (mCustomShape != null) {
-                    mCustomShape.draw(canvas, mPaint, endX, endY);
+                    mCustomShape.draw(canvas, mPaint, endX, endY, value);
                 } else if (mStyles.shape == Shape.POINT) {
                     canvas.drawCircle(endX, endY, mStyles.size, mPaint);
                 } else if (mStyles.shape == Shape.RECTANGLE) {
