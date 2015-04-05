@@ -21,6 +21,7 @@ package com.jjoe64.graphview.series;
 
 import android.provider.ContactsContract;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -29,7 +30,9 @@ import java.util.Date;
  *
  * @author jjoe64
  */
-public class DataPoint implements DataPointInterface {
+public class DataPoint implements DataPointInterface, Serializable {
+    private static final long serialVersionUID=1428263322645L;
+
     private double x;
     private double y;
 
