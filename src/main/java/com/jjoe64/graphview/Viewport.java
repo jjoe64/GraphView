@@ -917,13 +917,20 @@ public class Viewport {
     }
 
     /**
+     * active the scaling/zooming feature
+     * notice: sets the x axis bounds to manual
+     *
      * @param mIsScalable whether the viewport is scalable
      */
     public void setScalable(boolean mIsScalable) {
         this.mIsScalable = mIsScalable;
         if (mIsScalable) {
             mIsScrollable = true;
+
+            // set viewport to manual
+            setXAxisBoundsManual(true);
         }
+
     }
 
     /**

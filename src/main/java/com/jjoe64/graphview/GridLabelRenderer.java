@@ -419,7 +419,7 @@ public class GridLabelRenderer {
             mLabelVerticalSecondScaleWidth = null;
             mLabelVerticalSecondScaleHeight = null;
         }
-        reloadStyles();
+        //reloadStyles();
     }
 
     /**
@@ -467,7 +467,11 @@ public class GridLabelRenderer {
         //    mGraphView.getViewport().setYAxisBoundsStatus(Viewport.AxisBoundsStatus.AUTO_ADJUSTED);
         //}
 
-        mStepsVerticalSecondScale = new LinkedHashMap<Integer, Double>(numVerticalLabels);
+        if (mStepsVerticalSecondScale != null) {
+            mStepsVerticalSecondScale.clear();
+        } else {
+            mStepsVerticalSecondScale = new LinkedHashMap<Integer, Double>(numVerticalLabels);
+        }
         int height = mGraphView.getGraphContentHeight();
         double v = newMaxY;
         int p = mGraphView.getGraphContentTop(); // start
@@ -558,7 +562,11 @@ public class GridLabelRenderer {
             mGraphView.getViewport().setYAxisBoundsStatus(Viewport.AxisBoundsStatus.AUTO_ADJUSTED);
         }
 
-        mStepsVertical = new LinkedHashMap<Integer, Double>(numVerticalLabels);
+        if (mStepsVertical != null) {
+            mStepsVertical.clear();
+        } else {
+            mStepsVertical = new LinkedHashMap<Integer, Double>(numVerticalLabels);
+        }
         int height = mGraphView.getGraphContentHeight();
         double v = newMaxY;
         int p = mGraphView.getGraphContentTop(); // start
@@ -665,7 +673,11 @@ public class GridLabelRenderer {
             }
         }
 
-        mStepsHorizontal = new LinkedHashMap<Integer, Double>((int) numHorizontalLabels);
+        if (mStepsHorizontal != null) {
+            mStepsHorizontal.clear();
+        } else {
+            mStepsHorizontal = new LinkedHashMap<Integer, Double>((int) numHorizontalLabels);
+        }
         int width = mGraphView.getGraphContentWidth();
 
         float scrolled = 0;
