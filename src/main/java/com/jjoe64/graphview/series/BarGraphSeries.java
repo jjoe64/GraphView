@@ -297,7 +297,7 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
     /**
      * @param mSpacing  spacing between the bars in percentage.
      *                  0 => no spacing
-     *                  100 => the space bewetten the bars is as big as the bars itself
+     *                  100 => the space between the bars is as big as the bars itself
      */
     public void setSpacing(int mSpacing) {
         this.mSpacing = mSpacing;
