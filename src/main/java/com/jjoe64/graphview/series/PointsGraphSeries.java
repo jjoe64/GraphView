@@ -211,7 +211,11 @@ public class PointsGraphSeries<E extends DataPointInterface> extends BaseSeries<
             if (y > graphHeight) { // end top
                 overdraw = true;
             }
-
+            /* Fix a bug that continue to show the DOT after Y axis */
+            if(x < 0) {
+            	overdraw = true;
+            }
+            
             float endX = (float) x + (graphLeft + 1);
             float endY = (float) (graphTop - y) + graphHeight;
             registerDataPoint(endX, endY, value);
