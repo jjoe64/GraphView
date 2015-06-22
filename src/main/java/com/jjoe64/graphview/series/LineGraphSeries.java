@@ -23,10 +23,12 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.util.Log;
 
 import com.jjoe64.graphview.GraphView;
 
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * Series to plot the data as line.
@@ -127,6 +129,11 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
         init();
     }
 
+    public LineGraphSeries(List<E> data) {
+        super(data);
+        init();
+    }
+
     /**
      * do the initialization
      * creates internal objects
@@ -136,7 +143,10 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
         mPaint = new Paint();
         mPaint.setStrokeCap(Paint.Cap.ROUND);
         mPaint.setStyle(Paint.Style.STROKE);
+        mPaint.setAntiAlias(true);
+
         mPaintBackground = new Paint();
+        mPaintBackground.setAntiAlias(true);
 
         mPathBackground = new Path();
         mPath = new Path();
@@ -153,6 +163,8 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
     @Override
     public void draw(GraphView graphView, Canvas canvas, boolean isSecondScale) {
         resetDataPoints();
+
+        long startTs = System.currentTimeMillis();
 
         // get data
         double maxX = graphView.getViewport().getMaxX(false);
@@ -186,6 +198,8 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
             paint = mPaint;
         }
 
+        mPath.reset();
+
         if (mStyles.drawBackground) {
             mPathBackground.reset();
         }
@@ -203,6 +217,7 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
         double lastUsedEndX = 0;
         float firstX = 0;
         int i=0;
+
         while (values.hasNext()) {
             E value = values.next();
 
@@ -262,10 +277,11 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
                 }
                 registerDataPoint(endX, endY, value);
 
-                mPath.reset();
-                mPath.moveTo(startX, startY);
+                if (i == 1){
+                    mPath.moveTo(startX, startY);
+                }
                 mPath.lineTo(endX, endY);
-                canvas.drawPath(mPath, paint);
+
                 if (mStyles.drawBackground) {
                     if (i==1) {
                         firstX = startX;
@@ -285,6 +301,8 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
             i++;
         }
 
+        canvas.drawPath(mPath, paint);
+
         if (mStyles.drawBackground) {
             // end / close path
             mPathBackground.lineTo((float) lastUsedEndX, graphHeight + graphTop);
@@ -293,6 +311,7 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
             canvas.drawPath(mPathBackground, mPaintBackground);
         }
 
+        Log.d("LineGraphSeries", "Draw time : " + (System.currentTimeMillis() - startTs));
     }
 
     /**
