@@ -355,6 +355,7 @@ public class GridLabelRenderer {
 
         mPaintLabel = new Paint();
         mPaintLabel.setTextSize(getTextSize());
+        mPaintLabel.setAntiAlias(true);
 
         mPaintAxisTitle = new Paint();
         mPaintAxisTitle.setTextSize(getTextSize());

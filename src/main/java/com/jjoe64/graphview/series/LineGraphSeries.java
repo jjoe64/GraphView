@@ -258,7 +258,7 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
                 // draw data point
                 if (mStyles.drawDataPoints) {
                     //fix: last value was not drawn. Draw here now the end values
-                    canvas.drawCircle(endX, endY, mStyles.dataPointsRadius, mPaint);
+                    canvas.drawCircle(endX, endY, mStyles.dataPointsRadius, paint);
                 }
                 registerDataPoint(endX, endY, value);
 
