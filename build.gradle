@@ -3,7 +3,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.0.0'
+        classpath 'com.android.tools.build:gradle:1.2.3'
     }
 }
 
@@ -20,8 +20,8 @@ android {
     defaultConfig {
         minSdkVersion 9
         targetSdkVersion 22
-        versionCode 1
-        versionName "1.0"
+        versionCode 12
+        versionName "4.0.2-Nartex"
     }
     buildTypes {
         release {
@@ -35,9 +35,9 @@ dependencies {
 }
 
 //this is used to generate .jar files and push to maven repo
-/*
+
 // This is the actual solution, as in http://stackoverflow.com/a/19037807/1002054
-task clearJar(type: Delete) {
+/*task clearJar(type: Delete) {
     delete 'build/libs/myCompiledLibrary.jar'
 }
 
@@ -50,6 +50,4 @@ task makeJar(type: Copy) {
 
 makeJar.dependsOn(clearJar, build)
 
-apply from: './maven_push.gradle'
-*/
-
+apply from: 'https://raw.github.com/nartex/gradle-mvn-push/master/gradle-mvn-push.gradle'*/

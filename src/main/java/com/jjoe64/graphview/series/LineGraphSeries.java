@@ -23,7 +23,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.util.Log;
 
 import com.jjoe64.graphview.GraphView;
 
@@ -163,8 +162,6 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
     @Override
     public void draw(GraphView graphView, Canvas canvas, boolean isSecondScale) {
         resetDataPoints();
-
-        long startTs = System.currentTimeMillis();
 
         // get data
         double maxX = graphView.getViewport().getMaxX(false);
@@ -310,8 +307,6 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
             mPathBackground.close();
             canvas.drawPath(mPathBackground, mPaintBackground);
         }
-
-        Log.d("LineGraphSeries", "Draw time : " + (System.currentTimeMillis() - startTs));
     }
 
     /**
