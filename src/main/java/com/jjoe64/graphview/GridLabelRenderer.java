@@ -846,9 +846,9 @@ public class GridLabelRenderer {
         }
 
         if (mStyles.horizontalLabelsAngle > 0f && mStyles.horizontalLabelsAngle <= 180f) {
-            int adjHorizontalHeightH = (int) Math.round(Math.abs(mLabelHorizontalHeight*Math.cos(Math.toRadians(mStyles.horizontalLabelsAngle))));
-            int adjHorizontalHeightW = (int) Math.round(Math.abs(mLabelHorizontalWidth*Math.sin(Math.toRadians(mStyles.horizontalLabelsAngle))));
-            int adjHorizontalWidthH = (int) Math.round(Math.abs(mLabelHorizontalHeight*Math.sin(Math.toRadians(mStyles.horizontalLabelsAngle))));
+            int adjHorizontalHeightH = (int) Math.round(Math.abs(mLabelHorizontalHeight*Math.sin(Math.toRadians(mStyles.horizontalLabelsAngle))));
+            int adjHorizontalHeightW = (int) Math.round(Math.abs(mLabelHorizontalWidth*Math.sin(Math.toRadians(mStyles.horizontalLabelsAngle + 90))));
+            int adjHorizontalWidthH = (int) Math.round(Math.abs(mLabelHorizontalHeight*Math.cos(Math.toRadians(mStyles.horizontalLabelsAngle + 90))));
             int adjHorizontalWidthW = (int) Math.round(Math.abs(mLabelHorizontalWidth*Math.cos(Math.toRadians(mStyles.horizontalLabelsAngle))));
 
             mLabelHorizontalHeight = adjHorizontalHeightH + adjHorizontalHeightW;
