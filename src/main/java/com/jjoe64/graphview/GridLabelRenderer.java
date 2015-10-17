@@ -1003,11 +1003,13 @@ public class GridLabelRenderer {
                     label = "";
                 }
                 String[] lines = label.split("\n");
+                
+                // If labels are angled, calculate adjustment to line them up with the grid
                 int labelWidthAdj = 0;
                 if (mStyles.horizontalLabelsAngle > 0f && mStyles.horizontalLabelsAngle <= 180f) {
                     Rect textBounds = new Rect();
                     mPaintLabel.getTextBounds(lines[0], 0, lines[0].length(), textBounds);
-                    labelWidthAdj = (int) Math.round(Math.abs(0.5 * textBounds.width()*Math.cos(mStyles.horizontalLabelsAngle)));
+                    labelWidthAdj = (float) Math.abs(textBounds.width()*Math.cos(Math.toRadians(mStyles.horizontalLabelsAngle)));
                 }
                 for (int li = 0; li < lines.length; li++) {
                     // for the last line y = height
