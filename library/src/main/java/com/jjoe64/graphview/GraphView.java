@@ -23,10 +23,8 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Point;
 import android.graphics.PointF;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -160,6 +158,8 @@ public class GraphView extends View {
      */
     private Paint mPreviewPaint;
 
+    private FloatLabel mFloatLabel;
+
     /**
      * Initialize the GraphView view
      * @param context
@@ -205,6 +205,7 @@ public class GraphView extends View {
 
         mStyles = new Styles();
         mViewport = new Viewport(this);
+        mFloatLabel = new FloatLabel(this);
         mGridLabelRenderer = new GridLabelRenderer(this);
         mLegendRenderer = new LegendRenderer(this);
 
@@ -304,6 +305,7 @@ public class GraphView extends View {
             }
             mViewport.draw(canvas);
             mLegendRenderer.draw(canvas);
+            mFloatLabel.draw(canvas);
         }
     }
 
@@ -416,6 +418,8 @@ public class GraphView extends View {
     public boolean onTouchEvent(MotionEvent event) {
         boolean b = mViewport.onTouchEvent(event);
         boolean a = super.onTouchEvent(event);
+
+        mFloatLabel.onTouchEvent(event);
 
         // is it a click?
         if (mTapDetector.onTouchEvent(event)) {

@@ -20,7 +20,9 @@
 package com.jjoe64.graphview.series;
 
 import android.graphics.Canvas;
+import android.graphics.PointF;
 
+import com.jjoe64.graphview.FloatLabelFormatter;
 import com.jjoe64.graphview.GraphView;
 
 import java.util.Iterator;
@@ -112,6 +114,33 @@ public interface Series<E extends DataPointInterface> {
     void onTap(float x, float y);
 
     /**
+     * find the data point which is next to the
+     * coordinates
+     *
+     * @param x pixel
+     * @param y pixel
+     * @return the data point or null if nothing was found
+     */
+    E findDataPoint(float x, float y);
+
+    /**
+     * find the data point which is next to X value
+     *
+     * @param x pixel
+     * @return the data point
+     */
+    E findDataPoint(float x);
+
+    /**
+     * find the data point position in graph
+     * coordinates
+     *
+     * @param point E
+     * @return the position
+     */
+    PointF getDataPointPosition(E point);
+
+    /**
      * called when the series was added to a graph
      *
      * @param graphView graphview
@@ -122,4 +151,10 @@ public interface Series<E extends DataPointInterface> {
      * @return whether there are data points
      */
     boolean isEmpty();
+
+    /**
+     * called by FloatLabel class.
+     * @return FloatLabelFormatter instance or null
+     */
+    FloatLabelFormatter<E> getFloatLabelFormatter();
 }

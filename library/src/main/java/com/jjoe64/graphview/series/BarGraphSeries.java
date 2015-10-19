@@ -21,6 +21,7 @@ package com.jjoe64.graphview.series;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.PointF;
 import android.graphics.RectF;
 import android.util.Log;
 
@@ -367,13 +368,28 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
      * @return datapoint or null
      */
     @Override
-    protected E findDataPoint(float x, float y) {
+    public E findDataPoint(float x, float y) {
         for (Map.Entry<RectF, E> entry : mDataPoints.entrySet()) {
             if (x >= entry.getKey().left && x <= entry.getKey().right
                 && y >= entry.getKey().top && y <= entry.getKey().bottom) {
                 return entry.getValue();
             }
         }
+        return null;
+    }
+
+    @Override
+    public E findDataPoint(float x) {
+        for (Map.Entry<RectF, E> entry : mDataPoints.entrySet()) {
+            if (x >= entry.getKey().left && x <= entry.getKey().right) {
+                return entry.getValue();
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public PointF getDataPointPosition(E point) {
         return null;
     }
 }

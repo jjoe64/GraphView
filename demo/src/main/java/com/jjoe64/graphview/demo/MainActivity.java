@@ -4,6 +4,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
+import com.jjoe64.graphview.FloatLabelFormatter;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.LabelFormatter;
 import com.jjoe64.graphview.Viewport;
@@ -52,6 +53,13 @@ public class MainActivity extends AppCompatActivity {
         dataSet.setBackgroundColor(Color.argb(150, Color.red(Color.GRAY), Color.green(Color.GRAY), Color.blue(Color.GRAY)));
         dataSet.setDrawBackground(true);
         dataSet.setThickness(2);
+
+        dataSet.setFloatLabelFormatter(new FloatLabelFormatter<SimplePoint>() {
+            @Override
+            public String formatFloatLabel(SimplePoint point) {
+                return "X: " + point.getX() + "\nY: " + point.getY();
+            }
+        });
 
         mGraphView.addSeries(dataSet);
     }

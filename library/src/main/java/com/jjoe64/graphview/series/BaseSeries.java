@@ -21,6 +21,7 @@ package com.jjoe64.graphview.series;
 
 import android.graphics.PointF;
 
+import com.jjoe64.graphview.FloatLabelFormatter;
 import com.jjoe64.graphview.GraphView;
 
 import java.util.ArrayList;
@@ -59,7 +60,8 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
      *
      * will be filled while drawing via {@link #registerDataPoint(float, float, DataPointInterface)}
      */
-    private Map<PointF, E> mDataPoints = new HashMap<PointF, E>();
+    private Map<PointF, E> mDataPoints = new HashMap<>();
+    private Map<E, PointF> mPositionPoints = new HashMap<>();
 
     /**
      * title for this series that can be displayed
@@ -90,6 +92,11 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
     public BaseSeries() {
         mGraphViews = new ArrayList<GraphView>();
     }
+
+    /**
+     * Formater to the FloatLabel
+     */
+    protected FloatLabelFormatter<E> mFloatLabelFormatter;
 
     /**
      * creates series with data
@@ -309,7 +316,8 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
      * @param y pixel
      * @return the data point or null if nothing was found
      */
-    protected E findDataPoint(float x, float y) {
+    @Override
+    public E findDataPoint(float x, float y) {
         float shortestDistance = Float.NaN;
         E shortest = null;
         for (Map.Entry<PointF, E> entry : mDataPoints.entrySet()) {
@@ -332,6 +340,25 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
         return null;
     }
 
+    @Override
+    public E findDataPoint(float x) {
+        float shortestDistance = Float.NaN;
+        E shortest = null;
+        for (Map.Entry<PointF, E> entry : mDataPoints.entrySet()) {
+            float distance = Math.abs(entry.getKey().x - x);
+            if (shortest == null || distance < shortestDistance) {
+                shortestDistance = distance;
+                shortest = entry.getValue();
+            }
+        }
+        return shortest;
+    }
+
+    @Override
+    public PointF getDataPointPosition(E point) {
+        return mPositionPoints.get(point);
+    }
+
     /**
      * register the datapoint to find it at a tap
      *
@@ -340,7 +367,9 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
      * @param dp the data point to save
      */
     protected void registerDataPoint(float x, float y, E dp) {
-        mDataPoints.put(new PointF(x, y), dp);
+        PointF pointF = new PointF(x, y);
+        mDataPoints.put(pointF, dp);
+        mPositionPoints.put(dp, pointF);
     }
 
     /**
@@ -348,6 +377,7 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
      */
     protected void resetDataPoints() {
         mDataPoints.clear();
+        mPositionPoints.clear();
     }
 
     /**
@@ -453,5 +483,14 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
                 }
             }
         }
+    }
+
+    @Override
+    public FloatLabelFormatter<E> getFloatLabelFormatter() {
+        return mFloatLabelFormatter;
+    }
+
+    public void setFloatLabelFormatter(FloatLabelFormatter<E> floatLabelFormatter){
+        mFloatLabelFormatter = floatLabelFormatter;
     }
 }

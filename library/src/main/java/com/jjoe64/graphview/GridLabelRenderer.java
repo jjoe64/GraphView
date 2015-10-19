@@ -1465,4 +1465,8 @@ public class GridLabelRenderer {
     public void setLabelsSpace(int labelsSpace) {
         mStyles.labelsSpace = labelsSpace;
     }
+
+    public Paint getPaintLabel(){
+        return mPaintLabel;
+    }
 }
