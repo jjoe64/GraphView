@@ -15,19 +15,30 @@ import com.jjoe64.graphview.series.DataPointInterface;
 import com.jjoe64.graphview.series.Series;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
- * Created by Jean on 19/10/15.
+ * Class for show a float label on touch
+ * Get instance with graphView.getFloatLabel() to customize
+ * For enable this feature, set a FloatLabelFormater on the Series.
+ *
+ * lineGraphSeries.setFloatLabelFormatter(new FloatLabelFormatter<DataPointInterface>() {
+ *     @Override
+ *     public String formatFloatLabel(DataPointInterface point) {
+ *         return "X: " + point.getX() + "\nY: " + point.getY();
+ *     }
+ * });
+ *
+ * @author Nartex
  */
 public class FloatLabel {
-    public final static String TAG = "FloatLabel";
-
     private GraphView mGraphView;
     private PointF mCurrentTouch = null;
     private Paint mPaint = new Paint();
     private Paint mTextPaint = new Paint();
 
-    private int mTextPadding = 20;
+    private int mChipRadius = 5;
+    private int mTextPadding = 10;
     private int mTextRadius = 0;
 
     public FloatLabel(GraphView graphView) {
@@ -41,8 +52,9 @@ public class FloatLabel {
             TypedValue typedValue = new TypedValue();
             mGraphView.getContext().getTheme().resolveAttribute(android.R.attr.textAppearance, typedValue, true);
             TypedArray a = mGraphView.getContext().obtainStyledAttributes(typedValue.data, new int[]{android.R.attr.textSize, android.R.attr.horizontalGap});
-            setTextSize(a.getDimensionPixelSize(0, 20));
-            mTextPadding = a.getDimensionPixelSize(1, 20);
+            setTextSize(a.getDimensionPixelSize(0, 10));
+            mTextPadding = a.getDimensionPixelSize(1, 10);
+            mChipRadius = Math.round(mTextPadding / 2f);
             a.recycle();
         }catch (Exception e){
             setTextSize(20);
@@ -67,6 +79,10 @@ public class FloatLabel {
 
     public void setTextRadius(int radius){
         mTextRadius = radius;
+    }
+
+    public void setChipRadius(int radius){
+        mChipRadius = radius;
     }
 
     public void setTextSize(int textSize){
@@ -132,31 +148,57 @@ public class FloatLabel {
         //Top
         textRect.left = pointPos.x - labelWidth / 2f;
         textRect.right = textRect.left + labelWidth;
-        textRect.top = pointPos.y - labelHeight - mTextPadding;
+        textRect.top = pointPos.y - labelHeight - distance;
         textRect.bottom = textRect.top + labelHeight;
 
         if (!isGoodPosition(textRect, graphRect, mLabels)){
-            //Bottom
-            textRect.top = pointPos.y + labelHeight + mTextPadding;
-            textRect.bottom = textRect.top + labelHeight;
+            //Top-Right
+            textRect.left = pointPos.x + distance;
+            textRect.right = textRect.left + labelWidth;
         }
 
         if (!isGoodPosition(textRect, graphRect, mLabels)){
-            //Left
-            textRect.left = pointPos.x - labelWidth  - mTextPadding;
+            //Top-Left
+            textRect.left = pointPos.x - labelWidth  - distance;
+            textRect.right = textRect.left + labelWidth;
+        }
+
+        if (!isGoodPosition(textRect, graphRect, mLabels)){
+            //Bottom
+            textRect.top = pointPos.y + distance;
+            textRect.bottom = textRect.top + labelHeight;
+            textRect.left = pointPos.x - labelWidth / 2f;
+            textRect.right = textRect.left + labelWidth;
+        }
+
+        if (!isGoodPosition(textRect, graphRect, mLabels)){
+            //Bottom-Right
+            textRect.left = pointPos.x + distance;
+            textRect.right = textRect.left + labelWidth;
+        }
+
+        if (!isGoodPosition(textRect, graphRect, mLabels)){
+            //Bottom-Left
+            textRect.left = pointPos.x - labelWidth  - distance;
+            textRect.right = textRect.left + labelWidth;
+        }
+
+        if (!isGoodPosition(textRect, graphRect, mLabels)){
+            //Right
+            textRect.left = pointPos.x + distance;
             textRect.right = textRect.left + labelWidth;
             textRect.top = pointPos.y - labelHeight / 2f;
             textRect.bottom = textRect.top + labelHeight;
         }
 
         if (!isGoodPosition(textRect, graphRect, mLabels)){
-            //Right
-            textRect.left = pointPos.x + mTextPadding;
+            //Left
+            textRect.left = pointPos.x - labelWidth  - distance;
             textRect.right = textRect.left + labelWidth;
         }
 
         if (!isGoodPosition(textRect, graphRect, mLabels)){
-            if (distance < graphRect.width()){
+            if (distance < Math.min(graphRect.width(), graphRect.height())){
                 findPosition(textRect, pointPos, distance * 2, labelWidth, labelHeight, graphRect, mLabels);
             }else{
                 //Top
@@ -172,52 +214,73 @@ public class FloatLabel {
         if (mCurrentTouch != null){
             ArrayList<RectF> mLabels = new ArrayList<>();
 
+            ArrayList<FloatPoint> floatPoints = new ArrayList<>();
             for(Series s : mGraphView.getSeries()){
                 if (s.getFloatLabelFormatter() != null){
-                    mPaint.setColor(s.getColor());
+                    floatPoints.add(new FloatPoint(s.findDataPoint(mCurrentTouch.x), s));
+                }
+            }
 
-                    DataPointInterface point = s.findDataPoint(mCurrentTouch.x);
-                    if (point != null){
-                        PointF pointPos = s.getDataPointPosition(point);
-                        if (pointPos != null){
-                            c.drawCircle(pointPos.x, pointPos.y, 10, mPaint);
+            Collections.sort(floatPoints);
 
-                            RectF graphRect = new RectF(mGraphView.getGraphContentLeft(), mGraphView.getGraphContentTop(), mGraphView.getGraphContentLeft() + mGraphView.getGraphContentWidth(), mGraphView.getGraphContentTop() + mGraphView.getGraphContentHeight());
+            for(FloatPoint floatPoint : floatPoints){
+                mPaint.setColor(floatPoint.serie.getColor());
 
-                            c.drawLine(graphRect.left, pointPos.y, graphRect.right, pointPos.y, mPaint);
-                            c.drawLine(pointPos.x, graphRect.top, pointPos.x, graphRect.bottom, mPaint);
+                if (floatPoint.point != null){
+                    PointF pointPos = floatPoint.serie.getDataPointPosition(floatPoint.point);
+                    if (pointPos != null){
+                        c.drawCircle(pointPos.x, pointPos.y, mChipRadius, mPaint);
 
-                            String[] texts = s.getFloatLabelFormatter().formatFloatLabel(point).split("\n");
+                        RectF graphRect = new RectF(mGraphView.getGraphContentLeft(), mGraphView.getGraphContentTop(), mGraphView.getGraphContentLeft() + mGraphView.getGraphContentWidth(), mGraphView.getGraphContentTop() + mGraphView.getGraphContentHeight());
 
-                            Rect tmpTect = new Rect();
-                            float labelWidth = 0;
-                            float labelHeight = mTextPadding;
-                            for(int i = 0; i < texts.length; i++){
-                                mTextPaint.getTextBounds(texts[i], 0, texts[i].length(), tmpTect);
-                                labelWidth = Math.max(labelWidth, tmpTect.width());
-                                labelHeight += tmpTect.height() + mTextPadding;
-                            }
-                            labelWidth += mTextPadding * 2;
+                        c.drawLine(graphRect.left, pointPos.y, graphRect.right, pointPos.y, mPaint);
+                        c.drawLine(pointPos.x, graphRect.top, pointPos.x, graphRect.bottom, mPaint);
 
-                            RectF textRect = new RectF();
-                            findPosition(textRect, pointPos, mTextPadding, labelWidth, labelHeight, graphRect, mLabels);
+                        String[] texts = floatPoint.serie.getFloatLabelFormatter().formatFloatLabel(floatPoint.point).split("\n");
 
-                            mLabels.add(textRect);
+                        Rect tmpTect = new Rect();
+                        float labelWidth = 0;
+                        float labelHeight = mTextPadding;
+                        for(int i = 0; i < texts.length; i++){
+                            mTextPaint.getTextBounds(texts[i], 0, texts[i].length(), tmpTect);
+                            labelWidth = Math.max(labelWidth, tmpTect.width());
+                            labelHeight += tmpTect.height() + mTextPadding;
+                        }
+                        labelWidth += mTextPadding * 2;
 
-                            if (mTextRadius > 0){
-                                c.drawRoundRect(textRect, mTextRadius, mTextRadius, mPaint);
-                            }else{
-                                c.drawRect(textRect, mPaint);
-                            }
+                        RectF textRect = new RectF();
+                        findPosition(textRect, pointPos, mTextPadding, labelWidth, labelHeight, graphRect, mLabels);
 
-                            for(int i = 0; i < texts.length; i++){
-                                mTextPaint.getTextBounds(texts[i], 0, texts[i].length(), tmpTect);
-                                c.drawText(texts[i], textRect.left + textRect.width() / 2f, textRect.bottom - mTextPadding - (texts.length - i - 1) * (tmpTect.height() + mTextPadding), mTextPaint);
-                            }
+                        mLabels.add(textRect);
+
+                        if (mTextRadius > 0){
+                            c.drawRoundRect(textRect, mTextRadius, mTextRadius, mPaint);
+                        }else{
+                            c.drawRect(textRect, mPaint);
+                        }
+
+                        for(int i = 0; i < texts.length; i++){
+                            mTextPaint.getTextBounds(texts[i], 0, texts[i].length(), tmpTect);
+                            c.drawText(texts[i], textRect.left + textRect.width() / 2f, textRect.bottom - mTextPadding - (texts.length - i - 1) * (tmpTect.height() + mTextPadding), mTextPaint);
                         }
                     }
                 }
             }
+        }
+    }
+
+    class FloatPoint implements Comparable<FloatPoint>{
+        public final DataPointInterface point;
+        public final Series serie;
+
+        FloatPoint(DataPointInterface point, Series serie){
+            this.point = point;
+            this.serie = serie;
+        }
+
+        @Override
+        public int compareTo(FloatPoint another) {
+            return another.point.getY() > point.getY() ? 1 : -1;
         }
     }
 }

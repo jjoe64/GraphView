@@ -37,20 +37,24 @@ public class MainActivity extends AppCompatActivity {
         mGraphView.getGridLabelRenderer().setHighlightZeroLines(false);
         mGraphView.getGridLabelRenderer().reloadStyles();
 
+        mGraphView.getViewport().setMinX(0);
+        mGraphView.getViewport().setMaxX(99);
+        mGraphView.getViewport().setMinY(0);
+        mGraphView.getViewport().setMaxY(30);
+
+        addSerie(Color.RED);
+        addSerie(Color.GREEN);
+    }
+
+    private void addSerie(int color){
         ArrayList<SimplePoint> values = new ArrayList<>();
-        for(int i = 0; i < 50; i++){
-            values.add(new SimplePoint(i, Math.random() * 100));
+        for(int i = 0; i < 100; i++){
+            values.add(new SimplePoint(i, 10 + Math.random() * 10));
         }
 
-        mGraphView.getViewport().setMinX(0);
-        mGraphView.getViewport().setMaxX(values.size() - 1);
-        mGraphView.getViewport().setMinY(0);
-        mGraphView.getViewport().setMaxY(120);
-
         LineGraphSeries<SimplePoint> dataSet = new LineGraphSeries<>(values);
-        dataSet.setTitle("Test");
-        dataSet.setColor(Color.GRAY);
-        dataSet.setBackgroundColor(Color.argb(150, Color.red(Color.GRAY), Color.green(Color.GRAY), Color.blue(Color.GRAY)));
+        dataSet.setColor(color);
+        dataSet.setBackgroundColor(Color.argb(150, Color.red(color), Color.green(color), Color.blue(color)));
         dataSet.setDrawBackground(true);
         dataSet.setThickness(2);
 

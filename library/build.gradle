@@ -21,6 +21,8 @@ dependencies {
     compile 'com.android.support:support-v4:22.1.1'
 }
 
+apply from: 'https://raw.github.com/nartex/gradle-mvn-push/master/gradle-mvn-push.gradle'
+
 //this is used to generate .jar files and push to maven repo
 
 // This is the actual solution, as in http://stackoverflow.com/a/19037807/1002054
@@ -37,4 +39,4 @@ task makeJar(type: Copy) {
 
 makeJar.dependsOn(clearJar, build)
 
-apply from: 'https://raw.github.com/nartex/gradle-mvn-push/master/gradle-mvn-push.gradle'*/
+*/

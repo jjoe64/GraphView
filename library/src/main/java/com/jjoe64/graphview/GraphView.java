@@ -351,6 +351,14 @@ public class GraphView extends View {
     }
 
     /**
+     * @return the float label manager instance.
+     * @see com.jjoe64.graphview.FloatLabel
+     */
+    public FloatLabel getFloatLabel(){
+        return mFloatLabel;
+    }
+
+    /**
      * Called by Android system if the size
      * of the view was changed. Will recalculate
      * the viewport and labels.
@@ -416,10 +424,9 @@ public class GraphView extends View {
      */
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        boolean b = mViewport.onTouchEvent(event);
-        boolean a = super.onTouchEvent(event);
-
-        mFloatLabel.onTouchEvent(event);
+        boolean a = mViewport.onTouchEvent(event);
+        boolean b = mFloatLabel.onTouchEvent(event);
+        boolean c = super.onTouchEvent(event);
 
         // is it a click?
         if (mTapDetector.onTouchEvent(event)) {
@@ -433,7 +440,7 @@ public class GraphView extends View {
             }
         }
 
-        return b || a;
+        return a || b || c;
     }
 
     /**
