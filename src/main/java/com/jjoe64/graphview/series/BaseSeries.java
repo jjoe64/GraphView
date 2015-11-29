@@ -189,28 +189,24 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
 
                 {
                     // go to first
-                    boolean found = false;
                     E prevValue = null;
+                    nextValue = null;
                     if (org.hasNext()) {
                         prevValue = org.next();
                     }
-                    if (prevValue.getX() >= from) {
+                    if (   prevValue != null
+                        && prevValue.getX() >= from) {
                         nextValue = prevValue;
-                        found = true;
                     } else {
                         while (org.hasNext()) {
                             nextValue = org.next();
                             if (nextValue.getX() >= from) {
-                                found = true;
                                 nextNextValue = nextValue;
                                 nextValue = prevValue;
                                 break;
                             }
                             prevValue = nextValue;
                         }
-                    }
-                    if (!found) {
-                        nextValue = null;
                     }
                 }
 
