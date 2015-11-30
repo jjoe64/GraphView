@@ -344,11 +344,12 @@ public class GridLabelRenderer {
         mStyles.verticalAxisTitleTextSize = mStyles.textSize;
         mStyles.horizontalAxisTitleTextSize = mStyles.textSize;
 
+        mGraphView.getSecondScale().setVerticalAxisTitleTextSize(mStyles.textSize);
+
         mStyles.horizontalLabelsVisible = true;
         mStyles.verticalLabelsVisible = true;
 
         mStyles.gridStyle = GridStyle.BOTH;
-
         reloadStyles();
     }
 

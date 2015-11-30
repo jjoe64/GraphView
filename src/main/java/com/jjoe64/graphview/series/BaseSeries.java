@@ -182,6 +182,7 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
             return mData.iterator();
         } else {
             return new Iterator<E>() {
+                // TODO: This is written with the assumption that these data points are in order, which is no longer guaranteed
                 Iterator<E> org = mData.iterator();
                 E nextValue = null;
                 E nextNextValue = null;
