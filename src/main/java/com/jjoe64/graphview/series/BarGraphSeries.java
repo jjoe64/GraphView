@@ -116,6 +116,8 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
         }
         mPaint.setTextSize(mValuesOnTopSize);
 
+        resetDataPoints();
+        
         // get data
         double maxX = graphView.getViewport().getMaxX(false);
         double minX = graphView.getViewport().getMinX(false);
