@@ -534,13 +534,15 @@ public class Viewport {
             }
             mCompleteRange.right = (float) d;
 
-            d = series.get(0).getLowestValueY();
-            for (Series s : series) {
-                if (!s.isEmpty() && d > s.getLowestValueY()) {
-                    d = s.getLowestValueY();
+            if(!mYAxisBoundsManual) {
+                d = series.get(0).getLowestValueY();
+                for (Series s : series) {
+                    if (!s.isEmpty() && d > s.getLowestValueY()) {
+                        d = s.getLowestValueY();
+                    }
                 }
+                mCompleteRange.bottom = (float) d;
             }
-            mCompleteRange.bottom = (float) d;
 
             d = series.get(0).getHighestValueY();
             for (Series s : series) {

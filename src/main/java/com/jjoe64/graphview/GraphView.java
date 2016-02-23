@@ -524,6 +524,16 @@ public class GraphView extends View {
     }
 
     /**
+     * clears the second scale
+     */
+    public void clearSecondScale() {
+        if (mSecondScale != null) {
+            mSecondScale.removeAllSeries();
+            mSecondScale = null;
+        }
+    }
+
+    /**
      * Removes all series of the graph.
      */
     public void removeAllSeries() {

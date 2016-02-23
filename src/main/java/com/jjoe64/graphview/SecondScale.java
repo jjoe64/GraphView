@@ -162,4 +162,11 @@ public class SecondScale {
         mLabelFormatter = formatter;
         mLabelFormatter.setViewport(mViewport);
     }
+
+    /**
+     * Removes all series of the graph.
+     */
+    public void removeAllSeries() {
+        mSeries.clear();
+    }
 }
