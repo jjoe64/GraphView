@@ -669,6 +669,12 @@ public class GridLabelRenderer {
             mGraphView.getViewport().setMaxX(newMaxX);
             if (mGraphView.getViewport().getXAxisBoundsStatus() == Viewport.AxisBoundsStatus.READJUST_AFTER_SCALE) {
                 mGraphView.getViewport().setXAxisBoundsStatus(Viewport.AxisBoundsStatus.FIX);
+
+                // notify
+                if (mGraphView.getViewport().getOnXAxisBoundsChangedListener() != null) {
+                    mGraphView.getViewport().getOnXAxisBoundsChangedListener()
+                            .onXAxisBoundsChanged(newMinX, newMaxX, Viewport.OnXAxisBoundsChangedListener.Reason.SCALE);
+                }
             } else {
                 mGraphView.getViewport().setXAxisBoundsStatus(Viewport.AxisBoundsStatus.AUTO_ADJUSTED);
             }

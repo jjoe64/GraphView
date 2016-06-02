@@ -52,6 +52,25 @@ import java.util.List;
  */
 public class Viewport {
     /**
+     * listener to notify when x bounds changed after
+     * scaling or scrolling.
+     * This can be used to load more detailed data.
+     */
+    public interface OnXAxisBoundsChangedListener {
+        /**
+         * Called after scaling or scrolling with
+         * the new bounds
+         * @param minX min x value
+         * @param maxX max x value
+         */
+        void onXAxisBoundsChanged(double minX, double maxX, OnXAxisBoundsChangedListener.Reason reason);
+
+        public enum Reason {
+            SCROLL, SCALE
+        }
+    }
+
+    /**
      * listener for the scale gesture
      */
     private final ScaleGestureDetector.OnScaleGestureListener mScaleGestureListener
@@ -207,6 +226,11 @@ public class Viewport {
                 }
                 mCurrentViewport.left += viewportOffsetX;
                 mCurrentViewport.right += viewportOffsetX;
+
+                // notify
+                if (mOnXAxisBoundsChangedListener != null) {
+                    mOnXAxisBoundsChangedListener.onXAxisBoundsChanged(getMinX(false), getMaxX(false), OnXAxisBoundsChangedListener.Reason.SCROLL);
+                }
             }
             if (canScrollY) {
                 //mCurrentViewport.top += viewportOffsetX;
@@ -422,6 +446,13 @@ public class Viewport {
      * it is recommended to use a semi-transparent color
      */
     private int mBackgroundColor;
+
+    /**
+     * listener to notify when x bounds changed after
+     * scaling or scrolling.
+     * This can be used to load more detailed data.
+     */
+    protected OnXAxisBoundsChangedListener mOnXAxisBoundsChangedListener;
 
     /**
      * creates the viewport
@@ -991,5 +1022,23 @@ public class Viewport {
         } else {
             Log.w("GraphView", "scrollToEnd works only with manual x axis bounds");
         }
+    }
+
+    /**
+     * @return the listener when there is one registered.
+     */
+    public OnXAxisBoundsChangedListener getOnXAxisBoundsChangedListener() {
+        return mOnXAxisBoundsChangedListener;
+    }
+
+    /**
+     * set a listener to notify when x bounds changed after
+     * scaling or scrolling.
+     * This can be used to load more detailed data.
+     *
+     * @param l the listener to use
+     */
+    public void setOnXAxisBoundsChangedListener(OnXAxisBoundsChangedListener l) {
+        mOnXAxisBoundsChangedListener = l;
     }
 }
