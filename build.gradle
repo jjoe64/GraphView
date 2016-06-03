@@ -8,7 +8,7 @@ buildscript {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.2.1'
+    gradleVersion = '2.10'
 }
 
 apply plugin: 'com.android.library'
@@ -34,22 +34,22 @@ dependencies {
     compile 'com.android.support:support-v4:22.1.1'
 }
 
-//this is used to generate .jar files and push to maven repo
 /*
+//this is used to generate .jar files and push to maven repo
 // This is the actual solution, as in http://stackoverflow.com/a/19037807/1002054
 task clearJar(type: Delete) {
-    delete 'build/libs/myCompiledLibrary.jar'
+    delete 'build/outputs/myCompiledLibrary.jar'
 }
 
 task makeJar(type: Copy) {
     from('build/intermediates/bundles/release/')
-    into('build/libs/')
+    into('build/outputs/')
     include('classes.jar')
     rename ('classes.jar', 'myCompiledLibrary.jar')
 }
 
 makeJar.dependsOn(clearJar, build)
-
-apply from: './maven_push.gradle'
 */
+
+//apply from: './maven_push.gradle'
 

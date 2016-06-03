@@ -113,7 +113,7 @@ public class Viewport {
                 }
             }
 
-            // adjust viewport, labels, etc.
+            // adjustSteps viewport, labels, etc.
             mGraphView.onDataChanged(true, false);
 
             ViewCompat.postInvalidateOnAnimation(mGraphView);
@@ -141,7 +141,7 @@ public class Viewport {
 
         /**
          * called when sacling ends
-         * This will re-adjust the viewport.
+         * This will re-adjustSteps the viewport.
          *
          * @param detector detector
          */
@@ -149,12 +149,12 @@ public class Viewport {
         public void onScaleEnd(ScaleGestureDetector detector) {
             mScalingActive = false;
 
-            // re-adjust
+            // re-adjustSteps
             mXAxisBoundsStatus = AxisBoundsStatus.READJUST_AFTER_SCALE;
 
             mScrollingReferenceX = Float.NaN;
 
-            // adjust viewport, labels, etc.
+            // adjustSteps viewport, labels, etc.
             mGraphView.onDataChanged(true, false);
 
             ViewCompat.postInvalidateOnAnimation(mGraphView);
@@ -256,7 +256,7 @@ public class Viewport {
             //    mEdgeEffectTopActive = true;
             //}
 
-            // adjust viewport, labels, etc.
+            // adjustSteps viewport, labels, etc.
             mGraphView.onDataChanged(true, false);
 
             ViewCompat.postInvalidateOnAnimation(mGraphView);
