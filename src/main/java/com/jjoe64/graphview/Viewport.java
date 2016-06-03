@@ -565,6 +565,7 @@ public class Viewport {
             }
             mCompleteRange.right = (float) d;
 
+            if(!mYAxisBoundsManual) {
             d = series.get(0).getLowestValueY();
             for (Series s : series) {
                 if (!s.isEmpty() && d > s.getLowestValueY()) {
@@ -579,7 +580,7 @@ public class Viewport {
                     d = s.getHighestValueY();
                 }
             }
-            mCompleteRange.top = (float) d;
+            mCompleteRange.top = (float) d;}
         }
 
         // calc current viewport bounds
