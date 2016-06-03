@@ -580,13 +580,14 @@ public class GridLabelRenderer {
     }
 
     /**
-     * calculates the horizontal steps. This will
-     * automatically change the bounds to nice
-     * human-readable min/max.
+     * calculates the horizontal steps.
+     *
+     * @param changeBounds This will automatically change the
+     *                     bounds to nice human-readable min/max.
      *
      * @return true if it is ready
      */
-    protected boolean adjustHorizontal() {
+    protected boolean adjustHorizontal(boolean changeBounds) {
         if (mLabelVerticalWidth == null) {
             return false;
         }
@@ -612,12 +613,6 @@ public class GridLabelRenderer {
             exactSteps = rangeX / (numHorizontalLabels - 1);
 
             boolean roundAlwaysUp = true;
-            if (mGraphView.getViewport().getXAxisBoundsStatus() == Viewport.AxisBoundsStatus.READJUST_AFTER_SCALE) {
-                // if viewports gets smaller, round down
-                if (mGraphView.getViewport().mCurrentViewport.width() < mGraphView.getViewport().mScalingBeginWidth) {
-                    roundAlwaysUp = false;
-                }
-            }
             exactSteps = humanRound(exactSteps, roundAlwaysUp);
 
             // adjustSteps viewport
@@ -693,7 +688,7 @@ public class GridLabelRenderer {
     protected void adjustSteps() {
         mIsAdjusted = adjustVertical();
         mIsAdjusted &= adjustVerticalSecondScale();
-        mIsAdjusted &= adjustHorizontal();
+        mIsAdjusted &= adjustHorizontal(false);
     }
 
     /**

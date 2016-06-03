@@ -130,8 +130,6 @@ public class Viewport {
         @Override
         public boolean onScaleBegin(ScaleGestureDetector detector) {
             if (mIsScalable) {
-                mScalingBeginWidth = mCurrentViewport.width();
-                mScalingBeginLeft = mCurrentViewport.left;
                 mScalingActive = true;
                 return true;
             } else {
@@ -148,14 +146,6 @@ public class Viewport {
         @Override
         public void onScaleEnd(ScaleGestureDetector detector) {
             mScalingActive = false;
-
-            // re-adjustSteps
-            mXAxisBoundsStatus = AxisBoundsStatus.READJUST_AFTER_SCALE;
-
-            mScrollingReferenceX = Float.NaN;
-
-            // adjustSteps viewport, labels, etc.
-            mGraphView.onDataChanged(true, false);
 
             ViewCompat.postInvalidateOnAnimation(mGraphView);
         }
@@ -182,10 +172,6 @@ public class Viewport {
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
             if (!mIsScrollable || mScalingActive) return false;
-
-            if (Float.isNaN(mScrollingReferenceX)) {
-                mScrollingReferenceX = mCurrentViewport.left;
-            }
 
             // Scrolling uses math based on the viewport (as opposed to math using pixels).
             /**
@@ -290,13 +276,6 @@ public class Viewport {
         AUTO_ADJUSTED,
 
         /**
-         * this flags the status that a scale was
-         * done and the bounds has to be auto-adjusted
-         * afterwards.
-         */
-        READJUST_AFTER_SCALE,
-
-        /**
          * means that the bounds are fix (manually) and
          * are not to be auto-adjusted.
          */
@@ -331,18 +310,6 @@ public class Viewport {
      * flag whether scaling is currently active
      */
     protected boolean mScalingActive;
-
-    /**
-     * stores the width of the viewport at the time
-     * of beginning of the scaling.
-     */
-    protected float mScalingBeginWidth;
-
-    /**
-     * stores the viewport left at the time of
-     * beginning of the scaling.
-     */
-    protected float mScalingBeginLeft;
 
     /**
      * flag whether the viewport is scrollable
@@ -414,12 +381,6 @@ public class Viewport {
      * the beginning of scaling
      */
     private RectF mScrollerStartViewport = new RectF();
-
-    /**
-     * stores the viewport left value at the
-     * time of beginning of the scrolling
-     */
-    protected float mScrollingReferenceX = Float.NaN;
 
     /**
      * state of the x axis
@@ -1017,7 +978,6 @@ public class Viewport {
             float size = mCurrentViewport.width();
             mCurrentViewport.right = mCompleteRange.right;
             mCurrentViewport.left = mCompleteRange.right - size;
-            mScrollingReferenceX = Float.NaN;
             mGraphView.onDataChanged(true, false);
         } else {
             Log.w("GraphView", "scrollToEnd works only with manual x axis bounds");
