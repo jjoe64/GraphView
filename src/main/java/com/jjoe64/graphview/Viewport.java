@@ -147,6 +147,11 @@ public class Viewport {
         public void onScaleEnd(ScaleGestureDetector detector) {
             mScalingActive = false;
 
+            // notify
+            if (mOnXAxisBoundsChangedListener != null) {
+                mOnXAxisBoundsChangedListener.onXAxisBoundsChanged(getMinX(false), getMaxX(false), OnXAxisBoundsChangedListener.Reason.SCALE);
+            }
+
             ViewCompat.postInvalidateOnAnimation(mGraphView);
         }
     };
