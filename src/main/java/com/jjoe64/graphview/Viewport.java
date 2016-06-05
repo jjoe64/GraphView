@@ -82,21 +82,21 @@ public class Viewport {
          */
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
-            float viewportWidth = mCurrentViewport.width();
-            float center = mCurrentViewport.left + viewportWidth / 2;
+            double viewportWidth = mCurrentViewport.width();
+            double center = mCurrentViewport.left + viewportWidth / 2;
             viewportWidth /= detector.getScaleFactor();
             mCurrentViewport.left = center - viewportWidth / 2;
             mCurrentViewport.right = mCurrentViewport.left+viewportWidth;
 
             // viewportStart must not be < minX
-            float minX = (float) getMinX(true);
+            double minX = getMinX(true);
             if (mCurrentViewport.left < minX) {
                 mCurrentViewport.left = minX;
                 mCurrentViewport.right = mCurrentViewport.left+viewportWidth;
             }
 
             // viewportStart + viewportSize must not be > maxX
-            float maxX = (float) getMaxX(true);
+            double maxX = getMaxX(true);
             if (viewportWidth == 0) {
                 mCurrentViewport.right = maxX;
             }
@@ -162,7 +162,7 @@ public class Viewport {
 
             // Initiates the decay phase of any active edge effects.
             releaseEdgeEffects();
-            mScrollerStartViewport.set(mCurrentViewport);
+            mScrollerStartViewport.set(mCurrentViewport.toRectF());
             // Aborts any active scroll animations and invalidates.
             mScroller.forceFinished(true);
             ViewCompat.postInvalidateOnAnimation(mGraphView);
@@ -181,11 +181,11 @@ public class Viewport {
              * additional information about the viewport, see the comments for
              * {@link mCurrentViewport}.
              */
-            float viewportOffsetX = distanceX * mCurrentViewport.width() / mGraphView.getGraphContentWidth();
-            float viewportOffsetY = -distanceY * mCurrentViewport.height() / mGraphView.getGraphContentHeight();
+            double viewportOffsetX = distanceX * mCurrentViewport.width() / mGraphView.getGraphContentWidth();
+            double viewportOffsetY = -distanceY * mCurrentViewport.height() / mGraphView.getGraphContentHeight();
 
-            int completeWidth = (int)((mCompleteRange.width()/mCurrentViewport.width()) * (float) mGraphView.getGraphContentWidth());
-            int completeHeight = (int)((mCompleteRange.height()/mCurrentViewport.height()) * (float) mGraphView.getGraphContentHeight());
+            int completeWidth = (int)((mCompleteRange.width()/mCurrentViewport.width()) * (double) mGraphView.getGraphContentWidth());
+            int completeHeight = (int)((mCompleteRange.height()/mCurrentViewport.height()) * (double) mGraphView.getGraphContentHeight());
 
             int scrolledX = (int) (completeWidth
                     * (mCurrentViewport.left + viewportOffsetX - mCompleteRange.left)
@@ -200,12 +200,12 @@ public class Viewport {
 
             if (canScrollX) {
                 if (viewportOffsetX < 0) {
-                    float tooMuch = mCurrentViewport.left+viewportOffsetX - mCompleteRange.left;
+                    double tooMuch = mCurrentViewport.left+viewportOffsetX - mCompleteRange.left;
                     if (tooMuch < 0) {
                         viewportOffsetX -= tooMuch;
                     }
                 } else {
-                    float tooMuch = mCurrentViewport.right+viewportOffsetX - mCompleteRange.right;
+                    double tooMuch = mCurrentViewport.right+viewportOffsetX - mCompleteRange.right;
                     if (tooMuch > 0) {
                         viewportOffsetX -= tooMuch;
                     }
@@ -297,14 +297,14 @@ public class Viewport {
      * left = minX, right = maxX
      * bottom = minY, top = maxY
      */
-    protected RectF mCurrentViewport = new RectF();
+    protected RectD mCurrentViewport = new RectD();
 
     /**
      * this holds the whole range of the data
      * left = minX, right = maxX
      * bottom = minY, top = maxY
      */
-    protected RectF mCompleteRange = new RectF();
+    protected RectD mCompleteRange = new RectD();
 
     /**
      * flag whether scaling is currently active
@@ -385,7 +385,7 @@ public class Viewport {
     /**
      * state of the x axis
      */
-    private AxisBoundsStatus mXAxisBoundsStatus;
+    protected AxisBoundsStatus mXAxisBoundsStatus;
 
     /**
      * state of the y axis
@@ -508,7 +508,7 @@ public class Viewport {
      */
     public void calcCompleteRange() {
         List<Series> series = mGraphView.getSeries();
-        mCompleteRange.set(0, 0, 0, 0);
+        mCompleteRange.set(0d, 0d, 0d, 0d);
         if (!series.isEmpty() && !series.get(0).isEmpty()) {
             double d = series.get(0).getLowestValueX();
             for (Series s : series) {
@@ -516,7 +516,7 @@ public class Viewport {
                     d = s.getLowestValueX();
                 }
             }
-            mCompleteRange.left = (float) d;
+            mCompleteRange.left = d;
 
             d = series.get(0).getHighestValueX();
             for (Series s : series) {
@@ -524,7 +524,7 @@ public class Viewport {
                     d = s.getHighestValueX();
                 }
             }
-            mCompleteRange.right = (float) d;
+            mCompleteRange.right = d;
 
             d = series.get(0).getLowestValueY();
             for (Series s : series) {
@@ -532,7 +532,7 @@ public class Viewport {
                     d = s.getLowestValueY();
                 }
             }
-            mCompleteRange.bottom = (float) d;
+            mCompleteRange.bottom = d;
 
             d = series.get(0).getHighestValueY();
             for (Series s : series) {
@@ -540,7 +540,7 @@ public class Viewport {
                     d = s.getHighestValueY();
                 }
             }
-            mCompleteRange.top = (float) d;
+            mCompleteRange.top = d;
         }
 
         // calc current viewport bounds
@@ -572,7 +572,7 @@ public class Viewport {
                 }
             }
 
-            mCurrentViewport.bottom = (float) d;
+            mCurrentViewport.bottom = d;
 
             // highest
             d = Double.MIN_VALUE;
@@ -585,7 +585,7 @@ public class Viewport {
                     }
                 }
             }
-            mCurrentViewport.top = (float) d;
+            mCurrentViewport.top = d;
         }
 
         // fixes blank screen when range is zero
@@ -600,9 +600,9 @@ public class Viewport {
      */
     public double getMinX(boolean completeRange) {
         if (completeRange) {
-            return (double) mCompleteRange.left;
+            return mCompleteRange.left;
         } else {
-            return (double) mCurrentViewport.left;
+            return mCurrentViewport.left;
         }
     }
 
@@ -613,7 +613,7 @@ public class Viewport {
      */
     public double getMaxX(boolean completeRange) {
         if (completeRange) {
-            return (double) mCompleteRange.right;
+            return mCompleteRange.right;
         } else {
             return mCurrentViewport.right;
         }
@@ -626,7 +626,7 @@ public class Viewport {
      */
     public double getMinY(boolean completeRange) {
         if (completeRange) {
-            return (double) mCompleteRange.bottom;
+            return mCompleteRange.bottom;
         } else {
             return mCurrentViewport.bottom;
         }
@@ -639,7 +639,7 @@ public class Viewport {
      */
     public double getMaxY(boolean completeRange) {
         if (completeRange) {
-            return (double) mCompleteRange.top;
+            return mCompleteRange.top;
         } else {
             return mCurrentViewport.top;
         }
@@ -652,7 +652,7 @@ public class Viewport {
      * @param y max / highest value
      */
     public void setMaxY(double y) {
-        mCurrentViewport.top = (float) y;
+        mCurrentViewport.top = y;
     }
 
     /**
@@ -662,7 +662,7 @@ public class Viewport {
      * @param y min / lowest value
      */
     public void setMinY(double y) {
-        mCurrentViewport.bottom = (float) y;
+        mCurrentViewport.bottom = y;
     }
 
     /**
@@ -672,7 +672,7 @@ public class Viewport {
      * @param x max / highest value
      */
     public void setMaxX(double x) {
-        mCurrentViewport.right = (float) x;
+        mCurrentViewport.right = x;
     }
 
     /**
@@ -682,7 +682,7 @@ public class Viewport {
      * @param x min / lowest value
      */
     public void setMinX(double x) {
-        mCurrentViewport.left = (float) x;
+        mCurrentViewport.left = x;
     }
 
     /**
@@ -706,7 +706,7 @@ public class Viewport {
         velocityY = 0;
         releaseEdgeEffects();
         // Flings use math in pixels (as opposed to math based on the viewport).
-        mScrollerStartViewport.set(mCurrentViewport);
+        mScrollerStartViewport.set(mCurrentViewport.toRectF());
         int maxX = (int)((mCurrentViewport.width()/mCompleteRange.width())*(float)mGraphView.getGraphContentWidth()) - mGraphView.getGraphContentWidth();
         int maxY = (int)((mCurrentViewport.height()/mCompleteRange.height())*(float)mGraphView.getGraphContentHeight()) - mGraphView.getGraphContentHeight();
         int startX = (int)((mCurrentViewport.left - mCompleteRange.left)/mCompleteRange.width())*maxX;
@@ -728,73 +728,6 @@ public class Viewport {
      * not used currently
      */
     public void computeScroll() {
-        if (true) return;
-
-        boolean needsInvalidate = false;
-
-        if (mScroller.computeScrollOffset()) {
-            // The scroller isn't finished, meaning a fling or programmatic pan operation is
-            // currently active.
-
-            int completeWidth = (int)((mCompleteRange.width()/mCurrentViewport.width()) * (float) mGraphView.getGraphContentWidth());
-            int completeHeight = (int)((mCompleteRange.height()/mCurrentViewport.height()) * (float) mGraphView.getGraphContentHeight());
-
-            int currX = mScroller.getCurrX();
-            int currY = mScroller.getCurrY();
-
-            boolean canScrollX = mCurrentViewport.left > mCompleteRange.left
-                    || mCurrentViewport.right < mCompleteRange.right;
-            boolean canScrollY = mCurrentViewport.bottom > mCompleteRange.bottom
-                    || mCurrentViewport.top < mCompleteRange.top;
-
-            if (canScrollX
-                    && currX < 0
-                    && mEdgeEffectLeft.isFinished()
-                    && !mEdgeEffectLeftActive) {
-                mEdgeEffectLeft.onAbsorb((int) OverScrollerCompat.getCurrVelocity(mScroller));
-                mEdgeEffectLeftActive = true;
-                needsInvalidate = true;
-            } else if (canScrollX
-                    && currX > (completeWidth - mGraphView.getGraphContentWidth())
-                    && mEdgeEffectRight.isFinished()
-                    && !mEdgeEffectRightActive) {
-                mEdgeEffectRight.onAbsorb((int) OverScrollerCompat.getCurrVelocity(mScroller));
-                mEdgeEffectRightActive = true;
-                needsInvalidate = true;
-            }
-
-            if (canScrollY
-                    && currY < 0
-                    && mEdgeEffectTop.isFinished()
-                    && !mEdgeEffectTopActive) {
-                mEdgeEffectTop.onAbsorb((int) OverScrollerCompat.getCurrVelocity(mScroller));
-                mEdgeEffectTopActive = true;
-                needsInvalidate = true;
-            } else if (canScrollY
-                    && currY > (completeHeight - mGraphView.getGraphContentHeight())
-                    && mEdgeEffectBottom.isFinished()
-                    && !mEdgeEffectBottomActive) {
-                mEdgeEffectBottom.onAbsorb((int) OverScrollerCompat.getCurrVelocity(mScroller));
-                mEdgeEffectBottomActive = true;
-                needsInvalidate = true;
-            }
-
-            float currXRange = mCompleteRange.left + mCompleteRange.width()
-                    * currX / completeWidth;
-            float currYRange = mCompleteRange.top - mCompleteRange.height()
-                    * currY / completeHeight;
-
-            float currWidth = mCurrentViewport.width();
-            float currHeight = mCurrentViewport.height();
-            mCurrentViewport.left = currXRange;
-            mCurrentViewport.right = currXRange + currWidth;
-            //mCurrentViewport.bottom = currYRange;
-            //mCurrentViewport.top = currYRange + currHeight;
-        }
-
-        if (needsInvalidate) {
-            ViewCompat.postInvalidateOnAnimation(mGraphView);
-        }
     }
 
     /**
@@ -975,7 +908,7 @@ public class Viewport {
      */
     public void scrollToEnd() {
         if (mXAxisBoundsManual) {
-            float size = mCurrentViewport.width();
+            double size = mCurrentViewport.width();
             mCurrentViewport.right = mCompleteRange.right;
             mCurrentViewport.left = mCompleteRange.right - size;
             mGraphView.onDataChanged(true, false);
