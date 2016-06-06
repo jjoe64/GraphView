@@ -274,7 +274,7 @@ public class GraphView extends View {
      *                     performance.
      */
     public void onDataChanged(boolean keepLabelsSize, boolean keepViewport) {
-        // adjust grid system
+        // adjustSteps grid system
         mViewport.calcCompleteRange();
         mGridLabelRenderer.invalidate(keepLabelsSize, keepViewport);
         invalidate();

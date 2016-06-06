@@ -102,7 +102,7 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
     /**
      * path to the line
      */
-    //private Path mPath;
+    private Path mPath;
 
     /**
      * custom paint that can be used.
@@ -139,7 +139,7 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
         mPaintBackground = new Paint();
 
         mPathBackground = new Path();
-        //mPath = new Path();
+        mPath = new Path();
     }
 
     /**
@@ -185,6 +185,8 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
         } else {
             paint = mPaint;
         }
+
+        mPath.reset();
 
         if (mStyles.drawBackground) {
             mPathBackground.reset();
@@ -262,11 +264,10 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
                 }
                 registerDataPoint(endX, endY, value);
 
-                //mPath.reset();
-                //mPath.moveTo(startX, startY);
-                //mPath.lineTo(endX, endY);
-                //canvas.drawPath(mPath, paint);
-                canvas.drawLine(startX, startY, endX, endY, paint);
+                if (i==1) {
+                    mPath.moveTo(startX, startY);
+                }
+                mPath.lineTo(endX, endY);
 
                 if (mStyles.drawBackground) {
                     if (i==1) {
@@ -286,6 +287,9 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
             lastEndX = orgX;
             i++;
         }
+
+        // draw at the end
+        canvas.drawPath(mPath, paint);
 
         if (mStyles.drawBackground) {
             // end / close path

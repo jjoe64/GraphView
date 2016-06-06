@@ -25,6 +25,7 @@ import android.graphics.RectF;
 import android.util.Log;
 
 import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.RectD;
 import com.jjoe64.graphview.ValueDependentColor;
 
 import java.util.HashMap;
@@ -82,7 +83,7 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
      * stores the coordinates of the bars to
      * trigger tap on series events.
      */
-    private Map<RectF, E> mDataPoints = new HashMap<RectF, E>();
+    private Map<RectD, E> mDataPoints = new HashMap<RectD, E>();
 
     /**
      * creates bar series without any data
@@ -184,24 +185,24 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
 
         // Calculate the overall bar slot width - this includes all bars across
         // all series, and any spacing between sets of bars
-        float barSlotWidth = numBarSlots == 1
+        int barSlotWidth = numBarSlots == 1
             ? graphView.getGraphContentWidth()
             : graphView.getGraphContentWidth() / (numBarSlots-1);
         Log.d("BarGraphSeries", "numBars=" + numBarSlots);
 
         // Total spacing (both sides) between sets of bars
-        float spacing = Math.min((float) barSlotWidth*mSpacing/100, barSlotWidth*0.98f);
+        double spacing = Math.min(barSlotWidth*mSpacing/100, barSlotWidth*0.98f);
         // Width of an individual bar
-        float barWidth = (barSlotWidth - spacing) / numBarSeries;
+        double barWidth = (barSlotWidth - spacing) / numBarSeries;
         // Offset from the center of a given bar to start drawing
-        float offset = barSlotWidth/2;
+        double offset = barSlotWidth/2;
 
         double diffY = maxY - minY;
         double diffX = maxX - minX;
-        float contentHeight = graphView.getGraphContentHeight();
-        float contentWidth = graphView.getGraphContentWidth();
-        float contentLeft = graphView.getGraphContentLeft();
-        float contentTop = graphView.getGraphContentTop();
+        double contentHeight = graphView.getGraphContentHeight();
+        double contentWidth = graphView.getGraphContentWidth();
+        double contentLeft = graphView.getGraphContentLeft();
+        double contentTop = graphView.getGraphContentTop();
 
         // draw data
         int i=0;
@@ -227,14 +228,14 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
                 mPaint.setColor(getColor());
             }
 
-            float left = (float)x + contentLeft - offset + spacing/2 + currentSeriesOrder*barWidth;
-            float top = (contentTop - (float)y) + contentHeight;
-            float right = left + barWidth;
-            float bottom = (contentTop - (float)y0) + contentHeight - (graphView.getGridLabelRenderer().isHighlightZeroLines()?4:1);
+            double left = x + contentLeft - offset + spacing/2 + currentSeriesOrder*barWidth;
+            double top = (contentTop - y) + contentHeight;
+            double right = left + barWidth;
+            double bottom = (contentTop - y0) + contentHeight - (graphView.getGridLabelRenderer().isHighlightZeroLines()?4:1);
 
             boolean reverse = top > bottom;
             if (reverse) {
-                float tmp = top;
+                double tmp = top;
                 top = bottom + (graphView.getGridLabelRenderer().isHighlightZeroLines()?4:1);
                 bottom = tmp;
             }
@@ -245,9 +246,9 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
             bottom = Math.min(bottom, contentTop+contentHeight);
             top = Math.max(top, contentTop);
 
-            mDataPoints.put(new RectF(left, top, right, bottom), value);
+            mDataPoints.put(new RectD(left, top, right, bottom), value);
 
-            canvas.drawRect(left, top, right, bottom, mPaint);
+            canvas.drawRect((float)left, (float)top, (float)right, (float)bottom, mPaint);
 
             // set values on top of graph
             if (mDrawValuesOnTop) {
@@ -262,7 +263,7 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
                 mPaint.setColor(mValuesOnTopColor);
                 canvas.drawText(
                         graphView.getGridLabelRenderer().getLabelFormatter().formatLabel(value.getY(), false)
-                        , (left+right)/2, top, mPaint);
+                        , (float) (left+right)/2, (float) top, mPaint);
             }
 
             i++;
@@ -368,7 +369,7 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
      */
     @Override
     protected E findDataPoint(float x, float y) {
-        for (Map.Entry<RectF, E> entry : mDataPoints.entrySet()) {
+        for (Map.Entry<RectD, E> entry : mDataPoints.entrySet()) {
             if (x >= entry.getKey().left && x <= entry.getKey().right
                 && y >= entry.getKey().top && y <= entry.getKey().bottom) {
                 return entry.getValue();

@@ -175,7 +175,6 @@ public class GridLabelRenderer {
     /**
      * cache of the horizontal steps
      * (vertical lines and horizontal labels)
-     * Key      = Pixel (x)
      * Value    = x-value
      */
     private Map<Integer, Double> mStepsHorizontal;
@@ -199,7 +198,7 @@ public class GridLabelRenderer {
      * flag whether is bounds are automatically
      * adjusted for nice human-readable numbers
      */
-    private boolean mIsAdjusted;
+    protected boolean mIsAdjusted;
 
     /**
      * the width of the vertical labels
@@ -272,6 +271,16 @@ public class GridLabelRenderer {
     private int mNumHorizontalLabels;
 
     /**
+     * activate or deactivate human rounding of the
+     * horizontal axis. GraphView tries to fit the labels
+     * to display numbers that can be divided by 1, 2, or 5.
+     *
+     * By default this is enabled. It makes sense to deactivate it
+     * when using Dates on the x axis.
+     */
+    private boolean mHumanRounding;
+
+    /**
      * create the default grid label renderer.
      *
      * @param graphView the corresponding graphview object
@@ -283,6 +292,7 @@ public class GridLabelRenderer {
         resetStyles();
         mNumVerticalLabels = 5;
         mNumHorizontalLabels = 5;
+        mHumanRounding = true;
     }
 
     /**
@@ -360,6 +370,33 @@ public class GridLabelRenderer {
         mPaintAxisTitle = new Paint();
         mPaintAxisTitle.setTextSize(getTextSize());
         mPaintAxisTitle.setTextAlign(Paint.Align.CENTER);
+    }
+
+    /**
+     * GraphView tries to fit the labels
+     * to display numbers that can be divided by 1, 2, or 5.
+     *
+     * By default this is enabled. It makes sense to deactivate it
+     * when using Dates on the x axis.
+
+     * @return if human rounding is enabled
+     */
+    public boolean isHumanRounding() {
+        return mHumanRounding;
+    }
+
+    /**
+     * activate or deactivate human rounding of the
+     * horizontal axis. GraphView tries to fit the labels
+     * to display numbers that can be divided by 1, 2, or 5.
+     *
+     * By default this is enabled. It makes sense to deactivate it
+     * when using Dates on the x axis.
+     *
+     * @param humanRounding false to deactivate
+     */
+    public void setHumanRounding(boolean humanRounding) {
+        this.mHumanRounding = humanRounding;
     }
 
     /**
@@ -525,7 +562,7 @@ public class GridLabelRenderer {
                 exactSteps = rangeY / (numVerticalLabels - 1);
                 exactSteps = humanRound(exactSteps, true);
 
-                // adjust viewport
+                // adjustSteps viewport
                 // wie oft passt STEP in minY rein?
                 int count = 0;
                 if (newMinY >= 0d) {
@@ -582,13 +619,13 @@ public class GridLabelRenderer {
     }
 
     /**
-     * calculates the horizontal steps. This will
-     * automatically change the bounds to nice
-     * human-readable min/max.
+     * calculates the horizontal steps.
      *
+     * @param changeBounds This will automatically change the
+     *                     bounds to nice human-readable min/max.
      * @return true if it is ready
      */
-    protected boolean adjustHorizontal() {
+    protected boolean adjustHorizontal(boolean changeBounds) {
         if (mLabelVerticalWidth == null) {
             return false;
         }
@@ -603,126 +640,109 @@ public class GridLabelRenderer {
         double newMinX;
         double exactSteps;
 
-        float scalingOffset = 0f;
-        if (mGraphView.getViewport().isXAxisBoundsManual() && mGraphView.getViewport().getXAxisBoundsStatus() != Viewport.AxisBoundsStatus.READJUST_AFTER_SCALE) {
-            // scaling
-            if (mGraphView.getViewport().mScalingActive) {
-                minX = mGraphView.getViewport().mScalingBeginLeft;
-                maxX = minX + mGraphView.getViewport().mScalingBeginWidth;
+        // split range into equal steps
+        exactSteps = (maxX - minX) / (numHorizontalLabels - 1);
 
-                //numHorizontalLabels *= (mGraphView.getViewport().mCurrentViewport.width()+oldStep)/(mGraphView.getViewport().mScalingBeginWidth+oldStep);
-                //numHorizontalLabels = (float) Math.ceil(numHorizontalLabels);
+        // round because of floating error
+        exactSteps = Math.round(exactSteps * 1000000d) / 1000000d;
+
+        // human rounding to have nice numbers (1, 2, 5, ...)
+        if (isHumanRounding()) {
+            exactSteps = humanRound(exactSteps, false);
+        } else if (mStepsHorizontal != null && mStepsHorizontal.size() > 1) {
+            // else choose other nice steps that previous
+            // steps are included (divide to have more, or multiplicate to have less)
+
+            double d1 = 0, d2 = 0;
+            int i = 0;
+            for (Double v : mStepsHorizontal.values()) {
+                if (i == 0) {
+                    d1 = v;
+                } else {
+                    d2 = v;
+                    break;
+                }
+                i++;
             }
+            double oldSteps = d2 - d1;
+            Log.d("GridLabelRenderer", "oldSteps=" + oldSteps);
+            if (oldSteps > 0) {
+                double newSteps = Double.NaN;
 
-            newMinX = minX;
-            double rangeX = maxX - newMinX;
-            exactSteps = rangeX / (numHorizontalLabels - 1);
+                if (oldSteps > exactSteps) {
+                    newSteps = oldSteps / 2;
+                } else if (oldSteps < exactSteps) {
+                    newSteps = oldSteps * 2;
+                }
+
+                // only if there wont be more than numLabels
+                // and newSteps will be better than oldSteps
+                int numStepsOld = (int) ((maxX - minX) / oldSteps);
+                int numStepsNew = (int) ((maxX - minX) / newSteps);
+
+                boolean shouldChange;
+
+                // avoid switching between 2 steps
+                if (numStepsOld <= numHorizontalLabels && numStepsNew <= numHorizontalLabels) {
+                    // both are possible
+                    // only the new if it hows more labels
+                    shouldChange = numStepsNew > numStepsOld;
+                } else {
+                    shouldChange = true;
+                }
+
+                if (newSteps != Double.NaN && shouldChange && numStepsNew <= numHorizontalLabels) {
+                    exactSteps = newSteps;
+                } else {
+                    // try to stay to the old steps
+                    exactSteps = oldSteps;
+                }
+            }
         } else {
-            // find good steps
-            boolean adjusting = true;
-            newMinX = minX;
-            exactSteps = 0d;
-            while (adjusting) {
-                double rangeX = maxX - newMinX;
-                exactSteps = rangeX / (numHorizontalLabels - 1);
+            // first time
+        }
 
-                boolean roundAlwaysUp = true;
-                if (mGraphView.getViewport().getXAxisBoundsStatus() == Viewport.AxisBoundsStatus.READJUST_AFTER_SCALE) {
-                    // if viewports gets smaller, round down
-                    if (mGraphView.getViewport().mCurrentViewport.width() < mGraphView.getViewport().mScalingBeginWidth) {
-                        roundAlwaysUp = false;
-                    }
-                }
-                exactSteps = humanRound(exactSteps, roundAlwaysUp);
 
-                // adjust viewport
-                // wie oft passt STEP in minX rein?
-                int count = 0;
-                if (newMinX >= 0d) {
-                    // positive number
-                    while (newMinX - exactSteps >= 0) {
-                        newMinX -= exactSteps;
-                        count++;
-                    }
-                    newMinX = exactSteps * count;
-                } else {
-                    // negative number
-                    count++;
-                    while (newMinX + exactSteps < 0) {
-                        newMinX += exactSteps;
-                        count++;
-                    }
-                    newMinX = exactSteps * count * -1;
-                }
+        // starting from 1st datapoint
+        newMinX = mGraphView.getViewport().getMinX(true);
+        while (newMinX < minX) {
+            newMinX += exactSteps;
+        }
 
-                // wenn minX sich geändert hat, steps nochmal berechnen
-                // wenn nicht, fertig
-                if (newMinX == minX) {
-                    adjusting = false;
-                } else {
-                    minX = newMinX;
-                }
-            }
-
-            double newMaxX = newMinX + (numHorizontalLabels - 1) * exactSteps;
+        // now we have our labels bounds
+        if (changeBounds) {
             mGraphView.getViewport().setMinX(newMinX);
-            mGraphView.getViewport().setMaxX(newMaxX);
-            if (mGraphView.getViewport().getXAxisBoundsStatus() == Viewport.AxisBoundsStatus.READJUST_AFTER_SCALE) {
-                mGraphView.getViewport().setXAxisBoundsStatus(Viewport.AxisBoundsStatus.FIX);
-            } else {
-                mGraphView.getViewport().setXAxisBoundsStatus(Viewport.AxisBoundsStatus.AUTO_ADJUSTED);
-            }
+            mGraphView.getViewport().setMaxX(newMinX + (numHorizontalLabels - 1) * exactSteps);
+            mGraphView.getViewport().mXAxisBoundsStatus = Viewport.AxisBoundsStatus.AUTO_ADJUSTED;
         }
 
         if (mStepsHorizontal != null) {
             mStepsHorizontal.clear();
         } else {
-            mStepsHorizontal = new LinkedHashMap<Integer, Double>((int) numHorizontalLabels);
+            mStepsHorizontal = new LinkedHashMap<>((int) numHorizontalLabels);
         }
+
         int width = mGraphView.getGraphContentWidth();
+        // convert data-x to pixel-x in current viewport
+        double pixelPerData = width / mGraphView.getViewport().mCurrentViewport.width();
 
-        float scrolled = 0;
-        float scrolledPixels = 0;
-
-        double v = newMinX;
-        int p = mGraphView.getGraphContentLeft(); // start
-        float pixelStep = width / (numHorizontalLabels - 1);
-
-        if (mGraphView.getViewport().mScalingActive) {
-            float oldStep = mGraphView.getViewport().mScalingBeginWidth / (numHorizontalLabels - 1);
-            float factor = (mGraphView.getViewport().mCurrentViewport.width() + oldStep) / (mGraphView.getViewport().mScalingBeginWidth + oldStep);
-            pixelStep *= 1f / factor;
-
-            //numHorizontalLabels *= (mGraphView.getViewport().mCurrentViewport.width()+oldStep)/(mGraphView.getViewport().mScalingBeginWidth+oldStep);
-            //numHorizontalLabels = (float) Math.ceil(numHorizontalLabels);
-
-            //scrolled = ((float) mGraphView.getViewport().getMinX(false) - mGraphView.getViewport().mScalingBeginLeft)*2;
-            float newWidth = width * 1f / factor;
-            scrolledPixels = (newWidth - width) * -0.5f;
-
+        // it can happen that we need to add some more labels to fill the complete screen
+        while ((numHorizontalLabels + 1) * exactSteps * pixelPerData < width) {
+            numHorizontalLabels++;
         }
-
-        // scrolling
-        if (!Float.isNaN(mGraphView.getViewport().mScrollingReferenceX)) {
-            scrolled = mGraphView.getViewport().mScrollingReferenceX - (float) newMinX;
-            scrolledPixels += scrolled * (pixelStep / (float) exactSteps);
-
-            if (scrolled < 0 - exactSteps) {
-                mGraphView.getViewport().mScrollingReferenceX += exactSteps;
-            } else if (scrolled > exactSteps) {
-                mGraphView.getViewport().mScrollingReferenceX -= exactSteps;
-            }
-        }
-        p += scrolledPixels;
-        v += scrolled;
 
         for (int i = 0; i < numHorizontalLabels; i++) {
-            // don't draw steps before 0 (scrolling)
-            if (p >= mGraphView.getGraphContentLeft()) {
-                mStepsHorizontal.put(p, v);
+            // dont draw if it is left of visible screen
+            if (newMinX + (i * exactSteps) < mGraphView.getViewport().mCurrentViewport.left) {
+                continue;
             }
-            p += pixelStep;
-            v += exactSteps;
+
+            // where is the data point on the current screen
+            double dataPointPos = newMinX + (i * exactSteps);
+            double relativeToCurrentViewport = dataPointPos - mGraphView.getViewport().mCurrentViewport.left;
+
+            double pixelPos = relativeToCurrentViewport * pixelPerData;
+            mStepsHorizontal.put((int) pixelPos, dataPointPos);
         }
 
         return true;
@@ -734,10 +754,10 @@ public class GridLabelRenderer {
      * nice human-readable values, except the bounds
      * are manual.
      */
-    protected void adjust() {
+    protected void adjustSteps() {
         mIsAdjusted = adjustVertical();
         mIsAdjusted &= adjustVerticalSecondScale();
-        mIsAdjusted &= adjustHorizontal();
+        mIsAdjusted &= adjustHorizontal(! Viewport.AxisBoundsStatus.FIX.equals(mGraphView.getViewport().mXAxisBoundsStatus));
     }
 
     /**
@@ -860,7 +880,7 @@ public class GridLabelRenderer {
         }
 
         if (!mIsAdjusted) {
-            adjust();
+            adjustSteps();
         }
 
         if (mIsAdjusted) {
@@ -953,7 +973,7 @@ public class GridLabelRenderer {
                 }
             }
             if (mStyles.gridStyle.drawVertical()) {
-                canvas.drawLine(e.getKey(), mGraphView.getGraphContentTop(), e.getKey(), mGraphView.getGraphContentTop() + mGraphView.getGraphContentHeight(), mPaintLine);
+                canvas.drawLine(mGraphView.getGraphContentLeft()+e.getKey(), mGraphView.getGraphContentTop(), mGraphView.getGraphContentLeft()+e.getKey(), mGraphView.getGraphContentTop() + mGraphView.getGraphContentHeight(), mPaintLine);
             }
 
             // draw label
@@ -973,7 +993,7 @@ public class GridLabelRenderer {
                 for (int li = 0; li < lines.length; li++) {
                     // for the last line y = height
                     float y = (canvas.getHeight() - mStyles.padding - getHorizontalAxisTitleHeight()) - (lines.length - li - 1) * getTextSize() * 1.1f + mStyles.labelsSpace;
-                    canvas.drawText(lines[li], e.getKey(), y, mPaintLabel);
+                    canvas.drawText(lines[li], mGraphView.getGraphContentLeft()+e.getKey(), y, mPaintLabel);
                 }
             }
             i++;
