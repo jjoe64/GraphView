@@ -1101,11 +1101,11 @@ public class GridLabelRenderer {
     protected double humanRound(double in, boolean roundAlwaysUp) {
         // round-up to 1-steps, 2-steps or 5-steps
         int ten = 0;
-        while (in >= 10d) {
+        while (Math.abs(in) >= 10d) {
             in /= 10d;
             ten++;
         }
-        while (in < 1d) {
+        while (Math.abs(in) < 1d) {
             in *= 10d;
             ten--;
         }
