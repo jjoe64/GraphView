@@ -1236,6 +1236,9 @@ public class GridLabelRenderer {
      */
     public void setGridColor(int gridColor) {
         mStyles.gridColor = gridColor;
+        if (mPaintLine != null) {
+            mPaintLine.setColor(mStyles.gridColor);
+        }
     }
 
     /**
