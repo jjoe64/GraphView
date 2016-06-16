@@ -37,9 +37,9 @@ import java.util.List;
  */
 public class SecondScale {
     /**
-     * reference to the viewport of the graph
+     * reference to the graph
      */
-    protected final Viewport mViewport;
+    protected final GraphView mGraph;
 
     /**
      * array of series for the second
@@ -77,11 +77,11 @@ public class SecondScale {
      * Use {@link com.jjoe64.graphview.GraphView#getSecondScale()}
      * in order to get the instance.
      */
-    SecondScale(Viewport viewport) {
-        mViewport = viewport;
+    SecondScale(GraphView graph) {
+        mGraph = graph;
         mSeries = new ArrayList<Series>();
         mLabelFormatter = new DefaultLabelFormatter();
-        mLabelFormatter.setViewport(mViewport);
+        mLabelFormatter.setViewport(mGraph.getViewport());
     }
 
     /**
@@ -93,6 +93,7 @@ public class SecondScale {
      */
     public void addSeries(Series s) {
         mSeries.add(s);
+        mGraph.onDataChanged(false, false);
     }
 
     //public void setYAxisBoundsManual(boolean mYAxisBoundsManual) {
@@ -160,7 +161,7 @@ public class SecondScale {
      */
     public void setLabelFormatter(LabelFormatter formatter) {
         mLabelFormatter = formatter;
-        mLabelFormatter.setViewport(mViewport);
+        mLabelFormatter.setViewport(mGraph.getViewport());
     }
 
     /**
@@ -168,5 +169,17 @@ public class SecondScale {
      */
     public void removeAllSeries() {
         mSeries.clear();
+        mGraph.onDataChanged(false, false);
+    }
+
+    /**
+     * Remove a specific series of the
+     * second scale.
+     *
+     * @param series
+     */
+    public void removeSeries(Series series) {
+        mSeries.remove(series);
+        mGraph.onDataChanged(false, false);
     }
 }
