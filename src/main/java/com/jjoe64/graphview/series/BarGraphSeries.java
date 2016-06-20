@@ -196,7 +196,6 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
         int barSlotWidth = numBarSlots == 1
             ? graphView.getGraphContentWidth()
             : graphView.getGraphContentWidth() / (numBarSlots-1);
-        Log.d("BarGraphSeries", "numBars=" + numBarSlots);
 
         // Total spacing (both sides) between sets of bars
         double spacing = Math.min(barSlotWidth*mSpacing/100, barSlotWidth*0.98f);

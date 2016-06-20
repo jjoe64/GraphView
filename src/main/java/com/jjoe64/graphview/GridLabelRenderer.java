@@ -665,7 +665,6 @@ public class GridLabelRenderer {
                 i++;
             }
             double oldSteps = d2 - d1;
-            Log.d("GridLabelRenderer", "oldSteps=" + oldSteps);
             if (oldSteps > 0) {
                 double newSteps = Double.NaN;
 
