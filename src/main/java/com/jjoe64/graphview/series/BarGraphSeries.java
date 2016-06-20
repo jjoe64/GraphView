@@ -47,6 +47,12 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
     private Paint mPaint;
 
     /**
+     * custom paint that can be used.
+     * this will ignore the value dependent color.
+     */
+    private Paint mCustomPaint;
+
+    /**
      * spacing between the bars in percentage.
      * 0 => no spacing
      * 100 => the space bewetten the bars is as big as the bars itself
@@ -250,7 +256,13 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
 
             mDataPoints.put(new RectD(left, top, right, bottom), value);
 
-            canvas.drawRect((float)left, (float)top, (float)right, (float)bottom, mPaint);
+            Paint p;
+            if (mCustomPaint != null) {
+                p = mCustomPaint;
+            } else {
+                p = mPaint;
+            }
+            canvas.drawRect((float)left, (float)top, (float)right, (float)bottom, p);
 
             // set values on top of graph
             if (mDrawValuesOnTop) {
@@ -378,5 +390,25 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
             }
         }
         return null;
+    }
+
+    /**
+     * custom paint that can be used.
+     * this will ignore the value dependent color.
+     *
+     * @return custom paint or null
+     */
+    public Paint getCustomPaint() {
+        return mCustomPaint;
+    }
+
+    /**
+     * custom paint that can be used.
+     * this will ignore the value dependent color.
+     *
+     * @param mCustomPaint custom paint to use or null
+     */
+    public void setCustomPaint(Paint mCustomPaint) {
+        this.mCustomPaint = mCustomPaint;
     }
 }
