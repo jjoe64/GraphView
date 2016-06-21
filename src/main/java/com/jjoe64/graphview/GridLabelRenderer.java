@@ -138,7 +138,26 @@ public class GridLabelRenderer {
      * Definition which lines will be drawn in the background
      */
     public enum GridStyle {
-        BOTH, VERTICAL, HORIZONTAL, NONE;
+        /**
+         * show vertical and horizonal lines
+         * this is the default
+         */
+        BOTH,
+
+        /**
+         * show only vertical lines
+         */
+        VERTICAL,
+
+        /**
+         * show only horizontal lines
+         */
+        HORIZONTAL,
+
+        /**
+         * dont draw any lines
+         */
+        NONE;
 
         public boolean drawVertical() { return this == BOTH || this == VERTICAL && this != NONE; }
         public boolean drawHorizontal() { return this == BOTH || this == HORIZONTAL && this != NONE; }
