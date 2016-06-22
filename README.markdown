@@ -62,8 +62,22 @@ change version in gradle.properties
 
 uncomment part for publishing in build.gradle
 
+(once) create a gpg file
+- gpg --gen-key
+
+(once) publish key
+- gpg --send-keys D8C3B041
+and/or here as ascii
+- gpg --export -a D8C3B041
+- http://keyserver.ubuntu.com:11371/
+
+=> needs some time
+
+hardcode user/pwd of nexus account in maven_push.gradle
+
 run gradle task uploadArchives
 -  ./gradlew --rerun-tasks uploadArchives
+- enter gpg info (path: /Users/jonas/.gnupg/secring.gpg)
 
 open https://oss.sonatype.org
 
