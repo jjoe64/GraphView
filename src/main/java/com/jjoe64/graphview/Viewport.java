@@ -421,6 +421,24 @@ public class Viewport {
     protected OnXAxisBoundsChangedListener mOnXAxisBoundsChangedListener;
 
     /**
+     * optional draw a border between the labels
+     * and the viewport
+     */
+    private boolean mDrawBorder;
+
+    /**
+     * color of the border
+     * @see #setDrawBorder(boolean)
+     */
+    private Integer mBorderColor;
+
+    /**
+     * custom paint to use for the border
+     * @see #setDrawBorder(boolean)
+     */
+    private Paint mBorderPaint;
+
+    /**
      * creates the viewport
      *
      * @param graphView graphview
@@ -815,6 +833,39 @@ public class Viewport {
                     mPaint
             );
         }
+        if (mDrawBorder) {
+            Paint p;
+            if (mBorderPaint != null) {
+                p = mBorderPaint;
+            } else {
+                p = mPaint;
+                p.setColor(getBorderColor());
+            }
+            c.drawLine(
+                    mGraphView.getGraphContentLeft(),
+                    mGraphView.getGraphContentTop(),
+                    mGraphView.getGraphContentLeft(),
+                    mGraphView.getGraphContentTop()+mGraphView.getGraphContentHeight(),
+                    p
+            );
+            c.drawLine(
+                    mGraphView.getGraphContentLeft(),
+                    mGraphView.getGraphContentTop()+mGraphView.getGraphContentHeight(),
+                    mGraphView.getGraphContentLeft()+mGraphView.getGraphContentWidth(),
+                    mGraphView.getGraphContentTop()+mGraphView.getGraphContentHeight(),
+                    p
+            );
+            // on the right side if we have second scale
+            if (mGraphView.mSecondScale != null) {
+                c.drawLine(
+                        mGraphView.getGraphContentLeft()+mGraphView.getGraphContentWidth(),
+                        mGraphView.getGraphContentTop(),
+                        mGraphView.getGraphContentLeft()+mGraphView.getGraphContentWidth(),
+                        mGraphView.getGraphContentTop()+mGraphView.getGraphContentHeight(),
+                        p
+                );
+            }
+        }
     }
 
     /**
@@ -940,5 +991,50 @@ public class Viewport {
      */
     public void setOnXAxisBoundsChangedListener(OnXAxisBoundsChangedListener l) {
         mOnXAxisBoundsChangedListener = l;
+    }
+
+    /**
+     * optional draw a border between the labels
+     * and the viewport
+     *
+     * @param drawBorder true to draw the border
+     */
+    public void setDrawBorder(boolean drawBorder) {
+        this.mDrawBorder = drawBorder;
+    }
+
+    /**
+     * the border color used. will be ignored when
+     * a custom paint is set.
+     *
+     * @see #setDrawBorder(boolean)
+     * @return border color. by default the grid color is used
+     */
+    public int getBorderColor() {
+        if (mBorderColor != null) {
+            return mBorderColor;
+        }
+        return mGraphView.getGridLabelRenderer().getGridColor();
+    }
+
+    /**
+     * the border color used. will be ignored when
+     * a custom paint is set.
+     *
+     * @param borderColor null to reset
+     */
+    public void setBorderColor(Integer borderColor) {
+        this.mBorderColor = borderColor;
+    }
+
+    /**
+     * custom paint to use for the border. border color
+     * will be ignored
+     *
+     * @see #setDrawBorder(boolean)
+     * @param borderPaint
+     */
+    public void setBorderPaint(Paint borderPaint) {
+        this.mBorderPaint = borderPaint;
     }
 }
