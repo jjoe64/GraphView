@@ -1305,7 +1305,7 @@ public class GridLabelRenderer {
     }
     
     /**
-     * @param horizontalLabelsAngle the angle of the horizontal labels
+     * @param horizontalLabelsAngle the angle of the horizontal labels in degrees
      */
     public void setHorizontalLabelsAngle(int horizontalLabelsAngle) {
         mStyles.horizontalLabelsAngle = horizontalLabelsAngle;
