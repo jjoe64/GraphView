@@ -47,6 +47,12 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
     private Paint mPaint;
 
     /**
+     * custom paint that can be used.
+     * this will ignore the value dependent color.
+     */
+    private Paint mCustomPaint;
+
+    /**
      * spacing between the bars in percentage.
      * 0 => no spacing
      * 100 => the space bewetten the bars is as big as the bars itself
@@ -117,6 +123,8 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
         }
         mPaint.setTextSize(mValuesOnTopSize);
 
+        resetDataPoints();
+        
         // get data
         double maxX = graphView.getViewport().getMaxX(false);
         double minX = graphView.getViewport().getMinX(false);
@@ -188,7 +196,6 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
         int barSlotWidth = numBarSlots == 1
             ? graphView.getGraphContentWidth()
             : graphView.getGraphContentWidth() / (numBarSlots-1);
-        Log.d("BarGraphSeries", "numBars=" + numBarSlots);
 
         // Total spacing (both sides) between sets of bars
         double spacing = Math.min(barSlotWidth*mSpacing/100, barSlotWidth*0.98f);
@@ -248,7 +255,13 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
 
             mDataPoints.put(new RectD(left, top, right, bottom), value);
 
-            canvas.drawRect((float)left, (float)top, (float)right, (float)bottom, mPaint);
+            Paint p;
+            if (mCustomPaint != null) {
+                p = mCustomPaint;
+            } else {
+                p = mPaint;
+            }
+            canvas.drawRect((float)left, (float)top, (float)right, (float)bottom, p);
 
             // set values on top of graph
             if (mDrawValuesOnTop) {
@@ -376,5 +389,25 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
             }
         }
         return null;
+    }
+
+    /**
+     * custom paint that can be used.
+     * this will ignore the value dependent color.
+     *
+     * @return custom paint or null
+     */
+    public Paint getCustomPaint() {
+        return mCustomPaint;
+    }
+
+    /**
+     * custom paint that can be used.
+     * this will ignore the value dependent color.
+     *
+     * @param mCustomPaint custom paint to use or null
+     */
+    public void setCustomPaint(Paint mCustomPaint) {
+        this.mCustomPaint = mCustomPaint;
     }
 }
