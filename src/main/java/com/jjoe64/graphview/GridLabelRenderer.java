@@ -917,8 +917,8 @@ public class GridLabelRenderer {
             labelSizeChanged = true;
         }
         if (labelSizeChanged) {
-            // redraw
-            ViewCompat.postInvalidateOnAnimation(mGraphView);
+            // redraw directly
+            mGraphView.drawGraphElements(canvas);
             return;
         }
 

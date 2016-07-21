@@ -280,6 +280,29 @@ public class GraphView extends View {
         invalidate();
     }
 
+    protected void drawGraphElements(Canvas canvas) {
+        // must be in hardware accelerated mode
+        if (android.os.Build.VERSION.SDK_INT >= 11 && !canvas.isHardwareAccelerated()) {
+            throw new IllegalStateException("GraphView must be used in hardware accelerated mode." +
+                    "You can use android:hardwareAccelerated=\"true\" on your activity. Read this for more info:" +
+                    "https://developer.android.com/guide/topics/graphics/hardware-accel.html");
+        }
+
+        drawTitle(canvas);
+        mViewport.drawFirst(canvas);
+        mGridLabelRenderer.draw(canvas);
+        for (Series s : mSeries) {
+            s.draw(this, canvas, false);
+        }
+        if (mSecondScale != null) {
+            for (Series s : mSecondScale.getSeries()) {
+                s.draw(this, canvas, true);
+            }
+        }
+        mViewport.draw(canvas);
+        mLegendRenderer.draw(canvas);
+    }
+
     /**
      * will be called from Android system.
      *
@@ -291,26 +314,7 @@ public class GraphView extends View {
             canvas.drawColor(Color.rgb(200, 200, 200));
             canvas.drawText("GraphView: No Preview available", canvas.getWidth()/2, canvas.getHeight()/2, mPreviewPaint);
         } else {
-            // must be in hardware accelerated mode
-            if (android.os.Build.VERSION.SDK_INT >= 11 && !canvas.isHardwareAccelerated()) {
-                throw new IllegalStateException("GraphView must be used in hardware accelerated mode." +
-                        "You can use android:hardwareAccelerated=\"true\" on your activity. Read this for more info:" +
-                        "https://developer.android.com/guide/topics/graphics/hardware-accel.html");
-            }
-
-            drawTitle(canvas);
-            mViewport.drawFirst(canvas);
-            mGridLabelRenderer.draw(canvas);
-            for (Series s : mSeries) {
-                s.draw(this, canvas, false);
-            }
-            if (mSecondScale != null) {
-                for (Series s : mSecondScale.getSeries()) {
-                    s.draw(this, canvas, true);
-                }
-            }
-            mViewport.draw(canvas);
-            mLegendRenderer.draw(canvas);
+            drawGraphElements(canvas);
         }
     }
 
