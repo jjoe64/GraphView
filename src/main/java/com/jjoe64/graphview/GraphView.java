@@ -277,7 +277,7 @@ public class GraphView extends View {
         // adjustSteps grid system
         mViewport.calcCompleteRange();
         mGridLabelRenderer.invalidate(keepLabelsSize, keepViewport);
-        invalidate();
+        postInvalidate();
     }
 
     protected void drawGraphElements(Canvas canvas) {
