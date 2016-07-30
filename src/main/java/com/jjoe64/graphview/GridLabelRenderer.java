@@ -749,6 +749,9 @@ public class GridLabelRenderer {
             mGraphView.getViewport().mXAxisBoundsStatus = Viewport.AxisBoundsStatus.AUTO_ADJUSTED;
         }
 
+        // it can happen that we need to add some more labels to fill the complete screen
+        numHorizontalLabels = (int) ((mGraphView.getViewport().mCurrentViewport.width() / exactSteps)) + 1;
+
         if (mStepsHorizontal != null) {
             mStepsHorizontal.clear();
         } else {
@@ -758,11 +761,6 @@ public class GridLabelRenderer {
         int width = mGraphView.getGraphContentWidth();
         // convert data-x to pixel-x in current viewport
         double pixelPerData = width / mGraphView.getViewport().mCurrentViewport.width();
-
-        // it can happen that we need to add some more labels to fill the complete screen
-        while ((numHorizontalLabels + 1) * exactSteps * pixelPerData < width) {
-            numHorizontalLabels++;
-        }
 
         for (int i = 0; i < numHorizontalLabels; i++) {
             // dont draw if it is left of visible screen
