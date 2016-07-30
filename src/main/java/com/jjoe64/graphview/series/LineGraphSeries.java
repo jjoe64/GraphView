@@ -273,13 +273,13 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
                 }
                 registerDataPoint(endX, endY, value);
 
-                if (i==1) {
+                if (i>=1) {
                     mPath.moveTo(startX, startY);
                 }
                 mPath.lineTo(endX, endY);
 
                 if (mStyles.drawBackground) {
-                    if (i==1) {
+                    if (i>=1) {
                         firstX = startX;
                         mPathBackground.moveTo(startX, startY);
                     }
