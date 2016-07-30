@@ -23,6 +23,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.util.Log;
 
 import com.jjoe64.graphview.GraphView;
 
@@ -267,16 +268,19 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
                 float endY = (float) (graphTop - y) + graphHeight;
 
                 // draw data point
-                if (mStyles.drawDataPoints && !isOverdraw) {
-                    // draw first datapoint
-                    canvas.drawCircle(endX, endY, mStyles.dataPointsRadius, paint);
+                if (!isOverdraw) {
+                    if (mStyles.drawDataPoints) {
+                        // draw first datapoint
+                        canvas.drawCircle(endX, endY, mStyles.dataPointsRadius, paint);
+                    }
+                    registerDataPoint(endX, endY, value);
                 }
-                registerDataPoint(endX, endY, value);
 
-                if (i>=1) {
+                // NaN can happen when previous and current value is out of y bounds
+                if (!Float.isNaN(startY) && !Float.isNaN(endY)) {
                     mPath.moveTo(startX, startY);
+                    mPath.lineTo(endX, endY);
                 }
-                mPath.lineTo(endX, endY);
 
                 if (mStyles.drawBackground) {
                     if (i>=1) {
