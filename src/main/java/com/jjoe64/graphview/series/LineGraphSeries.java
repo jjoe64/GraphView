@@ -224,6 +224,7 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
             if (i > 0) {
                 // overdraw
                 boolean isOverdraw = false;
+                boolean skipDraw = false;
 
                 if (x > graphWidth) { // end right
                     double b = ((graphWidth - lastEndX) * (y - lastEndY)/(x - lastEndX));
@@ -232,12 +233,16 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
                     isOverdraw = true;
                 }
                 if (y < 0) { // end bottom
+                    // skip when previous and this point is out of bound
+                    if (lastEndY < 0) {skipDraw=true;}
                     double b = ((0 - lastEndY) * (x - lastEndX)/(y - lastEndY));
                     x = lastEndX+b;
                     y = 0;
                     isOverdraw = true;
                 }
                 if (y > graphHeight) { // end top
+                    // skip when previous and this point is out of bound
+                    if (lastEndY > graphHeight) {skipDraw=true;}
                     double b = ((graphHeight - lastEndY) * (x - lastEndX)/(y - lastEndY));
                     x = lastEndX+b;
                     y = graphHeight;
@@ -277,7 +282,7 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
                 }
 
                 // NaN can happen when previous and current value is out of y bounds
-                if (!Float.isNaN(startY) && !Float.isNaN(endY)) {
+                if (!skipDraw && !Float.isNaN(startY) && !Float.isNaN(endY)) {
                     mPath.moveTo(startX, startY);
                     mPath.lineTo(endX, endY);
                 }
