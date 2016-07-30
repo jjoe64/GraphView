@@ -363,11 +363,6 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
         }
     }
 
-    /**
-     * called when the series was added to a graph
-     *
-     * @param graphView graphview
-     */
     @Override
     public void onGraphViewAttached(GraphView graphView) {
         mGraphViews.add(graphView);
@@ -380,8 +375,9 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
      * @param scrollToEnd true => graphview will scroll to the end (maxX)
      * @param maxDataPoints if max data count is reached, the oldest data
      *                      value will be lost to avoid memory leaks
+     * @param silent    set true to avoid rerender the graph
      */
-    public void appendData(E dataPoint, boolean scrollToEnd, int maxDataPoints) {
+    public void appendData(E dataPoint, boolean scrollToEnd, int maxDataPoints, boolean silent) {
         checkValueOrder(dataPoint);
 
         if (!mData.isEmpty() && dataPoint.getX() < mData.get(mData.size()-1).getX()) {
@@ -399,17 +395,31 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
             }
         }
 
-        // recalc the labels when it was the first data
-        boolean keepLabels = mData.size() != 1;
+        if (!silent) {
+            // recalc the labels when it was the first data
+            boolean keepLabels = mData.size() != 1;
 
-        // update linked graph views
-        // update graphview
-        for (GraphView gv : mGraphViews) {
-            gv.onDataChanged(keepLabels, scrollToEnd);
-            if (scrollToEnd) {
-                gv.getViewport().scrollToEnd();
+            // update linked graph views
+            // update graphview
+            for (GraphView gv : mGraphViews) {
+                gv.onDataChanged(keepLabels, scrollToEnd);
+                if (scrollToEnd) {
+                    gv.getViewport().scrollToEnd();
+                }
             }
         }
+    }
+
+    /**
+     *
+     * @param dataPoint values the values must be in the correct order!
+     *                  x-value has to be ASC. First the lowest x value and at least the highest x value.
+     * @param scrollToEnd true => graphview will scroll to the end (maxX)
+     * @param maxDataPoints if max data count is reached, the oldest data
+     *                      value will be lost to avoid memory leaks
+     */
+    public void appendData(E dataPoint, boolean scrollToEnd, int maxDataPoints) {
+        appendData(dataPoint, scrollToEnd, maxDataPoints, false);
     }
 
     /**
