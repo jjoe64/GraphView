@@ -92,6 +92,7 @@ public class SecondScale {
      * @param s the series
      */
     public void addSeries(Series s) {
+        s.onGraphViewAttached(mGraph);
         mSeries.add(s);
         mGraph.onDataChanged(false, false);
     }
