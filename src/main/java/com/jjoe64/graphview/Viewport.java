@@ -68,7 +68,7 @@ public class Viewport {
             return referenceY;
         } else {
             // starting from 1st datapoint so that the steps have nice numbers
-            return getMinY(true);
+            return 0;
         }
     }
 

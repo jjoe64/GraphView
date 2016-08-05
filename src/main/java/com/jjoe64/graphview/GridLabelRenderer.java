@@ -590,7 +590,7 @@ public class GridLabelRenderer {
 
         // human rounding to have nice numbers (1, 2, 5, ...)
         if (isHumanRounding()) {
-            exactSteps = humanRound(exactSteps, false);
+            exactSteps = humanRound(exactSteps, changeBounds);
         } else if (mStepsVertical != null && mStepsVertical.size() > 1) {
             // else choose other nice steps that previous
             // steps are included (divide to have more, or multiplicate to have less)
@@ -648,11 +648,11 @@ public class GridLabelRenderer {
         // starting from 1st datapoint so that the steps have nice numbers
         newMinY = mGraphView.getViewport().getReferenceY();
         if (newMinY < minY) {
-            while (newMinY < minY) {
+            while (newMinY+exactSteps <= minY) {
                 newMinY += exactSteps;
             }
-        } else if (newMinY - exactSteps > minY) {
-            while (newMinY-exactSteps > minY) {
+        } else if (newMinY > minY) {
+            while (newMinY > minY) {
                 newMinY -= exactSteps;
             }
         }
@@ -660,12 +660,12 @@ public class GridLabelRenderer {
         // now we have our labels bounds
         if (changeBounds) {
             mGraphView.getViewport().setMinY(newMinY);
-            mGraphView.getViewport().setMaxY(newMinY + (numVerticalLabels - 1) * exactSteps);
+            mGraphView.getViewport().setMaxY(Math.max(maxY, newMinY + (numVerticalLabels - 1) * exactSteps));
             mGraphView.getViewport().mYAxisBoundsStatus = Viewport.AxisBoundsStatus.AUTO_ADJUSTED;
         }
 
         // it can happen that we need to add some more labels to fill the complete screen
-        numVerticalLabels = (int) ((mGraphView.getViewport().mCurrentViewport.height()*-1 / exactSteps)) + 1;
+        numVerticalLabels = (int) ((mGraphView.getViewport().mCurrentViewport.height()*-1 / exactSteps)) + 2;
 
         if (mStepsVertical != null) {
             mStepsVertical.clear();
@@ -682,6 +682,11 @@ public class GridLabelRenderer {
             if (newMinY + (i * exactSteps) > mGraphView.getViewport().mCurrentViewport.top) {
                 continue;
             }
+            // dont draw if it is below of visible screen
+            if (newMinY + (i * exactSteps) < mGraphView.getViewport().mCurrentViewport.bottom) {
+                continue;
+            }
+
 
             // where is the data point on the current screen
             double dataPointPos = newMinY + (i * exactSteps);
