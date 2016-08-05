@@ -57,6 +57,7 @@ public class Viewport {
      * is set manual and humanRounding=false. it will be the minValueY value.
      */
     protected double referenceY = Double.NaN;
+    private boolean scalableY;
 
     protected double getReferenceY() {
         // if the bounds is manual then we take the
@@ -70,6 +71,13 @@ public class Viewport {
             // starting from 1st datapoint so that the steps have nice numbers
             return 0;
         }
+    }
+
+    public void setScalableY(boolean scalableY) {
+        if (scalableY) {
+            this.scrollableY = true;
+        }
+        this.scalableY = scalableY;
     }
 
     /**
@@ -103,9 +111,10 @@ public class Viewport {
          */
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
+            // --- horizontal scaling ---
             double viewportWidth = mCurrentViewport.width();
             double center = mCurrentViewport.left + viewportWidth / 2;
-            viewportWidth /= detector.getScaleFactor();
+            viewportWidth /= detector.getCurrentSpanX()/detector.getPreviousSpanX();
             mCurrentViewport.left = center - viewportWidth / 2;
             mCurrentViewport.right = mCurrentViewport.left+viewportWidth;
 
@@ -132,6 +141,17 @@ public class Viewport {
                     mCurrentViewport.left = minX;
                     mCurrentViewport.right = maxX;
                 }
+            }
+
+
+            // --- vertical scaling ---
+            if (scalableY) {
+                double viewportHeight = mCurrentViewport.height()*-1;
+                center = mCurrentViewport.bottom + viewportHeight / 2;
+                viewportHeight /= detector.getCurrentSpanY()/detector.getPreviousSpanY();
+                mCurrentViewport.bottom = center - viewportHeight / 2;
+                mCurrentViewport.top = mCurrentViewport.bottom+viewportHeight;
+                // TODO min/max + overlapping
             }
 
             // adjustSteps viewport, labels, etc.
@@ -216,12 +236,13 @@ public class Viewport {
                     * (mCurrentViewport.left + viewportOffsetX - mCompleteRange.left)
                     / mCompleteRange.width());
             int scrolledY = (int) (completeHeight
-                    * (mCompleteRange.bottom - mCurrentViewport.bottom - viewportOffsetY)
-                    / mCompleteRange.height());
+                    * (mCurrentViewport.bottom + viewportOffsetY - mCompleteRange.bottom)
+                    / mCompleteRange.height()*-1);
             boolean canScrollX = mCurrentViewport.left > mCompleteRange.left
                     || mCurrentViewport.right < mCompleteRange.right;
             boolean canScrollY = mCurrentViewport.bottom > mCompleteRange.bottom
                     || mCurrentViewport.top < mCompleteRange.top;
+            canScrollY &= scrollableY;
 
             if (canScrollX) {
                 if (viewportOffsetX < 0) {
