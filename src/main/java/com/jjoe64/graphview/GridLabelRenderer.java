@@ -511,8 +511,17 @@ public class GridLabelRenderer {
             return true;
         }
 
-        double minY = mGraphView.mSecondScale.getMinY();
-        double maxY = mGraphView.mSecondScale.getMaxY();
+
+        final double minY = mGraphView.mSecondScale.getMinY();
+        final double maxY = mGraphView.mSecondScale.getMaxY();
+
+        // protect from undefined behaviour
+        if (Double.compare(minY, maxY) >= 0
+                || Double.isInfinite(minY)
+                || Double.isNaN(minY)
+                || Double.isInfinite(maxY)
+                || Double.isNaN(maxY))
+            return false;
 
         // TODO find the number of labels
         int numVerticalLabels = mNumVerticalLabels;
@@ -570,61 +579,86 @@ public class GridLabelRenderer {
         }
 
         double minY = mGraphView.getViewport().getMinY(false);
-        double maxY = mGraphView.getViewport().getMaxY(false);
+        final double maxY = mGraphView.getViewport().getMaxY(false);
 
-        if (minY == maxY) {
+        // protect from undefined behaviour
+        if (Double.compare(minY, maxY) >= 0
+                || Double.isInfinite(minY)
+                || Double.isNaN(minY)
+                || Double.isInfinite(maxY)
+                || Double.isNaN(maxY))
             return false;
-        }
 
         // TODO find the number of labels
         int numVerticalLabels = mNumVerticalLabels;
 
         double newMinY;
         double exactSteps;
+        double rangeY;
+
+        newMinY = minY;
 
         if (mGraphView.getViewport().isYAxisBoundsManual()) {
-            newMinY = minY;
-            double rangeY = maxY - newMinY;
+            rangeY = maxY - newMinY;
             exactSteps = rangeY / (numVerticalLabels - 1);
         } else {
             // find good steps
-            boolean adjusting = true;
-            newMinY = minY;
-            exactSteps = 0d;
-            while (adjusting) {
-                double rangeY = maxY - newMinY;
+            while (true) {
+                rangeY = maxY - newMinY;
                 exactSteps = rangeY / (numVerticalLabels - 1);
                 exactSteps = humanRound(exactSteps, true);
 
+                // protect from undefined behaviour
+                if (Double.compare(exactSteps, 0.d) == 0
+                        || Double.isInfinite(exactSteps)
+                        || Double.isNaN(exactSteps))
+                    break;
+
                 // adjustSteps viewport
-                // wie oft passt STEP in minY rein?
+                // how many STEP fits in minY
                 int count = 0;
-                if (newMinY >= 0d) {
+                if (newMinY >= 0.d) {
                     // positive number
-                    while (newMinY - exactSteps >= 0) {
+                    while (newMinY - exactSteps >= 0.d) {
                         newMinY -= exactSteps;
+                        // protect from infinity loop and undefined behaviour
+                        if (Double.isInfinite(newMinY) || Double.isNaN(newMinY))
+                            return false;
                         count++;
                     }
                     newMinY = exactSteps * count;
                 } else {
                     // negative number
                     count++;
-                    while (newMinY + exactSteps < 0) {
+                    while (newMinY + exactSteps < 0.d) {
                         newMinY += exactSteps;
+                        // protect from infinity loop and undefined behaviour
+                        if (Double.isInfinite(newMinY) || Double.isNaN(newMinY))
+                            return false;
                         count++;
                     }
                     newMinY = exactSteps * count * -1;
                 }
 
+                // protect from infinity loop and undefined behaviour
+                if (Double.isInfinite(newMinY) || Double.isNaN(newMinY))
+                    return false;
+
                 // wenn minY sich geändert hat, steps nochmal berechnen
                 // wenn nicht, fertig
-                if (newMinY == minY) {
-                    adjusting = false;
+                if (Double.compare(newMinY, minY) == 0) {
+                    break;
                 } else {
                     minY = newMinY;
                 }
             }
         }
+
+        // protect from undefined behaviour
+        if (Double.compare(exactSteps, 0.d) == 0
+                || Double.isInfinite(exactSteps)
+                || Double.isNaN(exactSteps))
+            return false;
 
         double newMaxY = newMinY + (numVerticalLabels - 1) * exactSteps;
         mGraphView.getViewport().setMinY(newMinY);
@@ -664,9 +698,16 @@ public class GridLabelRenderer {
             return false;
         }
 
-        double minX = mGraphView.getViewport().getMinX(false);
-        double maxX = mGraphView.getViewport().getMaxX(false);
-        if (minX == maxX) return false;
+        final double minX = mGraphView.getViewport().getMinX(false);
+        final double maxX = mGraphView.getViewport().getMaxX(false);
+
+        // protect from undefined behaviour
+        if (Double.compare(minX, maxX) >= 0
+                || Double.isInfinite(minX)
+                || Double.isNaN(minX)
+                || Double.isInfinite(maxX)
+                || Double.isNaN(maxX))
+            return false;
 
         // TODO find the number of labels
         int numHorizontalLabels = mNumHorizontalLabels;
@@ -735,9 +776,13 @@ public class GridLabelRenderer {
             // first time
         }
 
-
         // starting from 1st datapoint
         newMinX = mGraphView.getViewport().getMinX(true);
+
+        // protect from undefined behaviour
+        if (Double.isInfinite(newMinX) || Double.isNaN(newMinX))
+            return false;
+
         while (newMinX < minX) {
             newMinX += exactSteps;
         }
@@ -796,8 +841,22 @@ public class GridLabelRenderer {
      * @param canvas canvas
      */
     protected void calcLabelVerticalSize(Canvas canvas) {
+        final double minY = mGraphView.getViewport().getMinY(false);
+        final double maxY = mGraphView.getViewport().getMaxY(false);
+
+        // protect from undefined behaviour
+        if (Double.compare(minY, maxY) >= 0
+                || Double.isInfinite(minY)
+                || Double.isNaN(minY)
+                || Double.isInfinite(maxY)
+                || Double.isNaN(maxY)) {
+            mLabelVerticalWidth = 0;
+            mLabelVerticalHeight = 0;
+            return;
+        }
+
         // test label with first and last label
-        String testLabel = mLabelFormatter.formatLabel(mGraphView.getViewport().getMaxY(false), false);
+        String testLabel = mLabelFormatter.formatLabel(maxY, false);
         if (testLabel == null) testLabel = "";
 
         Rect textBounds = new Rect();
@@ -805,7 +864,7 @@ public class GridLabelRenderer {
         mLabelVerticalWidth = textBounds.width();
         mLabelVerticalHeight = textBounds.height();
 
-        testLabel = mLabelFormatter.formatLabel(mGraphView.getViewport().getMinY(false), false);
+        testLabel = mLabelFormatter.formatLabel(minY, false);
         if (testLabel == null) testLabel = "";
 
         mPaintLabel.getTextBounds(testLabel, 0, testLabel.length(), textBounds);
@@ -837,8 +896,22 @@ public class GridLabelRenderer {
             return;
         }
 
+        final double minY = mGraphView.mSecondScale.getMinY();
+        final double maxY = mGraphView.mSecondScale.getMaxY();
+
+        // protect from undefined behaviour
+        if (Double.compare(minY, maxY) >= 0
+                || Double.isInfinite(minY)
+                || Double.isNaN(minY)
+                || Double.isInfinite(maxY)
+                || Double.isNaN(maxY)) {
+            mLabelVerticalSecondScaleWidth = 0;
+            mLabelVerticalSecondScaleHeight = 0;
+            return;
+        }
+
         // test label
-        double testY = ((mGraphView.mSecondScale.getMaxY() - mGraphView.mSecondScale.getMinY()) * 0.783) + mGraphView.mSecondScale.getMinY();
+        double testY = ((maxY - minY) * 0.783) + minY;
         String testLabel = mGraphView.mSecondScale.getLabelFormatter().formatLabel(testY, false);
         Rect textBounds = new Rect();
         mPaintLabel.getTextBounds(testLabel, 0, testLabel.length(), textBounds);
@@ -858,8 +931,22 @@ public class GridLabelRenderer {
      * @param canvas canvas
      */
     protected void calcLabelHorizontalSize(Canvas canvas) {
+        final double minX = mGraphView.getViewport().getMinX(false);
+        final double maxX = mGraphView.getViewport().getMaxX(false);
+
+        // protect from undefined behaviour
+        if (Double.compare(minX, maxX) >= 0
+                || Double.isInfinite(minX)
+                || Double.isNaN(minX)
+                || Double.isInfinite(maxX)
+                || Double.isNaN(maxX)) {
+            mLabelHorizontalWidth = 0;
+            mLabelHorizontalHeight = 0;
+            return;
+        }
+
         // test label
-        double testX = ((mGraphView.getViewport().getMaxX(false) - mGraphView.getViewport().getMinX(false)) * 0.783) + mGraphView.getViewport().getMinX(false);
+        double testX = ((maxX - minX) * 0.783) + minX;
         String testLabel = mLabelFormatter.formatLabel(testX, true);
         if (testLabel == null) {
             testLabel = "";
