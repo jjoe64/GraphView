@@ -77,7 +77,7 @@ hardcode user/pwd of nexus account in maven_push.gradle
 
 run gradle task uploadArchives
 -  ./gradlew --rerun-tasks uploadArchives
-- enter gpg info (path: /Users/jonas/.gnupg/secring.gpg)
+- enter gpg info (id:D8C3B041 / path: /Users/jonas/.gnupg/secring.gpg / PWD)
 
 open https://oss.sonatype.org
 

@@ -52,6 +52,27 @@ import java.util.List;
  */
 public class Viewport {
     /**
+     * this reference value is used to generate the
+     * vertical labels. It is used when the y axis bounds
+     * is set manual and humanRounding=false. it will be the minValueY value.
+     */
+    protected double referenceY = Double.NaN;
+
+    protected double getReferenceY() {
+        // if the bounds is manual then we take the
+        // original manual min y value as reference
+        if (isYAxisBoundsManual() && !mGraphView.getGridLabelRenderer().isHumanRounding()) {
+            if (Double.isNaN(referenceY)) {
+                referenceY = getMinY(false);
+            }
+            return referenceY;
+        } else {
+            // starting from 1st datapoint so that the steps have nice numbers
+            return getMinY(true);
+        }
+    }
+
+    /**
      * listener to notify when x bounds changed after
      * scaling or scrolling.
      * This can be used to load more detailed data.
@@ -167,7 +188,6 @@ public class Viewport {
 
             // Initiates the decay phase of any active edge effects.
             releaseEdgeEffects();
-            mScrollerStartViewport.set(mCurrentViewport.toRectF());
             // Aborts any active scroll animations and invalidates.
             mScroller.forceFinished(true);
             ViewCompat.postInvalidateOnAnimation(mGraphView);
@@ -224,8 +244,8 @@ public class Viewport {
                 }
             }
             if (canScrollY) {
-                //mCurrentViewport.top += viewportOffsetX;
-                //mCurrentViewport.bottom -= viewportOffsetX;
+                mCurrentViewport.top -= viewportOffsetY;
+                mCurrentViewport.bottom -= viewportOffsetY;
             }
 
             if (canScrollX && scrolledX < 0) {
@@ -327,6 +347,12 @@ public class Viewport {
     private boolean mIsScalable;
 
     /**
+     * flag whether the viewport is scalable
+     * on the Y axis
+     */
+    private boolean scrollableY;
+
+    /**
      * gesture detector to detect scrolling
      */
     protected GestureDetector mGestureDetector;
@@ -382,12 +408,6 @@ public class Viewport {
     private boolean mEdgeEffectRightActive;
 
     /**
-     * stores  the viewport at the time of
-     * the beginning of scaling
-     */
-    private RectF mScrollerStartViewport = new RectF();
-
-    /**
      * state of the x axis
      */
     protected AxisBoundsStatus mXAxisBoundsStatus;
@@ -395,7 +415,7 @@ public class Viewport {
     /**
      * state of the y axis
      */
-    private AxisBoundsStatus mYAxisBoundsStatus;
+    protected AxisBoundsStatus mYAxisBoundsStatus;
 
     /**
      * flag whether the x axis bounds are manual
@@ -731,7 +751,6 @@ public class Viewport {
         velocityY = 0;
         releaseEdgeEffects();
         // Flings use math in pixels (as opposed to math based on the viewport).
-        mScrollerStartViewport.set(mCurrentViewport.toRectF());
         int maxX = (int)((mCurrentViewport.width()/mCompleteRange.width())*(float)mGraphView.getGraphContentWidth()) - mGraphView.getGraphContentWidth();
         int maxY = (int)((mCurrentViewport.height()/mCompleteRange.height())*(float)mGraphView.getGraphContentHeight()) - mGraphView.getGraphContentHeight();
         int startX = (int)((mCurrentViewport.left - mCompleteRange.left)/mCompleteRange.width())*maxX;
@@ -1036,5 +1055,9 @@ public class Viewport {
      */
     public void setBorderPaint(Paint borderPaint) {
         this.mBorderPaint = borderPaint;
+    }
+
+    public void setScrollableY(boolean scrollableY) {
+        this.scrollableY = scrollableY;
     }
 }

@@ -564,7 +564,7 @@ public class GridLabelRenderer {
      *
      * @return true if it is ready
      */
-    protected boolean adjustVertical() {
+    protected boolean adjustVertical(boolean changeBounds) {
         if (mLabelHorizontalHeight == null) {
             return false;
         }
@@ -582,71 +582,113 @@ public class GridLabelRenderer {
         double newMinY;
         double exactSteps;
 
-        if (mGraphView.getViewport().isYAxisBoundsManual()) {
-            newMinY = minY;
-            double rangeY = maxY - newMinY;
-            exactSteps = rangeY / (numVerticalLabels - 1);
+        // split range into equal steps
+        exactSteps = (maxY - minY) / (numVerticalLabels - 1);
+
+        // round because of floating error
+        exactSteps = Math.round(exactSteps * 1000000d) / 1000000d;
+
+        // human rounding to have nice numbers (1, 2, 5, ...)
+        if (isHumanRounding()) {
+            exactSteps = humanRound(exactSteps, false);
+        } else if (mStepsVertical != null && mStepsVertical.size() > 1) {
+            // else choose other nice steps that previous
+            // steps are included (divide to have more, or multiplicate to have less)
+
+            double d1 = 0, d2 = 0;
+            int i = 0;
+            for (Double v : mStepsVertical.values()) {
+                if (i == 0) {
+                    d1 = v;
+                } else {
+                    d2 = v;
+                    break;
+                }
+                i++;
+            }
+            double oldSteps = d2 - d1;
+            if (oldSteps > 0) {
+                double newSteps = Double.NaN;
+
+                if (oldSteps > exactSteps) {
+                    newSteps = oldSteps / 2;
+                } else if (oldSteps < exactSteps) {
+                    newSteps = oldSteps * 2;
+                }
+
+                // only if there wont be more than numLabels
+                // and newSteps will be better than oldSteps
+                int numStepsOld = (int) ((maxY - minY) / oldSteps);
+                int numStepsNew = (int) ((maxY - minY) / newSteps);
+
+                boolean shouldChange;
+
+                // avoid switching between 2 steps
+                if (numStepsOld <= numVerticalLabels && numStepsNew <= numVerticalLabels) {
+                    // both are possible
+                    // only the new if it hows more labels
+                    shouldChange = numStepsNew > numStepsOld;
+                } else {
+                    shouldChange = true;
+                }
+
+                if (newSteps != Double.NaN && shouldChange && numStepsNew <= numVerticalLabels) {
+                    exactSteps = newSteps;
+                } else {
+                    // try to stay to the old steps
+                    exactSteps = oldSteps;
+                }
+            }
         } else {
-            // find good steps
-            boolean adjusting = true;
-            newMinY = minY;
-            exactSteps = 0d;
-            while (adjusting) {
-                double rangeY = maxY - newMinY;
-                exactSteps = rangeY / (numVerticalLabels - 1);
-                exactSteps = humanRound(exactSteps, true);
+            // first time
+        }
 
-                // adjustSteps viewport
-                // wie oft passt STEP in minY rein?
-                int count = 0;
-                if (newMinY >= 0d) {
-                    // positive number
-                    while (newMinY - exactSteps >= 0) {
-                        newMinY -= exactSteps;
-                        count++;
-                    }
-                    newMinY = exactSteps * count;
-                } else {
-                    // negative number
-                    count++;
-                    while (newMinY + exactSteps < 0) {
-                        newMinY += exactSteps;
-                        count++;
-                    }
-                    newMinY = exactSteps * count * -1;
-                }
 
-                // wenn minY sich geändert hat, steps nochmal berechnen
-                // wenn nicht, fertig
-                if (newMinY == minY) {
-                    adjusting = false;
-                } else {
-                    minY = newMinY;
-                }
+        // find the first data point that is relevant to display
+        // starting from 1st datapoint so that the steps have nice numbers
+        newMinY = mGraphView.getViewport().getReferenceY();
+        if (newMinY < minY) {
+            while (newMinY < minY) {
+                newMinY += exactSteps;
+            }
+        } else if (newMinY - exactSteps > minY) {
+            while (newMinY-exactSteps > minY) {
+                newMinY -= exactSteps;
             }
         }
 
-        double newMaxY = newMinY + (numVerticalLabels - 1) * exactSteps;
-        mGraphView.getViewport().setMinY(newMinY);
-        mGraphView.getViewport().setMaxY(newMaxY);
-
-        if (!mGraphView.getViewport().isYAxisBoundsManual()) {
-            mGraphView.getViewport().setYAxisBoundsStatus(Viewport.AxisBoundsStatus.AUTO_ADJUSTED);
+        // now we have our labels bounds
+        if (changeBounds) {
+            mGraphView.getViewport().setMinY(newMinY);
+            mGraphView.getViewport().setMaxY(newMinY + (numVerticalLabels - 1) * exactSteps);
+            mGraphView.getViewport().mYAxisBoundsStatus = Viewport.AxisBoundsStatus.AUTO_ADJUSTED;
         }
+
+        // it can happen that we need to add some more labels to fill the complete screen
+        numVerticalLabels = (int) ((mGraphView.getViewport().mCurrentViewport.height()*-1 / exactSteps)) + 1;
 
         if (mStepsVertical != null) {
             mStepsVertical.clear();
         } else {
-            mStepsVertical = new LinkedHashMap<Integer, Double>(numVerticalLabels);
+            mStepsVertical = new LinkedHashMap<>((int) numVerticalLabels);
         }
+
         int height = mGraphView.getGraphContentHeight();
-        double v = newMaxY;
-        int p = mGraphView.getGraphContentTop(); // start
-        int pixelStep = height / (numVerticalLabels - 1);
+        // convert data-y to pixel-y in current viewport
+        double pixelPerData = height / mGraphView.getViewport().mCurrentViewport.height()*-1;
+
         for (int i = 0; i < numVerticalLabels; i++) {
-            mStepsVertical.put(p, v);
-            p += pixelStep;
-            v -= exactSteps;
+            // dont draw if it is top of visible screen
+            if (newMinY + (i * exactSteps) > mGraphView.getViewport().mCurrentViewport.top) {
+                continue;
+            }
+
+            // where is the data point on the current screen
+            double dataPointPos = newMinY + (i * exactSteps);
+            double relativeToCurrentViewport = dataPointPos - mGraphView.getViewport().mCurrentViewport.bottom;
+
+            double pixelPos = relativeToCurrentViewport * pixelPerData;
+            mStepsVertical.put((int) pixelPos, dataPointPos);
         }
 
         return true;
@@ -786,7 +828,7 @@ public class GridLabelRenderer {
      * are manual.
      */
     protected void adjustSteps() {
-        mIsAdjusted = adjustVertical();
+        mIsAdjusted = adjustVertical(! Viewport.AxisBoundsStatus.FIX.equals(mGraphView.getViewport().mYAxisBoundsStatus));
         mIsAdjusted &= adjustVerticalSecondScale();
         mIsAdjusted &= adjustHorizontal(! Viewport.AxisBoundsStatus.FIX.equals(mGraphView.getViewport().mXAxisBoundsStatus));
     }
@@ -1119,6 +1161,8 @@ public class GridLabelRenderer {
         mPaintLabel.setColor(getVerticalLabelsColor());
         mPaintLabel.setTextAlign(getVerticalLabelsAlign());
         for (Map.Entry<Integer, Double> e : mStepsVertical.entrySet()) {
+            float posY = mGraphView.getGraphContentTop()+mGraphView.getGraphContentHeight()-e.getKey();
+
             // draw line
             if (mStyles.highlightZeroLines) {
                 if (e.getValue() == 0d) {
@@ -1128,7 +1172,7 @@ public class GridLabelRenderer {
                 }
             }
             if (mStyles.gridStyle.drawHorizontal()) {
-                canvas.drawLine(startLeft, e.getKey(), startLeft + mGraphView.getGraphContentWidth(), e.getKey(), mPaintLine);
+                canvas.drawLine(startLeft, posY, startLeft + mGraphView.getGraphContentWidth(), posY, mPaintLine);
             }
 
             // draw label
@@ -1143,7 +1187,7 @@ public class GridLabelRenderer {
                 }
                 labelsOffset += mStyles.padding + getVerticalAxisTitleWidth();
 
-                float y = e.getKey();
+                float y = posY;
 
                 String label = mLabelFormatter.formatLabel(e.getValue(), false);
                 if (label == null) {

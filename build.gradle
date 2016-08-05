@@ -28,13 +28,17 @@ android {
             minifyEnabled false
         }
     }
+      lintOptions {
+          abortOnError false
+      }
+
 }
 
 dependencies {
     compile 'com.android.support:support-v4:22.1.1'
 }
 
-/*
+
 //this is used to generate .jar files and push to maven repo
 // This is the actual solution, as in http://stackoverflow.com/a/19037807/1002054
 task clearJar(type: Delete) {
@@ -49,7 +53,7 @@ task makeJar(type: Copy) {
 }
 
 makeJar.dependsOn(clearJar, build)
-*/
+
 
 //apply from: './maven_push.gradle'
 
