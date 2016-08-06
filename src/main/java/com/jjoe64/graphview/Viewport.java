@@ -227,7 +227,7 @@ public class Viewport {
              * {@link mCurrentViewport}.
              */
             double viewportOffsetX = distanceX * mCurrentViewport.width() / mGraphView.getGraphContentWidth();
-            double viewportOffsetY = -distanceY * mCurrentViewport.height() / mGraphView.getGraphContentHeight();
+            double viewportOffsetY = distanceY * mCurrentViewport.height() / mGraphView.getGraphContentHeight();
 
             int completeWidth = (int)((mCompleteRange.width()/mCurrentViewport.width()) * (double) mGraphView.getGraphContentWidth());
             int completeHeight = (int)((mCompleteRange.height()/mCurrentViewport.height()) * (double) mGraphView.getGraphContentHeight());
@@ -235,6 +235,7 @@ public class Viewport {
             int scrolledX = (int) (completeWidth
                     * (mCurrentViewport.left + viewportOffsetX - mCompleteRange.left)
                     / mCompleteRange.width());
+
             int scrolledY = (int) (completeHeight
                     * (mCurrentViewport.bottom + viewportOffsetY - mCompleteRange.bottom)
                     / mCompleteRange.height()*-1);
@@ -265,28 +266,36 @@ public class Viewport {
                 }
             }
             if (canScrollY) {
-                mCurrentViewport.top -= viewportOffsetY;
-                mCurrentViewport.bottom -= viewportOffsetY;
+                if (viewportOffsetY < 0) {
+                    double tooMuch = mCurrentViewport.bottom+viewportOffsetY - mCompleteRange.bottom;
+                    if (tooMuch < 0) {
+                        viewportOffsetY -= tooMuch;
+                    }
+                } else {
+                    double tooMuch = mCurrentViewport.top+viewportOffsetY - mCompleteRange.top;
+                    if (tooMuch > 0) {
+                        viewportOffsetY -= tooMuch;
+                    }
+                }
+
+                mCurrentViewport.top += viewportOffsetY;
+                mCurrentViewport.bottom += viewportOffsetY;
             }
 
             if (canScrollX && scrolledX < 0) {
                 mEdgeEffectLeft.onPull(scrolledX / (float) mGraphView.getGraphContentWidth());
-                mEdgeEffectLeftActive = true;
             }
             if (canScrollY && scrolledY < 0) {
                 mEdgeEffectBottom.onPull(scrolledY / (float) mGraphView.getGraphContentHeight());
-                mEdgeEffectBottomActive = true;
             }
             if (canScrollX && scrolledX > completeWidth - mGraphView.getGraphContentWidth()) {
                 mEdgeEffectRight.onPull((scrolledX - completeWidth + mGraphView.getGraphContentWidth())
                         / (float) mGraphView.getGraphContentWidth());
-                mEdgeEffectRightActive = true;
             }
-            //if (canScrollY && scrolledY > mSurfaceSizeBuffer.y - mContentRect.height()) {
-            //    mEdgeEffectTop.onPull((scrolledY - mSurfaceSizeBuffer.y + mContentRect.height())
-            //            / (float) mContentRect.height());
-            //    mEdgeEffectTopActive = true;
-            //}
+            if (canScrollY && scrolledY > completeHeight - mGraphView.getGraphContentHeight()) {
+                mEdgeEffectTop.onPull((scrolledY - completeHeight + mGraphView.getGraphContentHeight())
+                        / (float) mGraphView.getGraphContentHeight());
+            }
 
             // adjustSteps viewport, labels, etc.
             mGraphView.onDataChanged(true, false);
@@ -407,26 +416,6 @@ public class Viewport {
      * glow effect when scrolling right
      */
     private EdgeEffectCompat mEdgeEffectRight;
-
-    /**
-     * not used
-     */
-    private boolean mEdgeEffectTopActive;
-
-    /**
-     * not used
-     */
-    private boolean mEdgeEffectBottomActive;
-
-    /**
-     * glow effect when scrolling left
-     */
-    private boolean mEdgeEffectLeftActive;
-
-    /**
-     * glow effect when scrolling right
-     */
-    private boolean mEdgeEffectRightActive;
 
     /**
      * state of the x axis
@@ -753,11 +742,10 @@ public class Viewport {
      * release the glowing effects
      */
     private void releaseEdgeEffects() {
-        mEdgeEffectLeftActive
-                = mEdgeEffectRightActive
-                = false;
         mEdgeEffectLeft.onRelease();
         mEdgeEffectRight.onRelease();
+        mEdgeEffectTop.onRelease();
+        mEdgeEffectBottom.onRelease();
     }
 
     /**
@@ -814,16 +802,16 @@ public class Viewport {
             canvas.restoreToCount(restoreCount);
         }
 
-        //if (!mEdgeEffectBottom.isFinished()) {
-        //    final int restoreCount = canvas.save();
-        //    canvas.translate(2 * mContentRect.left - mContentRect.right, mContentRect.bottom);
-        //    canvas.rotate(180, mContentRect.width(), 0);
-        //    mEdgeEffectBottom.setSize(mContentRect.width(), mContentRect.height());
-        //    if (mEdgeEffectBottom.draw(canvas)) {
-        //        needsInvalidate = true;
-        //    }
-        //    canvas.restoreToCount(restoreCount);
-        //}
+        if (!mEdgeEffectBottom.isFinished()) {
+            final int restoreCount = canvas.save();
+            canvas.translate(mGraphView.getGraphContentLeft(), mGraphView.getGraphContentTop()+mGraphView.getGraphContentHeight());
+            canvas.rotate(180, mGraphView.getGraphContentWidth()/2, 0);
+            mEdgeEffectBottom.setSize(mGraphView.getGraphContentWidth(), mGraphView.getGraphContentHeight());
+            if (mEdgeEffectBottom.draw(canvas)) {
+                needsInvalidate = true;
+            }
+            canvas.restoreToCount(restoreCount);
+        }
 
         if (!mEdgeEffectLeft.isFinished()) {
             final int restoreCount = canvas.save();
