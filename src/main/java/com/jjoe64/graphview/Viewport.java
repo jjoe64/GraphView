@@ -151,7 +151,34 @@ public class Viewport {
                 viewportHeight /= detector.getCurrentSpanY()/detector.getPreviousSpanY();
                 mCurrentViewport.bottom = center - viewportHeight / 2;
                 mCurrentViewport.top = mCurrentViewport.bottom+viewportHeight;
-                // TODO min/max + overlapping
+
+
+
+                // viewportStart must not be < minY
+                double minY = getMinY(true);
+                if (mCurrentViewport.bottom < minY) {
+                    mCurrentViewport.bottom = minY;
+                    mCurrentViewport.top = mCurrentViewport.bottom+viewportHeight;
+                }
+
+                // viewportStart + viewportSize must not be > maxY
+                double maxY = getMaxY(true);
+                if (viewportHeight == 0) {
+                    mCurrentViewport.top = maxY;
+                }
+                overlap = mCurrentViewport.bottom + viewportHeight - maxY;
+                if (overlap > 0) {
+                    // scroll left
+                    if (mCurrentViewport.bottom-overlap > minY) {
+                        mCurrentViewport.bottom -= overlap;
+                        mCurrentViewport.top = mCurrentViewport.bottom+viewportHeight;
+                    } else {
+                        // maximal scale
+                        mCurrentViewport.bottom = minY;
+                        mCurrentViewport.top = maxY;
+                    }
+                }
+
             }
 
             // adjustSteps viewport, labels, etc.
