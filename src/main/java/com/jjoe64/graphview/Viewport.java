@@ -23,6 +23,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.support.v4.view.ScaleGestureDetectorCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.EdgeEffectCompat;
 import android.util.Log;
@@ -57,28 +58,11 @@ public class Viewport {
      * is set manual and humanRounding=false. it will be the minValueY value.
      */
     protected double referenceY = Double.NaN;
-    private boolean scalableY;
 
-    protected double getReferenceY() {
-        // if the bounds is manual then we take the
-        // original manual min y value as reference
-        if (isYAxisBoundsManual() && !mGraphView.getGridLabelRenderer().isHumanRounding()) {
-            if (Double.isNaN(referenceY)) {
-                referenceY = getMinY(false);
-            }
-            return referenceY;
-        } else {
-            // starting from 1st datapoint so that the steps have nice numbers
-            return 0;
-        }
-    }
-
-    public void setScalableY(boolean scalableY) {
-        if (scalableY) {
-            this.scrollableY = true;
-        }
-        this.scalableY = scalableY;
-    }
+    /**
+     * flag whether the vertical scaling is activated
+     */
+    protected boolean scalableY;
 
     /**
      * listener to notify when x bounds changed after
@@ -114,7 +98,15 @@ public class Viewport {
             // --- horizontal scaling ---
             double viewportWidth = mCurrentViewport.width();
             double center = mCurrentViewport.left + viewportWidth / 2;
-            viewportWidth /= detector.getCurrentSpanX()/detector.getPreviousSpanX();
+
+            float scaleSpanX;
+            if (android.os.Build.VERSION.SDK_INT >= 11 && scalableY) {
+                scaleSpanX = detector.getCurrentSpanX()/detector.getPreviousSpanX();
+            } else {
+                scaleSpanX = detector.getScaleFactor();
+            }
+
+            viewportWidth /= scaleSpanX;
             mCurrentViewport.left = center - viewportWidth / 2;
             mCurrentViewport.right = mCurrentViewport.left+viewportWidth;
 
@@ -145,7 +137,7 @@ public class Viewport {
 
 
             // --- vertical scaling ---
-            if (scalableY) {
+            if (scalableY && android.os.Build.VERSION.SDK_INT >= 11) {
                 double viewportHeight = mCurrentViewport.height()*-1;
                 center = mCurrentViewport.bottom + viewportHeight / 2;
                 viewportHeight /= detector.getCurrentSpanY()/detector.getPreviousSpanY();
@@ -1091,7 +1083,50 @@ public class Viewport {
         this.mBorderPaint = borderPaint;
     }
 
+    /**
+     * activate/deactivate the vertical scrolling
+     *
+     * @param scrollableY true to activate
+     */
     public void setScrollableY(boolean scrollableY) {
         this.scrollableY = scrollableY;
+    }
+
+    /**
+     * the reference number to generate the labels
+     * @return  by default 0, only when manual bounds and no human rounding
+     *          is active, the min y value is returned
+     */
+    protected double getReferenceY() {
+        // if the bounds is manual then we take the
+        // original manual min y value as reference
+        if (isYAxisBoundsManual() && !mGraphView.getGridLabelRenderer().isHumanRounding()) {
+            if (Double.isNaN(referenceY)) {
+                referenceY = getMinY(false);
+            }
+            return referenceY;
+        } else {
+            // starting from 0 so that the steps have nice numbers
+            return 0;
+        }
+    }
+
+    /**
+     * activate or deactivate the vertical zooming/scaling functionallity.
+     * This will automatically activate the vertical scrolling and the
+     * horizontal scaling/scrolling feature.
+     *
+     * @param scalableY true to activate
+     */
+    public void setScalableY(boolean scalableY) {
+        if (scalableY) {
+            this.scrollableY = true;
+            setScalable(true);
+
+            if (android.os.Build.VERSION.SDK_INT < 11) {
+                Log.w("GraphView", "Vertical scaling requires minimum Android 3.0 (API Level 11)");
+            }
+        }
+        this.scalableY = scalableY;
     }
 }
