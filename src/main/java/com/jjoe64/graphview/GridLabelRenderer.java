@@ -521,37 +521,111 @@ public class GridLabelRenderer {
         double exactSteps;
 
         if (mGraphView.mSecondScale.isYAxisBoundsManual()) {
-            newMinY = minY;
-            double rangeY = maxY - newMinY;
-            exactSteps = rangeY / (numVerticalLabels - 1);
+            // split range into equal steps
+            exactSteps = (maxY - minY) / (numVerticalLabels - 1);
+
+            // round because of floating error
+            exactSteps = Math.round(exactSteps * 1000000d) / 1000000d;
         } else {
             // TODO auto adjusting
             throw new IllegalStateException("Not yet implemented");
         }
 
-        double newMaxY = newMinY + (numVerticalLabels - 1) * exactSteps;
+        if (mStepsVerticalSecondScale != null && mStepsVerticalSecondScale.size() > 1) {
+            // else choose other nice steps that previous
+            // steps are included (divide to have more, or multiplicate to have less)
 
-        // TODO auto adjusting
-        //mGraphView.getViewport().setMinY(newMinY);
-        //mGraphView.getViewport().setMaxY(newMaxY);
+            double d1 = 0, d2 = 0;
+            int i = 0;
+            for (Double v : mStepsVerticalSecondScale.values()) {
+                if (i == 0) {
+                    d1 = v;
+                } else {
+                    d2 = v;
+                    break;
+                }
+                i++;
+            }
+            double oldSteps = d2 - d1;
+            if (oldSteps > 0) {
+                double newSteps = Double.NaN;
 
-        //if (!mGraphView.getViewport().isYAxisBoundsManual()) {
-        //    mGraphView.getViewport().setYAxisBoundsStatus(Viewport.AxisBoundsStatus.AUTO_ADJUSTED);
-        //}
+                if (oldSteps > exactSteps) {
+                    newSteps = oldSteps / 2;
+                } else if (oldSteps < exactSteps) {
+                    newSteps = oldSteps * 2;
+                }
+
+                // only if there wont be more than numLabels
+                // and newSteps will be better than oldSteps
+                int numStepsOld = (int) ((maxY - minY) / oldSteps);
+                int numStepsNew = (int) ((maxY - minY) / newSteps);
+
+                boolean shouldChange;
+
+                // avoid switching between 2 steps
+                if (numStepsOld <= numVerticalLabels && numStepsNew <= numVerticalLabels) {
+                    // both are possible
+                    // only the new if it hows more labels
+                    shouldChange = numStepsNew > numStepsOld;
+                } else {
+                    shouldChange = true;
+                }
+
+                if (newSteps != Double.NaN && shouldChange && numStepsNew <= numVerticalLabels) {
+                    exactSteps = newSteps;
+                } else {
+                    // try to stay to the old steps
+                    exactSteps = oldSteps;
+                }
+            }
+        } else {
+            // first time
+        }
+
+        // find the first data point that is relevant to display
+        // starting from 1st datapoint so that the steps have nice numbers
+        newMinY = mGraphView.getSecondScale().mReferenceY;
+        if (newMinY < minY) {
+            while (newMinY+exactSteps <= minY) {
+                newMinY += exactSteps;
+            }
+        } else if (newMinY > minY) {
+            while (newMinY > minY) {
+                newMinY -= exactSteps;
+            }
+        }
+
+        // it can happen that we need to add some more labels to fill the complete screen
+        numVerticalLabels = (int) ((mGraphView.getSecondScale().mCurrentViewport.height()*-1 / exactSteps)) + 2;
 
         if (mStepsVerticalSecondScale != null) {
             mStepsVerticalSecondScale.clear();
         } else {
-            mStepsVerticalSecondScale = new LinkedHashMap<Integer, Double>(numVerticalLabels);
+            mStepsVerticalSecondScale = new LinkedHashMap<>((int) numVerticalLabels);
         }
+
         int height = mGraphView.getGraphContentHeight();
-        double v = newMaxY;
-        int p = mGraphView.getGraphContentTop(); // start
-        int pixelStep = height / (numVerticalLabels - 1);
+        // convert data-y to pixel-y in current viewport
+        double pixelPerData = height / mGraphView.getSecondScale().mCurrentViewport.height()*-1;
+
         for (int i = 0; i < numVerticalLabels; i++) {
-            mStepsVerticalSecondScale.put(p, v);
-            p += pixelStep;
-            v -= exactSteps;
+            // dont draw if it is top of visible screen
+            if (newMinY + (i * exactSteps) > mGraphView.getSecondScale().mCurrentViewport.top) {
+                continue;
+            }
+            // dont draw if it is below of visible screen
+            if (newMinY + (i * exactSteps) < mGraphView.getSecondScale().mCurrentViewport.bottom) {
+                continue;
+            }
+
+
+            // where is the data point on the current screen
+            double dataPointPos = newMinY + (i * exactSteps);
+            double relativeToCurrentViewport = dataPointPos - mGraphView.getSecondScale().mCurrentViewport.bottom;
+
+            double pixelPos = relativeToCurrentViewport * pixelPerData;
+            mStepsVerticalSecondScale.put((int) pixelPos, dataPointPos);
         }
 
         return true;
@@ -1133,6 +1207,8 @@ public class GridLabelRenderer {
         mPaintLabel.setColor(getVerticalLabelsSecondScaleColor());
         mPaintLabel.setTextAlign(getVerticalLabelsSecondScaleAlign());
         for (Map.Entry<Integer, Double> e : mStepsVerticalSecondScale.entrySet()) {
+            float posY = mGraphView.getGraphContentTop()+mGraphView.getGraphContentHeight()-e.getKey();
+
             // draw label
             int labelsWidth = mLabelVerticalSecondScaleWidth;
             int labelsOffset = (int) startLeft;
@@ -1142,7 +1218,7 @@ public class GridLabelRenderer {
                 labelsOffset += labelsWidth / 2;
             }
 
-            float y = e.getKey();
+            float y = posY;
 
             String[] lines = mGraphView.mSecondScale.mLabelFormatter.formatLabel(e.getValue(), false).split("\n");
             y += (lines.length * getTextSize() * 1.1f) / 2; // center text vertically

@@ -145,8 +145,6 @@ public class Viewport {
                 mCurrentViewport.bottom = center - viewportHeight / 2;
                 mCurrentViewport.top = mCurrentViewport.bottom+viewportHeight;
 
-
-
                 // viewportStart must not be < minY
                 double minY = getMinY(true);
                 if (mCurrentViewport.bottom < minY) {
@@ -171,6 +169,9 @@ public class Viewport {
                         mCurrentViewport.top = maxY;
                     }
                 }
+
+                // ---- second scale ---
+                // TODO
 
             }
 
