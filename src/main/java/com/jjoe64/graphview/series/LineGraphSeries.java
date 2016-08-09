@@ -272,6 +272,11 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
                 float endX = (float) x + (graphLeft + 1);
                 float endY = (float) (graphTop - y) + graphHeight;
 
+                if (endX < startX) {
+                    // dont draw from right to left
+                    skipDraw = true;
+                }
+
                 // draw data point
                 if (!isOverdraw) {
                     if (mStyles.drawDataPoints) {
