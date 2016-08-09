@@ -19,9 +19,11 @@
  */
 package com.jjoe64.graphview;
 
+import com.jjoe64.graphview.series.DataPointInterface;
 import com.jjoe64.graphview.series.Series;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -56,20 +58,19 @@ public class SecondScale {
     private boolean mYAxisBoundsManual = true;
 
     /**
-     * min y value for the y axis bounds
+     *
      */
-    private double mMinY;
+    protected RectD mCompleteRange = new RectD();
 
-    /**
-     * max y value for the y axis bounds
-     */
-    private double mMaxY;
+    protected RectD mCurrentViewport = new RectD();
 
     /**
      * label formatter for the y labels
      * on the right side
      */
     protected LabelFormatter mLabelFormatter;
+
+    protected double mReferenceY = Double.NaN;
 
     /**
      * creates the second scale.
@@ -107,7 +108,8 @@ public class SecondScale {
      * @param d min y value
      */
     public void setMinY(double d) {
-        mMinY = d;
+        mReferenceY = d;
+        mCurrentViewport.bottom = d;
     }
 
     /**
@@ -116,7 +118,7 @@ public class SecondScale {
      * @param d max y value
      */
     public void setMaxY(double d) {
-        mMaxY = d;
+        mCurrentViewport.top = d;
     }
 
     /**
@@ -129,15 +131,15 @@ public class SecondScale {
     /**
      * @return min y bound
      */
-    public double getMinY() {
-        return mMinY;
+    public double getMinY(boolean completeRange) {
+        return completeRange ? mCompleteRange.bottom : mCurrentViewport.bottom;
     }
 
     /**
      * @return max y bound
      */
-    public double getMaxY() {
-        return mMaxY;
+    public double getMaxY(boolean completeRange) {
+        return completeRange ? mCompleteRange.top : mCurrentViewport.top;
     }
 
     /**
@@ -182,5 +184,53 @@ public class SecondScale {
     public void removeSeries(Series series) {
         mSeries.remove(series);
         mGraph.onDataChanged(false, false);
+    }
+
+    /**
+     * caches the complete range (minX, maxX, minY, maxY)
+     * by iterating all series and all datapoints and
+     * stores it into #mCompleteRange
+     *
+     * for the x-range it will respect the series on the
+     * second scale - not for y-values
+     */
+    public void calcCompleteRange() {
+        List<Series> series = getSeries();
+        mCompleteRange.set(0d, 0d, 0d, 0d);
+        if (!series.isEmpty() && !series.get(0).isEmpty()) {
+            double d = series.get(0).getLowestValueX();
+            for (Series s : series) {
+                if (!s.isEmpty() && d > s.getLowestValueX()) {
+                    d = s.getLowestValueX();
+                }
+            }
+            mCompleteRange.left = d;
+
+            d = series.get(0).getHighestValueX();
+            for (Series s : series) {
+                if (!s.isEmpty() && d < s.getHighestValueX()) {
+                    d = s.getHighestValueX();
+                }
+            }
+            mCompleteRange.right = d;
+
+            if (!series.isEmpty() && !series.get(0).isEmpty()) {
+                d = series.get(0).getLowestValueY();
+                for (Series s : series) {
+                    if (!s.isEmpty() && d > s.getLowestValueY()) {
+                        d = s.getLowestValueY();
+                    }
+                }
+                mCompleteRange.bottom = d;
+
+                d = series.get(0).getHighestValueY();
+                for (Series s : series) {
+                    if (!s.isEmpty() && d < s.getHighestValueY()) {
+                        d = s.getHighestValueY();
+                    }
+                }
+                mCompleteRange.top = d;
+            }
+        }
     }
 }

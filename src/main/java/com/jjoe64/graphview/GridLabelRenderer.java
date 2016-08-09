@@ -511,8 +511,8 @@ public class GridLabelRenderer {
             return true;
         }
 
-        double minY = mGraphView.mSecondScale.getMinY();
-        double maxY = mGraphView.mSecondScale.getMaxY();
+        double minY = mGraphView.mSecondScale.getMinY(false);
+        double maxY = mGraphView.mSecondScale.getMaxY(false);
 
         // TODO find the number of labels
         int numVerticalLabels = mNumVerticalLabels;
@@ -885,7 +885,7 @@ public class GridLabelRenderer {
         }
 
         // test label
-        double testY = ((mGraphView.mSecondScale.getMaxY() - mGraphView.mSecondScale.getMinY()) * 0.783) + mGraphView.mSecondScale.getMinY();
+        double testY = ((mGraphView.mSecondScale.getMaxY(false) - mGraphView.mSecondScale.getMinY(false)) * 0.783) + mGraphView.mSecondScale.getMinY(false);
         String testLabel = mGraphView.mSecondScale.getLabelFormatter().formatLabel(testY, false);
         Rect textBounds = new Rect();
         mPaintLabel.getTextBounds(testLabel, 0, testLabel.length(), textBounds);

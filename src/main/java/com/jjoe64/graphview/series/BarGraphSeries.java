@@ -133,8 +133,8 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
         double maxY;
         double minY;
         if (isSecondScale) {
-            maxY = graphView.getSecondScale().getMaxY();
-            minY = graphView.getSecondScale().getMinY();
+            maxY = graphView.getSecondScale().getMaxY(false);
+            minY = graphView.getSecondScale().getMinY(false);
         } else {
             maxY = graphView.getViewport().getMaxY(false);
             minY = graphView.getViewport().getMinY(false);

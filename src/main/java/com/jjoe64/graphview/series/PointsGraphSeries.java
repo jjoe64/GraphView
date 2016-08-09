@@ -158,8 +158,8 @@ public class PointsGraphSeries<E extends DataPointInterface> extends BaseSeries<
         double maxY;
         double minY;
         if (isSecondScale) {
-            maxY = graphView.getSecondScale().getMaxY();
-            minY = graphView.getSecondScale().getMinY();
+            maxY = graphView.getSecondScale().getMaxY(false);
+            minY = graphView.getSecondScale().getMinY(false);
         } else {
             maxY = graphView.getViewport().getMaxY(false);
             minY = graphView.getViewport().getMinY(false);

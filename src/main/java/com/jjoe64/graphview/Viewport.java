@@ -263,6 +263,17 @@ public class Viewport {
                     || mCurrentViewport.right < mCompleteRange.right;
             boolean canScrollY = mCurrentViewport.bottom > mCompleteRange.bottom
                     || mCurrentViewport.top < mCompleteRange.top;
+
+            boolean hasSecondScale = mGraphView.mSecondScale != null;
+
+            // second scale
+            double viewportOffsetY2 = 0d;
+            if (hasSecondScale) {
+                viewportOffsetY2 = distanceY * mGraphView.mSecondScale.mCurrentViewport.height() / mGraphView.getGraphContentHeight();
+                canScrollY |= mGraphView.mSecondScale.mCurrentViewport.bottom > mGraphView.mSecondScale.mCompleteRange.bottom
+                        || mGraphView.mSecondScale.mCurrentViewport.top < mGraphView.mSecondScale.mCompleteRange.top;
+            }
+
             canScrollY &= scrollableY;
 
             if (canScrollX) {
@@ -277,6 +288,7 @@ public class Viewport {
                         viewportOffsetX -= tooMuch;
                     }
                 }
+
                 mCurrentViewport.left += viewportOffsetX;
                 mCurrentViewport.right += viewportOffsetX;
 
@@ -286,33 +298,42 @@ public class Viewport {
                 }
             }
             if (canScrollY) {
-                if (viewportOffsetY < 0) {
-                    double tooMuch = mCurrentViewport.bottom+viewportOffsetY - mCompleteRange.bottom;
-                    if (tooMuch < 0) {
-                        viewportOffsetY -= tooMuch;
-                    }
-                } else {
-                    double tooMuch = mCurrentViewport.top+viewportOffsetY - mCompleteRange.top;
-                    if (tooMuch > 0) {
-                        viewportOffsetY -= tooMuch;
+                // if we have the second axis we ignore the max/min range
+                if (!hasSecondScale) {
+                    if (viewportOffsetY < 0) {
+                        double tooMuch = mCurrentViewport.bottom+viewportOffsetY - mCompleteRange.bottom;
+                        if (tooMuch < 0) {
+                            viewportOffsetY -= tooMuch;
+                        }
+                    } else {
+                        double tooMuch = mCurrentViewport.top+viewportOffsetY - mCompleteRange.top;
+                        if (tooMuch > 0) {
+                            viewportOffsetY -= tooMuch;
+                        }
                     }
                 }
 
                 mCurrentViewport.top += viewportOffsetY;
                 mCurrentViewport.bottom += viewportOffsetY;
+
+                // second scale
+                if (hasSecondScale) {
+                    mGraphView.mSecondScale.mCurrentViewport.top += viewportOffsetY2;
+                    mGraphView.mSecondScale.mCurrentViewport.bottom += viewportOffsetY2;
+                }
             }
 
             if (canScrollX && scrolledX < 0) {
                 mEdgeEffectLeft.onPull(scrolledX / (float) mGraphView.getGraphContentWidth());
             }
-            if (canScrollY && scrolledY < 0) {
+            if (!hasSecondScale && canScrollY && scrolledY < 0) {
                 mEdgeEffectBottom.onPull(scrolledY / (float) mGraphView.getGraphContentHeight());
             }
             if (canScrollX && scrolledX > completeWidth - mGraphView.getGraphContentWidth()) {
                 mEdgeEffectRight.onPull((scrolledX - completeWidth + mGraphView.getGraphContentWidth())
                         / (float) mGraphView.getGraphContentWidth());
             }
-            if (canScrollY && scrolledY > completeHeight - mGraphView.getGraphContentHeight()) {
+            if (!hasSecondScale && canScrollY && scrolledY > completeHeight - mGraphView.getGraphContentHeight()) {
                 mEdgeEffectTop.onPull((scrolledY - completeHeight + mGraphView.getGraphContentHeight())
                         / (float) mGraphView.getGraphContentHeight());
             }

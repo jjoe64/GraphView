@@ -276,6 +276,9 @@ public class GraphView extends View {
     public void onDataChanged(boolean keepLabelsSize, boolean keepViewport) {
         // adjustSteps grid system
         mViewport.calcCompleteRange();
+        if (mSecondScale != null) {
+            mSecondScale.calcCompleteRange();
+        }
         mGridLabelRenderer.invalidate(keepLabelsSize, keepViewport);
         postInvalidate();
     }
