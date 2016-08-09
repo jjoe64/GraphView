@@ -578,45 +578,51 @@ public class Viewport {
      * caches the complete range (minX, maxX, minY, maxY)
      * by iterating all series and all datapoints and
      * stores it into #mCompleteRange
+     *
+     * for the x-range it will respect the series on the
+     * second scale - not for y-values
      */
     public void calcCompleteRange() {
-        List<Series> series = new ArrayList<>(mGraphView.getSeries());
+        List<Series> series = mGraphView.getSeries();
+        List<Series> seriesInclusiveSecondScale = new ArrayList<>(mGraphView.getSeries());
         if (mGraphView.mSecondScale != null) {
-            series.addAll(mGraphView.mSecondScale.getSeries());
+            seriesInclusiveSecondScale.addAll(mGraphView.mSecondScale.getSeries());
         }
         mCompleteRange.set(0d, 0d, 0d, 0d);
-        if (!series.isEmpty() && !series.get(0).isEmpty()) {
-            double d = series.get(0).getLowestValueX();
-            for (Series s : series) {
+        if (!seriesInclusiveSecondScale.isEmpty() && !seriesInclusiveSecondScale.get(0).isEmpty()) {
+            double d = seriesInclusiveSecondScale.get(0).getLowestValueX();
+            for (Series s : seriesInclusiveSecondScale) {
                 if (!s.isEmpty() && d > s.getLowestValueX()) {
                     d = s.getLowestValueX();
                 }
             }
             mCompleteRange.left = d;
 
-            d = series.get(0).getHighestValueX();
-            for (Series s : series) {
+            d = seriesInclusiveSecondScale.get(0).getHighestValueX();
+            for (Series s : seriesInclusiveSecondScale) {
                 if (!s.isEmpty() && d < s.getHighestValueX()) {
                     d = s.getHighestValueX();
                 }
             }
             mCompleteRange.right = d;
 
-            d = series.get(0).getLowestValueY();
-            for (Series s : series) {
-                if (!s.isEmpty() && d > s.getLowestValueY()) {
-                    d = s.getLowestValueY();
+            if (!series.isEmpty() && !series.get(0).isEmpty()) {
+                d = series.get(0).getLowestValueY();
+                for (Series s : series) {
+                    if (!s.isEmpty() && d > s.getLowestValueY()) {
+                        d = s.getLowestValueY();
+                    }
                 }
-            }
-            mCompleteRange.bottom = d;
+                mCompleteRange.bottom = d;
 
-            d = series.get(0).getHighestValueY();
-            for (Series s : series) {
-                if (!s.isEmpty() && d < s.getHighestValueY()) {
-                    d = s.getHighestValueY();
+                d = series.get(0).getHighestValueY();
+                for (Series s : series) {
+                    if (!s.isEmpty() && d < s.getHighestValueY()) {
+                        d = s.getHighestValueY();
+                    }
                 }
+                mCompleteRange.top = d;
             }
-            mCompleteRange.top = d;
         }
 
         // calc current viewport bounds
