@@ -36,6 +36,7 @@ import com.jjoe64.graphview.compat.OverScrollerCompat;
 import com.jjoe64.graphview.series.DataPointInterface;
 import com.jjoe64.graphview.series.Series;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -579,7 +580,10 @@ public class Viewport {
      * stores it into #mCompleteRange
      */
     public void calcCompleteRange() {
-        List<Series> series = mGraphView.getSeries();
+        List<Series> series = new ArrayList<>(mGraphView.getSeries());
+        if (mGraphView.mSecondScale != null) {
+            series.addAll(mGraphView.mSecondScale.getSeries());
+        }
         mCompleteRange.set(0d, 0d, 0d, 0d);
         if (!series.isEmpty() && !series.get(0).isEmpty()) {
             double d = series.get(0).getLowestValueX();
