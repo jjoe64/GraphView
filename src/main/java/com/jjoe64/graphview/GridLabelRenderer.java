@@ -1135,7 +1135,10 @@ public class GridLabelRenderer {
                 }
             }
             if (mStyles.gridStyle.drawVertical()) {
-                canvas.drawLine(mGraphView.getGraphContentLeft()+e.getKey(), mGraphView.getGraphContentTop(), mGraphView.getGraphContentLeft()+e.getKey(), mGraphView.getGraphContentTop() + mGraphView.getGraphContentHeight(), mPaintLine);
+                // dont draw if it is right of visible screen
+                if (e.getKey() <= mGraphView.getGraphContentWidth()) {
+                    canvas.drawLine(mGraphView.getGraphContentLeft()+e.getKey(), mGraphView.getGraphContentTop(), mGraphView.getGraphContentLeft()+e.getKey(), mGraphView.getGraphContentTop() + mGraphView.getGraphContentHeight(), mPaintLine);
+                }
             }
 
             // draw label

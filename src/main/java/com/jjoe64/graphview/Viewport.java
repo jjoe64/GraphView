@@ -139,40 +139,48 @@ public class Viewport {
 
             // --- vertical scaling ---
             if (scalableY && android.os.Build.VERSION.SDK_INT >= 11) {
+                boolean hasSecondScale = mGraphView.mSecondScale != null;
+
                 double viewportHeight = mCurrentViewport.height()*-1;
                 center = mCurrentViewport.bottom + viewportHeight / 2;
                 viewportHeight /= detector.getCurrentSpanY()/detector.getPreviousSpanY();
                 mCurrentViewport.bottom = center - viewportHeight / 2;
                 mCurrentViewport.top = mCurrentViewport.bottom+viewportHeight;
 
-                // viewportStart must not be < minY
-                double minY = getMinY(true);
-                if (mCurrentViewport.bottom < minY) {
-                    mCurrentViewport.bottom = minY;
-                    mCurrentViewport.top = mCurrentViewport.bottom+viewportHeight;
-                }
-
-                // viewportStart + viewportSize must not be > maxY
-                double maxY = getMaxY(true);
-                if (viewportHeight == 0) {
-                    mCurrentViewport.top = maxY;
-                }
-                overlap = mCurrentViewport.bottom + viewportHeight - maxY;
-                if (overlap > 0) {
-                    // scroll left
-                    if (mCurrentViewport.bottom-overlap > minY) {
-                        mCurrentViewport.bottom -= overlap;
-                        mCurrentViewport.top = mCurrentViewport.bottom+viewportHeight;
-                    } else {
-                        // maximal scale
+                // ignore bounds when second scale
+                if (!hasSecondScale) {
+                    // viewportStart must not be < minY
+                    double minY = getMinY(true);
+                    if (mCurrentViewport.bottom < minY) {
                         mCurrentViewport.bottom = minY;
+                        mCurrentViewport.top = mCurrentViewport.bottom+viewportHeight;
+                    }
+
+                    // viewportStart + viewportSize must not be > maxY
+                    double maxY = getMaxY(true);
+                    if (viewportHeight == 0) {
                         mCurrentViewport.top = maxY;
                     }
+                    overlap = mCurrentViewport.bottom + viewportHeight - maxY;
+                    if (overlap > 0) {
+                        // scroll left
+                        if (mCurrentViewport.bottom-overlap > minY) {
+                            mCurrentViewport.bottom -= overlap;
+                            mCurrentViewport.top = mCurrentViewport.bottom+viewportHeight;
+                        } else {
+                            // maximal scale
+                            mCurrentViewport.bottom = minY;
+                            mCurrentViewport.top = maxY;
+                        }
+                    }
+                } else {
+                    // ---- second scale ---
+                    viewportHeight = mGraphView.mSecondScale.mCurrentViewport.height()*-1;
+                    center = mGraphView.mSecondScale.mCurrentViewport.bottom + viewportHeight / 2;
+                    viewportHeight /= detector.getCurrentSpanY()/detector.getPreviousSpanY();
+                    mGraphView.mSecondScale.mCurrentViewport.bottom = center - viewportHeight / 2;
+                    mGraphView.mSecondScale.mCurrentViewport.top = mGraphView.mSecondScale.mCurrentViewport.bottom+viewportHeight;
                 }
-
-                // ---- second scale ---
-                // TODO
-
             }
 
             // adjustSteps viewport, labels, etc.
