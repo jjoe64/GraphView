@@ -23,7 +23,10 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.support.v4.view.ViewCompat;
 import android.util.Log;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AccelerateInterpolator;
 
 import com.jjoe64.graphview.GraphView;
 
@@ -36,6 +39,8 @@ import java.util.Iterator;
  * @author jjoe64
  */
 public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E> {
+    private static final long ANIMATION_DURATION = 333;
+
     /**
      * wrapped styles regarding the line
      */
@@ -111,6 +116,12 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
      */
     private Paint mCustomPaint;
 
+    private boolean mAnimated;
+
+    private long mAnimationStart;
+
+    private AccelerateInterpolator mAnimationInterpolator;
+
     /**
      * creates a series without data
      */
@@ -142,6 +153,8 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
 
         mPathBackground = new Path();
         mPath = new Path();
+
+        mAnimationInterpolator = new AccelerateInterpolator(2f);
     }
 
     /**
@@ -272,35 +285,52 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
                 float startY = (float) (graphTop - lastEndY) + graphHeight;
                 float endX = (float) x + (graphLeft + 1);
                 float endY = (float) (graphTop - y) + graphHeight;
+                float startXAnimated = startX;
+                float endXAnimated = endX;
 
                 if (endX < startX) {
                     // dont draw from right to left
                     skipDraw = true;
                 }
 
-                // draw data point
-                if (!isOverdrawEndPoint) {
-                    if (mStyles.drawDataPoints) {
-                        // draw first datapoint
-                        mPaint.setStyle(Paint.Style.FILL);
-                        canvas.drawCircle(endX, endY, mStyles.dataPointsRadius, paint);
-                        mPaint.setStyle(Paint.Style.STROKE);
-                    }
-                    registerDataPoint(endX, endY, value);
-                }
-
                 // NaN can happen when previous and current value is out of y bounds
                 if (!skipDraw && !Float.isNaN(startY) && !Float.isNaN(endY)) {
-                    mPath.moveTo(startX, startY);
-                    mPath.lineTo(endX, endY);
+                    // animation
+                    if (mAnimated) {
+                        long currentTime = System.currentTimeMillis();
+                        if (mAnimationStart == 0) {
+                            mAnimationStart = currentTime;
+                        }
+                        float timeFactor = (float) (currentTime-mAnimationStart) / ANIMATION_DURATION;
+                        float factor = mAnimationInterpolator.getInterpolation(timeFactor);
+                        if (timeFactor <= 1.0) {
+                            startXAnimated = (startX-graphLeft) * factor + graphLeft;
+                            endXAnimated = (endX-graphLeft) * factor + graphLeft;
+                            ViewCompat.postInvalidateOnAnimation(graphView);
+                        }
+                    }
+
+                    // draw data point
+                    if (!isOverdrawEndPoint) {
+                        if (mStyles.drawDataPoints) {
+                            // draw first datapoint
+                            mPaint.setStyle(Paint.Style.FILL);
+                            canvas.drawCircle(endXAnimated, endY, mStyles.dataPointsRadius, paint);
+                            mPaint.setStyle(Paint.Style.STROKE);
+                        }
+                        registerDataPoint(endX, endY, value);
+                    }
+
+                    mPath.moveTo(startXAnimated, startY);
+                    mPath.lineTo(endXAnimated, endY);
                 }
 
                 if (mStyles.drawBackground) {
                     if (i>=1) {
                         firstX = startX;
-                        mPathBackground.moveTo(startX, startY);
+                        mPathBackground.moveTo(startXAnimated, startY);
                     }
-                    mPathBackground.lineTo(endX, endY);
+                    mPathBackground.lineTo(endXAnimated, endY);
                 }
                 lastUsedEndX = endX;
             } else if (mStyles.drawDataPoints) {
@@ -442,5 +472,9 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
      */
     public void setCustomPaint(Paint customPaint) {
         this.mCustomPaint = customPaint;
+    }
+
+    public void setAnimated(boolean animated) {
+        this.mAnimated = animated;
     }
 }
