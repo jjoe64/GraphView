@@ -858,9 +858,15 @@ public class GridLabelRenderer {
 
 
         // starting from 1st datapoint
-        newMinX = mGraphView.getViewport().getMinX(true);
-        while (newMinX < minX) {
-            newMinX += exactSteps;
+        newMinX = mGraphView.getViewport().getReferenceX();
+        if (newMinX < minX) {
+            while (newMinX+exactSteps <= minX) {
+                newMinX += exactSteps;
+            }
+        } else if (newMinX > minX) {
+            while (newMinX > minX) {
+                newMinX -= exactSteps;
+            }
         }
 
         // now we have our labels bounds

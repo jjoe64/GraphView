@@ -61,9 +61,35 @@ public class Viewport {
     protected double referenceY = Double.NaN;
 
     /**
+     * this reference value is used to generate the
+     * horizontal labels. It is used when the x axis bounds
+     * is set manual and humanRounding=false. it will be the minValueX value.
+     */
+    protected double referenceX = Double.NaN;
+
+    /**
      * flag whether the vertical scaling is activated
      */
     protected boolean scalableY;
+
+    /**
+     * the reference number to generate the labels
+     * @return  by default 0, only when manual bounds and no human rounding
+     *          is active, the min x value is returned
+     */
+    protected double getReferenceX() {
+        // if the bounds is manual then we take the
+        // original manual min y value as reference
+        if (isXAxisBoundsManual() && !mGraphView.getGridLabelRenderer().isHumanRounding()) {
+            if (Double.isNaN(referenceX)) {
+                referenceX = getMinX(false);
+            }
+            return referenceX;
+        } else {
+            // starting from 0 so that the steps have nice numbers
+            return 0;
+        }
+    }
 
     /**
      * listener to notify when x bounds changed after
