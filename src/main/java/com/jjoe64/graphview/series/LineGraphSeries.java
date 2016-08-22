@@ -325,7 +325,9 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
                         registerDataPoint(endX, endY, value);
                     }
 
-                    mPath.moveTo(startXAnimated, startY);
+                    if (mDrawAsPath) {
+                        mPath.moveTo(startXAnimated, startY);
+                    }
 
                     // performance opt.
                     if (Math.abs(endX-lastRenderedX) > .3f) {

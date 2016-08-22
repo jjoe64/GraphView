@@ -75,6 +75,9 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
      */
     private int mColor = 0xff0077cc;
 
+    private double mLowestYCache = Double.NaN;
+    private double mHighestYCache = Double.NaN;
+
     /**
      * listener to handle tap events on a data point
      */
@@ -127,6 +130,9 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
      */
     public double getLowestValueY() {
         if (mData.isEmpty()) return 0d;
+        if (!Double.isNaN(mLowestYCache)) {
+            return mLowestYCache;
+        }
         double l = mData.get(0).getY();
         for (int i = 1; i < mData.size(); i++) {
             double c = mData.get(i).getY();
@@ -134,7 +140,7 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
                 l = c;
             }
         }
-        return l;
+        return mLowestYCache = l;
     }
 
     /**
@@ -142,6 +148,9 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
      */
     public double getHighestValueY() {
         if (mData.isEmpty()) return 0d;
+        if (!Double.isNaN(mHighestYCache)) {
+            return mHighestYCache;
+        }
         double h = mData.get(0).getY();
         for (int i = 1; i < mData.size(); i++) {
             double c = mData.get(i).getY();
@@ -149,7 +158,7 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
                 h = c;
             }
         }
-        return h;
+        return mHighestYCache = h;
     }
 
     /**
@@ -333,7 +342,11 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
      * @param dp the data point to save
      */
     protected void registerDataPoint(float x, float y, E dp) {
-        mDataPoints.put(new PointF(x, y), dp);
+        // performance
+        // TODO maybe invalidate after setting the listener
+        if (mOnDataPointTapListener != null) {
+            mDataPoints.put(new PointF(x, y), dp);
+        }
     }
 
     /**
@@ -356,6 +369,8 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
             mData.add(d);
         }
         checkValueOrder(null);
+
+        mHighestYCache = mLowestYCache = Double.NaN;
 
         // update graphview
         for (GraphView gv : mGraphViews) {
@@ -393,6 +408,19 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
                 mData.remove(0);
                 mData.add(dataPoint);
             }
+
+            // update lowest/highest cache
+            double dataPointY = dataPoint.getY();
+            if (!Double.isNaN(mHighestYCache)) {
+                if (dataPointY > mHighestYCache) {
+                    mHighestYCache = dataPointY;
+                }
+            }
+            if (!Double.isNaN(mLowestYCache)) {
+                if (dataPointY < mLowestYCache) {
+                    mLowestYCache = dataPointY;
+                }
+            }
         }
 
         if (!silent) {
@@ -402,9 +430,10 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
             // update linked graph views
             // update graphview
             for (GraphView gv : mGraphViews) {
-                gv.onDataChanged(keepLabels, scrollToEnd);
                 if (scrollToEnd) {
                     gv.getViewport().scrollToEnd();
+                } else {
+                    gv.onDataChanged(keepLabels, scrollToEnd);
                 }
             }
         }
