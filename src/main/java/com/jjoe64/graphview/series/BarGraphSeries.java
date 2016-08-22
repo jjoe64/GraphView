@@ -102,7 +102,6 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
      * creates bar series with data
      *
      * @param data  data points
-     *              important: array has to be sorted from lowest x-value to the highest
      */
     public BarGraphSeries(E[] data) {
         super(data);
