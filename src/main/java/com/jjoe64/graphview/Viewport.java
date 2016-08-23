@@ -98,6 +98,13 @@ public class Viewport {
         public boolean onScale(ScaleGestureDetector detector) {
             // --- horizontal scaling ---
             double viewportWidth = mCurrentViewport.width();
+
+            if (mMaxXAxisViewportLimitEnabled) {
+                if (viewportWidth > mMaxXAxisViewportSize) {
+                    viewportWidth = mMaxXAxisViewportSize;
+                }
+            }
+
             double center = mCurrentViewport.left + viewportWidth / 2;
 
             float scaleSpanX;
@@ -403,6 +410,9 @@ public class Viewport {
      * bottom = minY, top = maxY
      */
     protected RectD mCurrentViewport = new RectD();
+
+    protected boolean mMaxXAxisViewportLimitEnabled;
+    protected long mMaxXAxisViewportSize;
 
     /**
      * this holds the whole range of the data
@@ -1168,5 +1178,27 @@ public class Viewport {
             }
         }
         this.scalableY = scalableY;
+    }
+
+
+    /**
+     * Enable max viewport size for X Axis
+     * This prevents the user from zooming out too much. E.g. with a 24 hours graph, it
+     * could force the user to only be able to see 2 hours of data at a time
+     *
+     * @param mMaxXAxisViewportLimitEnabled whether the viewport has a maximum size
+     */
+    public void enableMaxXAxisViewportLimit(boolean mMaxXAxisViewportLimitEnabled) {
+        this.mMaxXAxisViewportLimitEnabled = mMaxXAxisViewportLimitEnabled;
+    }
+
+
+    /**
+     * Set the max viewport size
+     *
+     * @param mMaxXAxisViewportSize maximum size of viewport
+     */
+    public void setMaxXAxisViewportSize(long mMaxXAxisViewportSize) {
+        this.mMaxXAxisViewportSize = mMaxXAxisViewportSize;
     }
 }
