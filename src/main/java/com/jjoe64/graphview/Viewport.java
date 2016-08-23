@@ -437,7 +437,7 @@ public class Viewport {
      */
     protected RectD mCurrentViewport = new RectD();
 
-    protected long mMaxXAxisViewportSize = 0;
+    protected double mMaxXAxisViewportSize = 0;
 
     /**
      * this holds the whole range of the data
@@ -1214,7 +1214,7 @@ public class Viewport {
      *
      * @param mMaxXAxisViewportSize maximum size of viewport
      */
-    public void setMaxXAxisViewportSize(long mMaxXAxisViewportSize) {
+    public void setMaxXAxisViewportSize(double mMaxXAxisViewportSize) {
         this.mMaxXAxisViewportSize = mMaxXAxisViewportSize;
     }
 }
