@@ -122,6 +122,9 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
 
     private AccelerateInterpolator mAnimationInterpolator;
 
+    // TODO
+    private boolean mDrawAsPath = true;
+
     /**
      * creates a series without data
      */
@@ -218,6 +221,7 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
         lastEndX = 0;
         double lastUsedEndX = 0;
         float firstX = 0;
+        float lastRenderedX = 0;
         int i=0;
         while (values.hasNext()) {
             E value = values.next();
@@ -320,8 +324,19 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
                         registerDataPoint(endX, endY, value);
                     }
 
-                    mPath.moveTo(startXAnimated, startY);
-                    mPath.lineTo(endXAnimated, endY);
+                    if (mDrawAsPath) {
+                        mPath.moveTo(startXAnimated, startY);
+                    }
+
+                    // performance opt.
+                    if (Math.abs(endX-lastRenderedX) > .3f) {
+                        if (mDrawAsPath) {
+                            mPath.lineTo(endXAnimated, endY);
+                        } else {
+                            renderLine(canvas, new float[] {startXAnimated, startY, endXAnimated, endY});
+                        }
+                        lastRenderedX = endX;
+                    }
                 }
 
                 if (mStyles.drawBackground) {
@@ -348,8 +363,10 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
             i++;
         }
 
-        // draw at the end
-        canvas.drawPath(mPath, paint);
+        if (mDrawAsPath) {
+            // draw at the end
+            canvas.drawPath(mPath, paint);
+        }
 
         if (mStyles.drawBackground) {
             // end / close path
@@ -359,6 +376,10 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
             canvas.drawPath(mPathBackground, mPaintBackground);
         }
 
+    }
+
+    private void renderLine(Canvas canvas, float[] pts) {
+        canvas.drawLines(pts, mPaint);
     }
 
     /**
@@ -475,5 +496,13 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
 
     public void setAnimated(boolean animated) {
         this.mAnimated = animated;
+    }
+
+    public boolean isDrawAsPath() {
+        return mDrawAsPath;
+    }
+
+    public void setDrawAsPath(boolean mDrawAsPath) {
+        this.mDrawAsPath = mDrawAsPath;
     }
 }
