@@ -25,6 +25,8 @@ import android.util.Log;
 import com.jjoe64.graphview.GraphView;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -393,20 +395,25 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
      * @param silent    set true to avoid rerender the graph
      */
     public void appendData(E dataPoint, boolean scrollToEnd, int maxDataPoints, boolean silent) {
-        checkValueOrder(dataPoint);
+        boolean mSort = false;
 
         if (!mData.isEmpty() && dataPoint.getX() < mData.get(mData.size()-1).getX()) {
-            throw new IllegalArgumentException("new x-value must be greater then the last value. x-values has to be ordered in ASC.");
+            mSort = true;
         }
         synchronized (mData) {
             int curDataCount = mData.size();
+
+            mData.add(dataPoint);
+
+            if(mSort) {
+                sortData();
+            }
+
             if (curDataCount < maxDataPoints) {
-                // enough space
-                mData.add(dataPoint);
+                // enough space so do nothing
             } else {
                 // we have to trim one data
                 mData.remove(0);
-                mData.add(dataPoint);
             }
 
             // update lowest/highest cache
@@ -441,8 +448,7 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
 
     /**
      *
-     * @param dataPoint values the values must be in the correct order!
-     *                  x-value has to be ASC. First the lowest x value and at least the highest x value.
+     * @param dataPoint values
      * @param scrollToEnd true => graphview will scroll to the end (maxX)
      * @param maxDataPoints if max data count is reached, the oldest data
      *                      value will be lost to avoid memory leaks
@@ -466,11 +472,13 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
      *                  datapoint is after the last point.
      */
     protected void checkValueOrder(DataPointInterface onlyLast) {
+        boolean mSort = false;
+
         if (mData.size()>1) {
             if (onlyLast != null) {
                 // only check last
                 if (onlyLast.getX() < mData.get(mData.size()-1).getX()) {
-                    throw new IllegalArgumentException("new x-value must be greater then the last value. x-values has to be ordered in ASC.");
+                    mSort = true;
                 }
             } else {
                 double lx = mData.get(0).getX();
@@ -478,12 +486,25 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
                 for (int i = 1; i < mData.size(); i++) {
                     if (mData.get(i).getX() != Double.NaN) {
                         if (lx > mData.get(i).getX()) {
-                            throw new IllegalArgumentException("The order of the values is not correct. X-Values have to be ordered ASC. First the lowest x value and at least the highest x value.");
+                            mSort = true;
                         }
                         lx = mData.get(i).getX();
                     }
                 }
             }
         }
+        
+        if(mSort) {
+            sortData();
+        }
+    }
+
+    private void sortData() {
+        Collections.sort(mData, new Comparator<E>() {
+            @Override
+            public int compare(E lhs, E rhs) {
+                return (int) (lhs.getX() - rhs.getX());
+            }
+        });
     }
 }
