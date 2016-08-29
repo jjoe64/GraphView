@@ -118,6 +118,8 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
 
     private boolean mAnimated;
 
+    private double mLastAnimatedValue = Double.NaN;
+
     private long mAnimationStart;
 
     private AccelerateInterpolator mAnimationInterpolator;
@@ -224,6 +226,7 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
         float firstX = 0;
         float lastRenderedX = 0;
         int i=0;
+        float lastAnimationReferenceX = graphLeft;
         while (values.hasNext()) {
             E value = values.next();
 
@@ -231,7 +234,8 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
             double ratY = valY / diffY;
             double y = graphHeight * ratY;
 
-            double valX = value.getX() - minX;
+            double valueX = value.getX();
+            double valX = valueX - minX;
             double ratX = valX / diffX;
             double x = graphWidth * ratX;
 
@@ -301,16 +305,25 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
                 if (!skipDraw && !Float.isNaN(startY) && !Float.isNaN(endY)) {
                     // animation
                     if (mAnimated) {
-                        long currentTime = System.currentTimeMillis();
-                        if (mAnimationStart == 0) {
-                            mAnimationStart = currentTime;
-                        }
-                        float timeFactor = (float) (currentTime-mAnimationStart) / ANIMATION_DURATION;
-                        float factor = mAnimationInterpolator.getInterpolation(timeFactor);
-                        if (timeFactor <= 1.0) {
-                            startXAnimated = (startX-graphLeft) * factor + graphLeft;
-                            endXAnimated = (endX-graphLeft) * factor + graphLeft;
-                            ViewCompat.postInvalidateOnAnimation(graphView);
+                        if ((Double.isNaN(mLastAnimatedValue) || mLastAnimatedValue < valueX)) {
+                            long currentTime = System.currentTimeMillis();
+                            if (mAnimationStart == 0) {
+                                // start animation
+                                mAnimationStart = currentTime;
+                            }
+                            float timeFactor = (float) (currentTime-mAnimationStart) / ANIMATION_DURATION;
+                            float factor = mAnimationInterpolator.getInterpolation(timeFactor);
+                            if (timeFactor <= 1.0) {
+                                startXAnimated = (startX-lastAnimationReferenceX) * factor + lastAnimationReferenceX;
+                                startXAnimated = Math.max(startXAnimated, lastAnimationReferenceX);
+                                endXAnimated = (endX-lastAnimationReferenceX) * factor + lastAnimationReferenceX;
+                                ViewCompat.postInvalidateOnAnimation(graphView);
+                            } else {
+                                // animation finished
+                                mLastAnimatedValue = valueX;
+                            }
+                        } else {
+                            lastAnimationReferenceX = endX;
                         }
                     }
 
@@ -354,6 +367,24 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
                 float first_Y = (float) (graphTop - y) + graphHeight;
 
                 if (first_X >= graphLeft && first_Y <= (graphTop+graphHeight)) {
+                    if (mAnimated && (Double.isNaN(mLastAnimatedValue) || mLastAnimatedValue < valueX)) {
+                        long currentTime = System.currentTimeMillis();
+                        if (mAnimationStart == 0) {
+                            // start animation
+                            mAnimationStart = currentTime;
+                        }
+                        float timeFactor = (float) (currentTime-mAnimationStart) / ANIMATION_DURATION;
+                        float factor = mAnimationInterpolator.getInterpolation(timeFactor);
+                        if (timeFactor <= 1.0) {
+                            first_X = (first_X-lastAnimationReferenceX) * factor + lastAnimationReferenceX;
+                            ViewCompat.postInvalidateOnAnimation(graphView);
+                        } else {
+                            // animation finished
+                            mLastAnimatedValue = valueX;
+                        }
+                    }
+
+
                     mPaint.setStyle(Paint.Style.FILL);
                     canvas.drawCircle(first_X, first_Y, mStyles.dataPointsRadius, mPaint);
                     mPaint.setStyle(Paint.Style.STROKE);
@@ -505,5 +536,20 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
 
     public void setDrawAsPath(boolean mDrawAsPath) {
         this.mDrawAsPath = mDrawAsPath;
+    }
+
+    public void appendData(E dataPoint, boolean scrollToEnd, int maxDataPoints, boolean silent) {
+        if (!isAnimationActive()) {
+            mAnimationStart = 0;
+        }
+        super.appendData(dataPoint, scrollToEnd, maxDataPoints, silent);
+    }
+
+    private boolean isAnimationActive() {
+        if (mAnimated) {
+            long curr = System.currentTimeMillis();
+            return curr-mAnimationStart <= ANIMATION_DURATION;
+        }
+        return false;
     }
 }
