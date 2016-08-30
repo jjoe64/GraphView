@@ -22,7 +22,9 @@ package com.jjoe64.graphview.series;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.support.v4.view.ViewCompat;
 import android.util.Log;
+import android.view.animation.AccelerateInterpolator;
 
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.RectD;
@@ -41,6 +43,8 @@ import java.util.TreeSet;
  * @author jjoe64
  */
 public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> {
+    private static final long ANIMATION_DURATION = 333;
+
     /**
      * paint to do drawing on canvas
      */
@@ -91,6 +95,12 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
      */
     private Map<RectD, E> mDataPoints = new HashMap<RectD, E>();
 
+    private boolean mAnimated;
+    private double mLastAnimatedValue = Double.NaN;
+    private long mAnimationStart;
+    private AccelerateInterpolator mAnimationInterpolator;
+
+
     /**
      * creates bar series without any data
      */
@@ -107,6 +117,7 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
     public BarGraphSeries(E[] data) {
         super(data);
         mPaint = new Paint();
+        mAnimationInterpolator = new AccelerateInterpolator(2f);
     }
 
     /**
@@ -225,7 +236,8 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
             double ratY0 = valY0 / diffY;
             double y0 = contentHeight * ratY0;
 
-            double valX = value.getX() - minX;
+            double valueX = value.getX();
+            double valX = valueX - minX;
             double ratX = valX / diffX;
             double x = contentWidth * ratX;
 
@@ -242,6 +254,28 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
             double bottom = (contentTop - y0) + contentHeight - (graphView.getGridLabelRenderer().isHighlightZeroLines()?4:1);
 
             boolean reverse = top > bottom;
+
+            if (mAnimated) {
+                if ((Double.isNaN(mLastAnimatedValue) || mLastAnimatedValue < valueX)) {
+                    long currentTime = System.currentTimeMillis();
+                    if (mAnimationStart == 0) {
+                        // start animation
+                        mAnimationStart = currentTime;
+                    }
+                    float timeFactor = (float) (currentTime-mAnimationStart) / ANIMATION_DURATION;
+                    float factor = mAnimationInterpolator.getInterpolation(timeFactor);
+                    if (timeFactor <= 1.0) {
+                        double barHeight = bottom - top;
+                        barHeight = barHeight * factor;
+                        top = bottom-barHeight;
+                        ViewCompat.postInvalidateOnAnimation(graphView);
+                    } else {
+                        // animation finished
+                        mLastAnimatedValue = valueX;
+                    }
+                }
+            }
+
             if (reverse) {
                 double tmp = top;
                 top = bottom + (graphView.getGridLabelRenderer().isHighlightZeroLines()?4:1);
@@ -410,5 +444,13 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
      */
     public void setCustomPaint(Paint mCustomPaint) {
         this.mCustomPaint = mCustomPaint;
+    }
+
+    public void setAnimated(boolean animated) {
+        this.mAnimated = animated;
+    }
+
+    public boolean isAnimated() {
+        return mAnimated;
     }
 }
