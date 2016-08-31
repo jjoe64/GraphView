@@ -19,11 +19,12 @@
  */
 package com.jjoe64.graphview;
 
-import com.jjoe64.graphview.series.DataPointInterface;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+
 import com.jjoe64.graphview.series.Series;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -71,6 +72,26 @@ public class SecondScale {
     protected LabelFormatter mLabelFormatter;
 
     protected double mReferenceY = Double.NaN;
+
+    /**
+     * the paint to draw axis titles
+     */
+    private Paint mPaintAxisTitle;
+
+    /**
+     * the title of the vertical axis
+     */
+    private String mVerticalAxisTitle;
+
+    /**
+     * font size of the vertical axis title
+     */
+    public float mVerticalAxisTitleTextSize;
+
+    /**
+     * font color of the vertical axis title
+     */
+    public int mVerticalAxisTitleColor;
 
     /**
      * creates the second scale.
@@ -231,6 +252,74 @@ public class SecondScale {
                 }
                 mCompleteRange.top = d;
             }
+        }
+    }
+
+    /**
+     * @return the title of the vertical axis
+     */
+    public String getVerticalAxisTitle() {
+        return mVerticalAxisTitle;
+    }
+
+    /**
+     * @param mVerticalAxisTitle the title of the vertical axis
+     */
+    public void setVerticalAxisTitle(String mVerticalAxisTitle) {
+        if(mPaintAxisTitle==null) {
+            mPaintAxisTitle = new Paint();
+            mPaintAxisTitle.setTextSize(getVerticalAxisTitleTextSize());
+            mPaintAxisTitle.setTextAlign(Paint.Align.CENTER);
+        }
+        this.mVerticalAxisTitle = mVerticalAxisTitle;
+    }
+
+    /**
+     * @return font size of the vertical axis title
+     */
+    public float getVerticalAxisTitleTextSize() {
+        if (getVerticalAxisTitle() == null || getVerticalAxisTitle().length() == 0) {
+            return 0;
+        }
+        return mVerticalAxisTitleTextSize;
+    }
+
+    /**
+     * @param verticalAxisTitleTextSize font size of the vertical axis title
+     */
+    public void setVerticalAxisTitleTextSize(float verticalAxisTitleTextSize) {
+        mVerticalAxisTitleTextSize = verticalAxisTitleTextSize;
+    }
+
+    /**
+     * @return font color of the vertical axis title
+     */
+    public int getVerticalAxisTitleColor() {
+        return mVerticalAxisTitleColor;
+    }
+
+    /**
+     * @param verticalAxisTitleColor font color of the vertical axis title
+     */
+    public void setVerticalAxisTitleColor(int verticalAxisTitleColor) {
+        mVerticalAxisTitleColor = verticalAxisTitleColor;
+    }
+
+    /**
+     * draws the vertical axis title if
+     * it is set
+     * @param canvas canvas
+     */
+    protected void drawVerticalAxisTitle(Canvas canvas) {
+        if (mVerticalAxisTitle != null && mVerticalAxisTitle.length() > 0) {
+            mPaintAxisTitle.setColor(getVerticalAxisTitleColor());
+            mPaintAxisTitle.setTextSize(getVerticalAxisTitleTextSize());
+            float x = canvas.getWidth() - getVerticalAxisTitleTextSize()/2;
+            float y = canvas.getHeight() / 2;
+            canvas.save();
+            canvas.rotate(-90, x, y);
+            canvas.drawText(mVerticalAxisTitle, x, y, mPaintAxisTitle);
+            canvas.restore();
         }
     }
 }

@@ -296,6 +296,15 @@ public class GridLabelRenderer {
     private int mNumHorizontalLabels;
 
     /**
+     * sets the space for the vertical labels on the right side
+     *
+     * @param newWidth set fixed width. set null to calculate it automatically
+     */
+    public void setSecondScaleLabelVerticalWidth(Integer newWidth) {
+        mLabelVerticalSecondScaleWidth = newWidth;
+    }
+
+    /**
      * activate or deactivate human rounding of the
      * horizontal axis. GraphView tries to fit the labels
      * to display numbers that can be divided by 1, 2, or 5.
@@ -377,7 +386,6 @@ public class GridLabelRenderer {
         mStyles.horizontalLabelsAngle = 0f;
 
         mStyles.gridStyle = GridStyle.BOTH;
-
         reloadStyles();
     }
 
@@ -1062,6 +1070,11 @@ public class GridLabelRenderer {
 
         drawHorizontalAxisTitle(canvas);
         drawVerticalAxisTitle(canvas);
+
+        // draw second scale axis title if it exists
+        if (mGraphView.mSecondScale != null) {
+            mGraphView.mSecondScale.drawVerticalAxisTitle(canvas);
+        }
     }
 
     /**
