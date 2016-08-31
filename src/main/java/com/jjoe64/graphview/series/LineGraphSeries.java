@@ -124,8 +124,13 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
 
     private AccelerateInterpolator mAnimationInterpolator;
 
-    // TODO
-    private boolean mDrawAsPath = true;
+    /**
+     * flag whether the line should be drawn as a path
+     * or with single drawLine commands (more performance)
+     * By default we use drawLine because it has much more peformance.
+     * For some styling reasons it can make sense to draw as path.
+     */
+    private boolean mDrawAsPath = false;
 
     /**
      * creates a series without data
@@ -331,9 +336,10 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
                     if (!isOverdrawEndPoint) {
                         if (mStyles.drawDataPoints) {
                             // draw first datapoint
-                            mPaint.setStyle(Paint.Style.FILL);
+                            Paint.Style prevStyle = paint.getStyle();
+                            paint.setStyle(Paint.Style.FILL);
                             canvas.drawCircle(endXAnimated, endY, mStyles.dataPointsRadius, paint);
-                            mPaint.setStyle(Paint.Style.STROKE);
+                            paint.setStyle(prevStyle);
                         }
                         registerDataPoint(endX, endY, value);
                     }
@@ -347,7 +353,7 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
                         if (mDrawAsPath) {
                             mPath.lineTo(endXAnimated, endY);
                         } else {
-                            renderLine(canvas, new float[] {startXAnimated, startY, endXAnimated, endY});
+                            renderLine(canvas, new float[] {startXAnimated, startY, endXAnimated, endY}, paint);
                         }
                         lastRenderedX = endX;
                     }
@@ -385,9 +391,10 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
                     }
 
 
-                    mPaint.setStyle(Paint.Style.FILL);
-                    canvas.drawCircle(first_X, first_Y, mStyles.dataPointsRadius, mPaint);
-                    mPaint.setStyle(Paint.Style.STROKE);
+                    Paint.Style prevStyle = paint.getStyle();
+                    paint.setStyle(Paint.Style.FILL);
+                    canvas.drawCircle(first_X, first_Y, mStyles.dataPointsRadius, paint);
+                    paint.setStyle(prevStyle);
                 }
             }
             lastEndY = orgY;
@@ -410,8 +417,8 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
 
     }
 
-    private void renderLine(Canvas canvas, float[] pts) {
-        canvas.drawLines(pts, mPaint);
+    private void renderLine(Canvas canvas, float[] pts, Paint paint) {
+        canvas.drawLines(pts, paint);
     }
 
     /**
@@ -530,10 +537,24 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
         this.mAnimated = animated;
     }
 
+    /**
+     * flag whether the line should be drawn as a path
+     * or with single drawLine commands (more performance)
+     * By default we use drawLine because it has much more peformance.
+     * For some styling reasons it can make sense to draw as path.
+     */
     public boolean isDrawAsPath() {
         return mDrawAsPath;
     }
 
+    /**
+     * flag whether the line should be drawn as a path
+     * or with single drawLine commands (more performance)
+     * By default we use drawLine because it has much more peformance.
+     * For some styling reasons it can make sense to draw as path.
+     *
+     * @param mDrawAsPath true to draw as path
+     */
     public void setDrawAsPath(boolean mDrawAsPath) {
         this.mDrawAsPath = mDrawAsPath;
     }
