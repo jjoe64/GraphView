@@ -22,8 +22,6 @@ package com.jjoe64.graphview;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.RectF;
-import android.support.v4.view.ScaleGestureDetectorCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.EdgeEffectCompat;
 import android.util.Log;
@@ -32,7 +30,6 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.widget.OverScroller;
 
-import com.jjoe64.graphview.compat.OverScrollerCompat;
 import com.jjoe64.graphview.series.DataPointInterface;
 import com.jjoe64.graphview.series.Series;
 
@@ -124,6 +121,13 @@ public class Viewport {
         public boolean onScale(ScaleGestureDetector detector) {
             // --- horizontal scaling ---
             double viewportWidth = mCurrentViewport.width();
+
+            if (mMaxXAxisSize != 0) {
+                if (viewportWidth > mMaxXAxisSize) {
+                    viewportWidth = mMaxXAxisSize;
+                }
+            }
+
             double center = mCurrentViewport.left + viewportWidth / 2;
 
             float scaleSpanX;
@@ -168,6 +172,13 @@ public class Viewport {
                 boolean hasSecondScale = mGraphView.mSecondScale != null;
 
                 double viewportHeight = mCurrentViewport.height()*-1;
+
+                if (mMaxYAxisSize != 0) {
+                    if (viewportHeight > mMaxYAxisSize) {
+                        viewportHeight = mMaxYAxisSize;
+                    }
+                }
+
                 center = mCurrentViewport.bottom + viewportHeight / 2;
                 viewportHeight /= detector.getCurrentSpanY()/detector.getPreviousSpanY();
                 mCurrentViewport.bottom = center - viewportHeight / 2;
@@ -429,6 +440,20 @@ public class Viewport {
      * bottom = minY, top = maxY
      */
     protected RectD mCurrentViewport = new RectD();
+
+    /**
+     * maximum allowed viewport size (horizontal)
+     * 0 means use the bounds of the actual data that is
+     * available
+     */
+    protected double mMaxXAxisSize = 0;
+
+    /**
+     * maximum allowed viewport size (vertical)
+     * 0 means use the bounds of the actual data that is
+     * available
+     */
+    protected double mMaxYAxisSize = 0;
 
     /**
      * this holds the whole range of the data
@@ -1194,5 +1219,47 @@ public class Viewport {
             }
         }
         this.scalableY = scalableY;
+    }
+
+    /**
+     * maximum allowed viewport size (horizontal)
+     * 0 means use the bounds of the actual data that is
+     * available
+     */
+    public double getMaxXAxisSize() {
+        return mMaxXAxisSize;
+    }
+
+    /**
+     * maximum allowed viewport size (vertical)
+     * 0 means use the bounds of the actual data that is
+     * available
+     */
+    public double getMaxYAxisSize() {
+        return mMaxYAxisSize;
+    }
+
+    /**
+     * Set the max viewport size (horizontal)
+     * This can prevent the user from zooming out too much. E.g. with a 24 hours graph, it
+     * could force the user to only be able to see 2 hours of data at a time.
+     * Default value is 0 (disabled)
+     *
+     * @param mMaxXAxisViewportSize maximum size of viewport
+     */
+    public void setMaxXAxisSize(double mMaxXAxisViewportSize) {
+        this.mMaxXAxisSize = mMaxXAxisViewportSize;
+    }
+
+    /**
+     * Set the max viewport size (vertical)
+     * This can prevent the user from zooming out too much. E.g. with a 24 hours graph, it
+     * could force the user to only be able to see 2 hours of data at a time.
+     * Default value is 0 (disabled)
+     *
+     * @param mMaxYAxisViewportSize maximum size of viewport
+     */
+    public void setMaxYAxisSize(double mMaxYAxisViewportSize) {
+        this.mMaxYAxisSize = mMaxYAxisViewportSize;
     }
 }
