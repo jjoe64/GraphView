@@ -59,9 +59,16 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
     /**
      * spacing between the bars in percentage.
      * 0 => no spacing
-     * 100 => the space bewetten the bars is as big as the bars itself
+     * 100 => the space between the bars is as big as the bars itself
      */
     private int mSpacing;
+
+    /**
+     * width of a data point
+     * 0 => no prior knowledge of sampling period, interval between bars will be calculated automatically
+     * >0 => value is the total distance from one bar to another
+     */
+    private double mDataWidth;
 
     /**
      * callback to generate value-dependent colors
@@ -187,16 +194,22 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
             return;
         }
 
-        Double lastVal = null;
         double minGap = 0;
-        for(Double curVal: xVals) {
-            if(lastVal != null) {
-                double curGap = Math.abs(curVal - lastVal);
-                if (minGap == 0 || (curGap > 0 && curGap < minGap)) {
-                    minGap = curGap;
+
+        if(mDataWidth > 0.0) {
+            minGap = mDataWidth;
+        } else {
+            Double lastVal = null;
+
+            for(Double curVal: xVals) {
+                if(lastVal != null) {
+                    double curGap = Math.abs(curVal - lastVal);
+                    if (minGap == 0 || (curGap > 0 && curGap < minGap)) {
+                        minGap = curGap;
+                    }
                 }
+                lastVal = curVal;
             }
-            lastVal = curVal;
         }
 
         int numBarSlots = (minGap == 0) ? 1 : (int)Math.round((maxX - minX)/minGap) + 1;
@@ -350,6 +363,22 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
      */
     public void setSpacing(int mSpacing) {
         this.mSpacing = mSpacing;
+    }
+
+    /**
+     * @return the interval between data points
+     */
+    public double getDataWidth() {
+        return mDataWidth;
+    }
+
+    /**
+     * @param mDataWidth    width of a data point (sampling period)
+     *                      0 => no prior knowledge of sampling period, interval between bars will be calculated automatically
+ *                          >0 => value is the total distance from one bar to another
+     */
+    public void setDataWidth(double mDataWidth) {
+        this.mDataWidth = mDataWidth;
     }
 
     /**
