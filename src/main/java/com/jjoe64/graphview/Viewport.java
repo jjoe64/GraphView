@@ -735,7 +735,9 @@ public class Viewport {
                 }
             }
 
-            mCurrentViewport.bottom = d;
+            if (d != Double.MAX_VALUE) {
+                mCurrentViewport.bottom = d;
+            }
 
             // highest
             d = Double.MIN_VALUE;
@@ -748,7 +750,10 @@ public class Viewport {
                     }
                 }
             }
-            mCurrentViewport.top = d;
+
+            if (d != Double.MIN_VALUE) {
+                mCurrentViewport.top = d;
+            }
         }
 
         // fixes blank screen when range is zero

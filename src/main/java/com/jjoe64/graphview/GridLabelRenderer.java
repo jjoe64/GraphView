@@ -24,6 +24,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.util.Log;
 import android.util.TypedValue;
 
 import java.util.LinkedHashMap;
@@ -947,6 +948,7 @@ public class GridLabelRenderer {
         mIsAdjusted = adjustVertical(! Viewport.AxisBoundsStatus.FIX.equals(mGraphView.getViewport().mYAxisBoundsStatus));
         mIsAdjusted &= adjustVerticalSecondScale();
         mIsAdjusted &= adjustHorizontal(! Viewport.AxisBoundsStatus.FIX.equals(mGraphView.getViewport().mXAxisBoundsStatus));
+
     }
 
     /**
