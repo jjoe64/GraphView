@@ -99,5 +99,5 @@ How to create a new .jar file
 --------------------------------
 run this gradle task
 - ./gradlew --rerun-tasks clearJar makeJar
-copy myCompiledLibrary.jar from build/outputs/ to public/GraphView-x.x.x.jar
+- cp build/outputs/myCompiledLibrary.jar public/GraphView-4.2.0.jar
 
