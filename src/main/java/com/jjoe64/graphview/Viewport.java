@@ -671,38 +671,58 @@ public class Viewport {
         }
         mCompleteRange.set(0d, 0d, 0d, 0d);
         if (!seriesInclusiveSecondScale.isEmpty() && !seriesInclusiveSecondScale.get(0).isEmpty()) {
-            double d = seriesInclusiveSecondScale.get(0).getLowestValueX();
-            for (Series s : seriesInclusiveSecondScale) {
-                if (!s.isEmpty() && d > s.getLowestValueX()) {
-                    d = s.getLowestValueX();
-                }
-            }
-            mCompleteRange.left = d;
+            double minX = seriesInclusiveSecondScale.get(0).getLowestValueX();
+            double maxX = seriesInclusiveSecondScale.get(0).getHighestValueX();
 
-            d = seriesInclusiveSecondScale.get(0).getHighestValueX();
             for (Series s : seriesInclusiveSecondScale) {
-                if (!s.isEmpty() && d < s.getHighestValueX()) {
-                    d = s.getHighestValueX();
+                if (!s.isEmpty()) {
+                    if (minX > s.getLowestValueX())
+                        minX = s.getLowestValueX();
+                    if (maxX < s.getHighestValueX())
+                        maxX = s.getHighestValueX();
                 }
             }
-            mCompleteRange.right = d;
+
+            // protect from undefined behaviour
+            if (Double.compare(minX, maxX) > 0
+                    || Double.isInfinite(minX)
+                    || Double.isNaN(minX)
+                    || Double.isInfinite(maxX)
+                    || Double.isNaN(maxX))
+            {
+                mCompleteRange.left = 0d;
+                mCompleteRange.right = 0d;
+            } else {
+                mCompleteRange.left = minX;
+                mCompleteRange.right = maxX;
+            }
 
             if (!series.isEmpty() && !series.get(0).isEmpty()) {
-                d = series.get(0).getLowestValueY();
-                for (Series s : series) {
-                    if (!s.isEmpty() && d > s.getLowestValueY()) {
-                        d = s.getLowestValueY();
-                    }
-                }
-                mCompleteRange.bottom = d;
+                double minY = series.get(0).getLowestValueY();
+                double maxY = series.get(0).getHighestValueY();
 
-                d = series.get(0).getHighestValueY();
                 for (Series s : series) {
-                    if (!s.isEmpty() && d < s.getHighestValueY()) {
-                        d = s.getHighestValueY();
+                    if (!s.isEmpty()) {
+                        if (minY > s.getLowestValueY())
+                            minY = s.getLowestValueY();
+                        if (maxY < s.getHighestValueY())
+                            maxY = s.getHighestValueY();
                     }
                 }
-                mCompleteRange.top = d;
+
+                // protect from undefined behaviour
+                if (Double.compare(minY, maxY) > 0
+                       || Double.isInfinite(minY)
+                       || Double.isNaN(minY)
+                       || Double.isInfinite(maxY)
+                       || Double.isNaN(maxY))
+                {
+                    mCompleteRange.bottom = 0d;
+                    mCompleteRange.top = 0d;
+                } else {
+                    mCompleteRange.bottom = minY;
+                    mCompleteRange.top = maxY;
+                }
             }
         }
 
@@ -723,36 +743,37 @@ public class Viewport {
             mCurrentViewport.right = mCompleteRange.right;
         } else if (mXAxisBoundsManual && !mYAxisBoundsManual && mCompleteRange.width() != 0) {
             // get highest/lowest of current viewport
+
             // lowest
-            double d = Double.MAX_VALUE;
-            for (Series s : series) {
-                Iterator<DataPointInterface> values = s.getValues(mCurrentViewport.left, mCurrentViewport.right);
-                while (values.hasNext()) {
-                    double v = values.next().getY();
-                    if (d > v) {
-                        d = v;
-                    }
-                }
-            }
-
-            if (d != Double.MAX_VALUE) {
-                mCurrentViewport.bottom = d;
-            }
-
+            double minY = Double.MAX_VALUE;
             // highest
-            d = Double.MIN_VALUE;
+            double maxY = Double.MIN_VALUE;
+
             for (Series s : series) {
-                Iterator<DataPointInterface> values = s.getValues(mCurrentViewport.left, mCurrentViewport.right);
-                while (values.hasNext()) {
-                    double v = values.next().getY();
-                    if (d < v) {
-                        d = v;
+                if (!s.isEmpty()) {
+                    Iterator<DataPointInterface> values = s.getValues(mCurrentViewport.left, mCurrentViewport.right);
+                    while (values.hasNext()) {
+                        double v = values.next().getY();
+                        if (minY > v)
+                            minY = v;
+                        if (maxY < v)
+                            maxY = v;
                     }
                 }
             }
 
-            if (d != Double.MIN_VALUE) {
-                mCurrentViewport.top = d;
+            // protect from undefined behaviour
+            if (Double.compare(minY, maxY) > 0
+                   || Double.isInfinite(minY)
+                   || Double.isNaN(minY)
+                   || Double.isInfinite(maxY)
+                   || Double.isNaN(maxY))
+            {
+                mCurrentViewport.bottom = 0d;
+                mCurrentViewport.top = 0d;
+            } else {
+                mCurrentViewport.bottom = minY;
+                mCurrentViewport.top = maxY;
             }
         }
 
