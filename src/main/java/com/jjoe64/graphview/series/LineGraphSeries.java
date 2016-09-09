@@ -393,7 +393,6 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
                         firstY = startY;
                         mPathBackground.moveTo(startXAnimated, startY);
                     }
-                    Log.d("HERE", startXAnimated+"/"+startY+"//"+endXAnimated+"/"+endY);
                     mPathBackground.lineTo(startXAnimated, startY);
                     mPathBackground.lineTo(endXAnimated, endY);
                 }
