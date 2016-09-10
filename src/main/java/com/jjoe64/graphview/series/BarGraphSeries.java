@@ -106,6 +106,7 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
     private double mLastAnimatedValue = Double.NaN;
     private long mAnimationStart;
     private AccelerateInterpolator mAnimationInterpolator;
+    private int mAnimationStartFrameNo;
 
 
     /**
@@ -274,6 +275,14 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
                     if (mAnimationStart == 0) {
                         // start animation
                         mAnimationStart = currentTime;
+                        mAnimationStartFrameNo = 0;
+                    } else {
+                        // anti-lag: wait a few frames
+                        if (mAnimationStartFrameNo < 15) {
+                            // second time
+                            mAnimationStart = currentTime;
+                            mAnimationStartFrameNo++;
+                        }
                     }
                     float timeFactor = (float) (currentTime-mAnimationStart) / ANIMATION_DURATION;
                     float factor = mAnimationInterpolator.getInterpolation(timeFactor);

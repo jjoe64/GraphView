@@ -24,8 +24,6 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.support.v4.view.ViewCompat;
-import android.util.Log;
-import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AccelerateInterpolator;
 
 import com.jjoe64.graphview.GraphView;
@@ -40,6 +38,7 @@ import java.util.Iterator;
  */
 public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E> {
     private static final long ANIMATION_DURATION = 333;
+    private int mAnimationStartFrameNo;
 
     /**
      * wrapped styles regarding the line
@@ -333,6 +332,14 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
                             if (mAnimationStart == 0) {
                                 // start animation
                                 mAnimationStart = currentTime;
+                                mAnimationStartFrameNo = 0;
+                            } else {
+                                // anti-lag: wait a few frames
+                                if (mAnimationStartFrameNo < 15) {
+                                    // second time
+                                    mAnimationStart = currentTime;
+                                    mAnimationStartFrameNo++;
+                                }
                             }
                             float timeFactor = (float) (currentTime-mAnimationStart) / ANIMATION_DURATION;
                             float factor = mAnimationInterpolator.getInterpolation(timeFactor);
