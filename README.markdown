@@ -1,5 +1,6 @@
 Chart and Graph Library for Android
 ====================================
+[![Badge](http://www.libtastic.com/static/osbadges/280.png)](http://www.libtastic.com/technology/280/)
 
 <h2>What is GraphView</h2>
 GraphView is a library for Android to programmatically create flexible and nice-looking diagramms. It is easy to understand, to integrate and to customize it.
