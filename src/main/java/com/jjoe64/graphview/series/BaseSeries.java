@@ -421,6 +421,7 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
                     mLowestYCache = dataPointY;
                 }
             }
+
         }
 
         if (!silent) {
