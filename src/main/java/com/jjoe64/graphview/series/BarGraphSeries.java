@@ -102,10 +102,29 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
      */
     private Map<RectD, E> mDataPoints = new HashMap<RectD, E>();
 
+    /**
+     * flag for animated rendering
+     */
     private boolean mAnimated;
+
+    /**
+     * store the last value that was animated
+     */
     private double mLastAnimatedValue = Double.NaN;
+
+    /**
+     * time of start animation
+     */
     private long mAnimationStart;
+
+    /**
+     * animation interpolator
+     */
     private AccelerateInterpolator mAnimationInterpolator;
+
+    /**
+     * frame number of animation to avoid lagging
+     */
     private int mAnimationStartFrameNo;
 
 
@@ -484,10 +503,18 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
         this.mCustomPaint = mCustomPaint;
     }
 
+    /**
+     * render the series with an animation
+     *
+     * @param animated animation activated or not
+     */
     public void setAnimated(boolean animated) {
         this.mAnimated = animated;
     }
 
+    /**
+     * @return rendering is animated or not
+     */
     public boolean isAnimated() {
         return mAnimated;
     }

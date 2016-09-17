@@ -36,7 +36,6 @@ import java.util.List;
 
 /**
  * @author jjoe64
- * @version 4.0.0
  */
 public class GraphView extends View {
     /**
@@ -282,6 +281,11 @@ public class GraphView extends View {
         postInvalidate();
     }
 
+    /**
+     * draw all the stuff on canvas
+     *
+     * @param canvas
+     */
     protected void drawGraphElements(Canvas canvas) {
         // must be in hardware accelerated mode
         if (android.os.Build.VERSION.SDK_INT >= 11 && !canvas.isHardwareAccelerated()) {
@@ -527,8 +531,9 @@ public class GraphView extends View {
     }
 
     /**
+     * creates the second scale logic and returns it
      *
-     * @return
+     * @return second scale object
      */
     public SecondScale getSecondScale() {
         if (mSecondScale == null) {

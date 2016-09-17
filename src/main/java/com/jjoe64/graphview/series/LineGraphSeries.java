@@ -38,7 +38,6 @@ import java.util.Iterator;
  */
 public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E> {
     private static final long ANIMATION_DURATION = 333;
-    private int mAnimationStartFrameNo;
 
     /**
      * wrapped styles regarding the line
@@ -115,13 +114,30 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
      */
     private Paint mCustomPaint;
 
+    /**
+     * rendering is animated
+     */
     private boolean mAnimated;
 
+    /**
+     * last animated value
+     */
     private double mLastAnimatedValue = Double.NaN;
 
+    /**
+     * time of animation start
+     */
     private long mAnimationStart;
 
+    /**
+     * animation interpolator
+     */
     private AccelerateInterpolator mAnimationInterpolator;
+
+    /**
+     * number of animation frame to avoid lagging
+     */
+    private int mAnimationStartFrameNo;
 
     /**
      * flag whether the line should be drawn as a path
@@ -460,9 +476,15 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
             //mPathBackground.close();
             canvas.drawPath(mPathBackground, mPaintBackground);
         }
-
     }
 
+    /**
+     * just a wrapper to draw lines on canvas
+     *
+     * @param canvas
+     * @param pts
+     * @param paint
+     */
     private void renderLine(Canvas canvas, float[] pts, Paint paint) {
         canvas.drawLines(pts, paint);
     }
@@ -579,6 +601,9 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
         this.mCustomPaint = customPaint;
     }
 
+    /**
+     * @param animated activate the animated rendering
+     */
     public void setAnimated(boolean animated) {
         this.mAnimated = animated;
     }
@@ -605,6 +630,15 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
         this.mDrawAsPath = mDrawAsPath;
     }
 
+    /**
+     *
+     * @param dataPoint values the values must be in the correct order!
+     *                  x-value has to be ASC. First the lowest x value and at least the highest x value.
+     * @param scrollToEnd true => graphview will scroll to the end (maxX)
+     * @param maxDataPoints if max data count is reached, the oldest data
+     *                      value will be lost to avoid memory leaks
+     * @param silent    set true to avoid rerender the graph
+     */
     public void appendData(E dataPoint, boolean scrollToEnd, int maxDataPoints, boolean silent) {
         if (!isAnimationActive()) {
             mAnimationStart = 0;
@@ -612,6 +646,9 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
         super.appendData(dataPoint, scrollToEnd, maxDataPoints, silent);
     }
 
+    /**
+     * @return currently animation is active
+     */
     private boolean isAnimationActive() {
         if (mAnimated) {
             long curr = System.currentTimeMillis();

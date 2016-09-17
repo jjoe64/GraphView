@@ -625,21 +625,20 @@ public class GridLabelRenderer {
 
         // find the first data point that is relevant to display
         // starting from 1st datapoint so that the steps have nice numbers
+        // goal is to start with the minY or 1 step before
         newMinY = mGraphView.getSecondScale().mReferenceY;
 
         // protect from undefined behaviour
         if (Double.isInfinite(newMinY) || Double.isNaN(newMinY))
             return false;
 
-        if (newMinY < minY) {
-            while (newMinY+exactSteps <= minY) {
-                newMinY += exactSteps;
-            }
-        } else if (newMinY > minY) {
-            while (newMinY > minY) {
-                newMinY -= exactSteps;
-            }
-        }
+        // must be down-rounded
+        double count = Math.floor((minY-newMinY)/exactSteps);
+        newMinY = count*exactSteps + newMinY;
+
+        // protect from undefined behaviour
+        if (Double.isInfinite(newMinY) || Double.isNaN(newMinY))
+            return false;
 
         // it can happen that we need to add some more labels to fill the complete screen
         numVerticalLabels = (int) ((mGraphView.getSecondScale().mCurrentViewport.height()*-1 / exactSteps)) + 2;
@@ -766,19 +765,13 @@ public class GridLabelRenderer {
             // first time
         }
 
-
         // find the first data point that is relevant to display
         // starting from 1st datapoint so that the steps have nice numbers
+        // goal is to start with the minX or 1 step before
         newMinY = mGraphView.getViewport().getReferenceY();
-        if (newMinY < minY) {
-            while (newMinY+exactSteps <= minY) {
-                newMinY += exactSteps;
-            }
-        } else if (newMinY > minY) {
-            while (newMinY > minY) {
-                newMinY -= exactSteps;
-            }
-        }
+        // must be down-rounded
+        double count = Math.floor((minY-newMinY)/exactSteps);
+        newMinY = count*exactSteps + newMinY;
 
         // now we have our labels bounds
         if (changeBounds) {
@@ -914,16 +907,11 @@ public class GridLabelRenderer {
 
 
         // starting from 1st datapoint
+        // goal is to start with the minX or 1 step before
         newMinX = mGraphView.getViewport().getReferenceX();
-        if (newMinX < minX) {
-            while (newMinX+exactSteps <= minX) {
-                newMinX += exactSteps;
-            }
-        } else if (newMinX > minX) {
-            while (newMinX > minX) {
-                newMinX -= exactSteps;
-            }
-        }
+        // must be down-rounded
+        double count = Math.floor((minX-newMinX)/exactSteps);
+        newMinX = count*exactSteps + newMinX;
 
         // now we have our labels bounds
         if (changeBounds) {
@@ -972,7 +960,6 @@ public class GridLabelRenderer {
         mIsAdjusted = adjustVertical(! Viewport.AxisBoundsStatus.FIX.equals(mGraphView.getViewport().mYAxisBoundsStatus));
         mIsAdjusted &= adjustVerticalSecondScale();
         mIsAdjusted &= adjustHorizontal(! Viewport.AxisBoundsStatus.FIX.equals(mGraphView.getViewport().mXAxisBoundsStatus));
-
     }
 
     /**

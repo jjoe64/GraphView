@@ -75,7 +75,14 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
      */
     private int mColor = 0xff0077cc;
 
+    /**
+     * cache for lowest y value
+     */
     private double mLowestYCache = Double.NaN;
+
+    /**
+     * cahce for highest y value
+     */
     private double mHighestYCache = Double.NaN;
 
     /**
@@ -378,6 +385,11 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
         }
     }
 
+    /**
+     * stores the reference of the used graph
+     *
+     * @param graphView graphview
+     */
     @Override
     public void onGraphViewAttached(GraphView graphView) {
         mGraphViews.add(graphView);
@@ -421,6 +433,7 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
                     mLowestYCache = dataPointY;
                 }
             }
+
         }
 
         if (!silent) {
