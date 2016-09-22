@@ -3,7 +3,7 @@
       package="com.jjoe64.graphview"
       android:versionCode="15"
       android:versionName="4.2.1">
-    <uses-sdk android:targetSdkVersion="16" android:minSdkVersion="9"></uses-sdk>
+    <uses-sdk android:targetSdkVersion="24" android:minSdkVersion="9"></uses-sdk>
 
     <application>
     </application>
