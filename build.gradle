@@ -34,8 +34,12 @@ android {
 
 }
 
+ext {
+    supportLibVersion = '24.2.1'
+}
+
 dependencies {
-    compile 'com.android.support:support-v4:24.2.1'
+    compile "com.android.support:support-compat:${supportLibVersion}"
 }
 
 
