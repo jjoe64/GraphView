@@ -1,0 +1,14 @@
+language: android
+jdk: oraclejdk8
+sudo: false
+
+android:
+  components:
+    - platform-tools
+    - tools
+    - build-tools-24.0.2
+    - android-24
+    - extra-google-m2repository
+    - extra-android-m2repository
+
+script: ./gradlew build connectedCheck
