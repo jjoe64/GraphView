@@ -71,7 +71,7 @@ graph.addSeries(series);
 
 ## Download Demo project at Google Play Store
 
-<img src="https://lh3.googleusercontent.com/yOrpE93m3N_Zr7kEUbnET6eFLGwmWA_a5kGa8XQcVrHeOse7K-zFN9s-gmwdRX3LN7A=w300-rw" width="32" />
+<img src="https://lh3.googleusercontent.com/yOrpE93m3N_Zr7kEUbnET6eFLGwmWA_a5kGa8XQcVrHeOse7K-zFN9s-gmwdRX3LN7A=w300-rw" width="64" /><br/>
 <a href="https://play.google.com/store/apps/details?id=com.jjoe64.graphview_demos" title="GraphView Demos">Showcase GraphView Demo App</a>
 
 ## More examples and documentation
