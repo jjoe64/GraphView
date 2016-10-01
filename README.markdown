@@ -12,8 +12,8 @@ Supported graph types:
 * Point Graphs
 * or implement your own custom types.
 
-Tested on Android 1.6, 2.2, 2.3 and 3.0 (honeycomb, tablet), 4.0.
-
+<img src="https://raw.githubusercontent.com/jjoe64/GraphView/master/anim.gif" title="Animation" />
+<img src="https://raw.githubusercontent.com/jjoe64/GraphView/master/zooming.gif" title="Zooming, Scrolling" />
 <img src="https://lh3.googleusercontent.com/v2Ga3ReduITLtP3QJCc8GhOhBHzpyoKiW8SoRh35ydPP45f05BoDN3vSDJxvWB9uY0RU=h900-rw" height="200" />
 <img src="https://lh5.ggpht.com/29xLPw1BGGyyvUYgTsRt3E2rlGIH8lTbzYfnxuZJgNOT3hXy3Ggu4o3fPQZWw9u_aso=h900-rw" height="200" />
 <img src="http://www.android-graphview.org/uploads/4/1/5/7/41578917/6509264_orig.png" height="200" />
@@ -42,10 +42,36 @@ Tested on Android 1.6, 2.2, 2.3 and 3.0 (honeycomb, tablet), 4.0.
 * And much more... Check out the project page and/or the demo app
 
 ## How to use
+
+1) Add gradle dependency:
+`compile 'com.jjoe64:graphview:4.2.1'`
+
+2) Add view to layout:
+`<com.jjoe64.graphview.GraphView
+        android:layout_width="match_parent"
+        android:layout_height="200dip"
+        android:id="@+id/graph" />`
+
+3) Add some data:
+`GraphView graph = (GraphView) findViewById(R.id.graph);
+LineGraphSeries<DataPoint> series = new LineGraphSeries<DataPoint>(new DataPoint[] {
+          new DataPoint(0, 1),
+          new DataPoint(1, 5),
+          new DataPoint(2, 3),
+          new DataPoint(3, 2),
+          new DataPoint(4, 6)
+});
+graph.addSeries(series);`
+
+## Download Demo project at Google Play Store
+
+<a href="https://play.google.com/store/apps/details?id=com.jjoe64.graphview_demos" title="GraphView Demos">Showcase GraphView Demo App</a>
+
+## More examples and documentation
+
 <a href="http://android-graphview.org">Get started at project homepage</a>
 
 To show you how to integrate the library into an existing project see the GraphView-Demos project!
 See GraphView-Demos for examples.
 <a href="https://github.com/jjoe64/GraphView-Demos">https://github.com/jjoe64/GraphView-Demos<br/>
 <a href="http://android-graphview.org">View GraphView page http://android-graphview.org</a>
-
