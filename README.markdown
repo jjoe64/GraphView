@@ -44,16 +44,21 @@ Supported graph types:
 ## How to use
 
 1) Add gradle dependency:
-`compile 'com.jjoe64:graphview:4.2.1'`
+```
+compile 'com.jjoe64:graphview:4.2.1'
+```
 
 2) Add view to layout:
-`<com.jjoe64.graphview.GraphView
+```
+<com.jjoe64.graphview.GraphView
         android:layout_width="match_parent"
         android:layout_height="200dip"
-        android:id="@+id/graph" />`
+        android:id="@+id/graph" />
+```
 
 3) Add some data:
-`GraphView graph = (GraphView) findViewById(R.id.graph);
+```
+GraphView graph = (GraphView) findViewById(R.id.graph);
 LineGraphSeries<DataPoint> series = new LineGraphSeries<DataPoint>(new DataPoint[] {
           new DataPoint(0, 1),
           new DataPoint(1, 5),
@@ -61,7 +66,8 @@ LineGraphSeries<DataPoint> series = new LineGraphSeries<DataPoint>(new DataPoint
           new DataPoint(3, 2),
           new DataPoint(4, 6)
 });
-graph.addSeries(series);`
+graph.addSeries(series);
+```
 
 ## Download Demo project at Google Play Store
 
