@@ -248,6 +248,11 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
         float lastRenderedX = 0;
         int i=0;
         float lastAnimationReferenceX = graphLeft;
+
+        boolean sameXSkip = false;
+        float minYOnSameX = 0f;
+        float maxYOnSameX = 0f;
+
         while (values.hasNext()) {
             E value = values.next();
 
@@ -392,7 +397,24 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
                         } else {
                             renderLine(canvas, new float[] {startXAnimated, startY, endXAnimated, endY}, paint);
                         }
+                        // render vertical lines that were skiped
+                        if (sameXSkip) {
+                            sameXSkip = false;
+                            renderLine(canvas, new float[] {lastRenderedX, minYOnSameX, lastRenderedX, maxYOnSameX}, paint);
+                        }
                         lastRenderedX = endX;
+                    } else {
+                        // rendering on same x position
+                        // save min+max y position and render it as line
+                        if (sameXSkip) {
+                            minYOnSameX = Math.min(minYOnSameX, endY);
+                            maxYOnSameX = Math.max(maxYOnSameX, endY);
+                        } else {
+                            // first
+                            sameXSkip = true;
+                            minYOnSameX = endY;
+                            maxYOnSameX = endY;
+                        }
                     }
 
                 }
