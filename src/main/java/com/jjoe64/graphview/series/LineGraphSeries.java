@@ -245,7 +245,7 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
         double lastUsedEndY = 0;
         float firstX = -1;
         float firstY = -1;
-        float lastRenderedX = 0;
+        float lastRenderedX = Float.NaN;
         int i=0;
         float lastAnimationReferenceX = graphLeft;
 
@@ -391,16 +391,16 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
                         mPath.moveTo(startXAnimated, startY);
                     }
                     // performance opt.
-                    if (Math.abs(endX-lastRenderedX) > .3f) {
+                    if (Float.isNaN(lastRenderedX) || Math.abs(endX-lastRenderedX) > .3f) {
                         if (mDrawAsPath) {
                             mPath.lineTo(endXAnimated, endY);
                         } else {
+                            // render vertical lines that were skipped
+                            if (sameXSkip) {
+                                sameXSkip = false;
+                                renderLine(canvas, new float[] {lastRenderedX, minYOnSameX, lastRenderedX, maxYOnSameX}, paint);
+                            }
                             renderLine(canvas, new float[] {startXAnimated, startY, endXAnimated, endY}, paint);
-                        }
-                        // render vertical lines that were skiped
-                        if (sameXSkip) {
-                            sameXSkip = false;
-                            renderLine(canvas, new float[] {lastRenderedX, minYOnSameX, lastRenderedX, maxYOnSameX}, paint);
                         }
                         lastRenderedX = endX;
                     } else {
@@ -412,8 +412,8 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
                         } else {
                             // first
                             sameXSkip = true;
-                            minYOnSameX = endY;
-                            maxYOnSameX = endY;
+                            minYOnSameX = Math.min(startY, endY);
+                            maxYOnSameX = Math.max(startY, endY);
                         }
                     }
 
