@@ -11,15 +11,15 @@ gradle.taskGraph.whenReady { taskGraph ->
         console.printf "\n\nWe have to sign some things in this build." +
                 "\n\nPlease enter your signing details.\n\n"
 
-        def id = console.readLine("PGP Key Id: ")
-        def file = console.readLine("PGP Secret Key Ring File (absolute path): ")
-        def password = console.readPassword("PGP Private Key Password: ")
+        def id = "D8C3B041"
+        def file = "/Users/jonas/.gnupg/secring.gpg"
+        def password = "joAJsd8278(§i2nf"
 
         allprojects { ext."signing.keyId" = id }
         allprojects { ext."signing.secretKeyRingFile" = file }
         allprojects { ext."signing.password" = password }
 
-        console.printf "\nThanks.\n\n"
+        console.printf "\nThanks.\n\n" + file
     }
 }
 
@@ -35,11 +35,11 @@ if (isReleaseBuild()) {
 }
 
 def getRepositoryUsername() {
-    return hasProperty('nexusUsername') ? nexusUsername : ""
+    return hasProperty('nexusUsername') ? nexusUsername : "jjoe64"
 }
 
 def getRepositoryPassword() {
-    return hasProperty('nexusPassword') ? nexusPassword : ""
+    return hasProperty('nexusPassword') ? nexusPassword : "eeghoYo7"
 }
 
 afterEvaluate { project ->

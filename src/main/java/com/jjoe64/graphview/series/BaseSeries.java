@@ -111,6 +111,7 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
         for (E d : data) {
             mData.add(d);
         }
+        checkValueOrder(null);
     }
 
     /**
