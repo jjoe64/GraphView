@@ -42,6 +42,10 @@ def getRepositoryPassword() {
     return hasProperty('nexusPassword') ? nexusPassword : "eeghoYo7"
 }
 
+def isReleaseBuild() {
+    return version.contains("SNAPSHOT") == false
+}
+
 afterEvaluate { project ->
     uploadArchives {
         repositories {
