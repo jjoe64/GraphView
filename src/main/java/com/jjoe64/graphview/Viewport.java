@@ -785,7 +785,6 @@ public class Viewport {
         // if we have a minimum size
         if (!Double.isNaN(mAllowedSize)) {
             mCompleteRange.left = Math.min(mCompleteRange.left, mCompleteRange.right - mAllowedSize);
-            Log.d("Viewport", "hier: "+mCompleteRange.left);
         }
     }
 
