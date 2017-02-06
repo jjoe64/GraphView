@@ -67,6 +67,11 @@ public class Viewport {
     protected boolean scalableY;
 
     /**
+     * min size of viewport when scaling and scrolling
+     */
+    private double mAllowedSize = Double.NaN;
+
+    /**
      * the reference number to generate the labels
      * @return  by default 0, only when manual bounds and no human rounding
      *          is active, the min x value is returned
@@ -83,6 +88,26 @@ public class Viewport {
             // starting from 0 so that the steps have nice numbers
             return 0;
         }
+    }
+
+    /**
+     * optionally set the allowed size of the viewport
+     * that will be respected when scaling and scrolling.
+     * Default is the size of the complete data (maxX-minX).
+     */
+    public double getAllowedSize() {
+        return mAllowedSize;
+    }
+
+    /**
+     * optionally set the allowed size of the viewport
+     * that will be respected when scaling and scrolling.
+     * Default is the size of the complete data (maxX-minX).
+     *
+     * @param size Double.NaN to reset to defaults
+     */
+    public void setAllowedSize(double size) {
+        this.mAllowedSize = size;
     }
 
     /**
@@ -756,6 +781,12 @@ public class Viewport {
         // fixes blank screen when range is zero
         if (mCurrentViewport.left == mCurrentViewport.right) mCurrentViewport.right++;
         if (mCurrentViewport.top == mCurrentViewport.bottom) mCurrentViewport.top++;
+
+        // if we have a minimum size
+        if (!Double.isNaN(mAllowedSize)) {
+            mCompleteRange.left = Math.min(mCompleteRange.left, mCompleteRange.right - mAllowedSize);
+            Log.d("Viewport", "hier: "+mCompleteRange.left);
+        }
     }
 
     /**
