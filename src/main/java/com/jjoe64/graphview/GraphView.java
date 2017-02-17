@@ -17,17 +17,23 @@
 package com.jjoe64.graphview;
 
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.PointF;
+import android.net.Uri;
+import android.provider.MediaStore;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
 import com.jjoe64.graphview.series.Series;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -286,7 +292,8 @@ public class GraphView extends View {
     protected void drawGraphElements(Canvas canvas) {
         // must be in hardware accelerated mode
         if (android.os.Build.VERSION.SDK_INT >= 11 && !canvas.isHardwareAccelerated()) {
-            throw new IllegalStateException("GraphView must be used in hardware accelerated mode." +
+            // just warn about it, because it is ok when making a snapshot
+            Log.w("GraphView", "GraphView should be used in hardware accelerated mode." +
                     "You can use android:hardwareAccelerated=\"true\" on your activity. Read this for more info:" +
                     "https://developer.android.com/guide/topics/graphics/hardware-accel.html");
         }
@@ -572,5 +579,42 @@ public class GraphView extends View {
     public void removeSeries(Series<?> series) {
         mSeries.remove(series);
         onDataChanged(false, false);
+    }
+
+    /**
+     * takes a snapshot and return it as bitmap
+     *
+     * @return snapshot of graph
+     */
+    public Bitmap takeSnapshot() {
+        Bitmap bitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        draw(canvas);
+        return bitmap;
+    }
+
+    /**
+     * takes a snapshot, stores it and open the share dialog.
+     * Notice that you need the permission android.permission.WRITE_EXTERNAL_STORAGE
+     *
+     * @param context
+     * @param imageName
+     * @param title
+     */
+    public void takeSnapshotAndShare(Context context, String imageName, String title) {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        Bitmap inImage = takeSnapshot();
+        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+
+        String path = MediaStore.Images.Media.insertImage(context.getContentResolver(), inImage, imageName, null);
+
+        Intent i = new Intent(Intent.ACTION_SEND);
+        i.setType("image/*");
+        i.putExtra(Intent.EXTRA_STREAM, Uri.parse(path));
+        try {
+            context.startActivity(Intent.createChooser(i, title));
+        } catch (android.content.ActivityNotFoundException ex) {
+            ex.printStackTrace();
+        }
     }
 }
