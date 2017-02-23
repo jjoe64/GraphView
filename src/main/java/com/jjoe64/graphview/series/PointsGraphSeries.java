@@ -41,7 +41,7 @@ public class PointsGraphSeries<E extends DataPointInterface> extends BaseSeries<
     public static interface CustomShape {
         /**
          * called when drawing a single data point.
-         * use the x and y coordinates to render your
+         * use the x and y coordinates to draw your
          * drawing at this point.
          *
          * @param canvas canvas to draw on
@@ -55,9 +55,9 @@ public class PointsGraphSeries<E extends DataPointInterface> extends BaseSeries<
     }
 
     /**
-     * choose a predefined shape to render for
+     * choose a predefined shape to draw for
      * each data point.
-     * You can also render a custom drawing via {@link com.jjoe64.graphview.series.PointsGraphSeries.CustomShape}
+     * You can also draw a custom drawing via {@link com.jjoe64.graphview.series.PointsGraphSeries.CustomShape}
      */
     public enum Shape {
         /**
@@ -240,7 +240,7 @@ public class PointsGraphSeries<E extends DataPointInterface> extends BaseSeries<
     }
 
     /**
-     * helper to render triangle
+     * helper to draw triangle
      *
      * @param point array with 3 coordinates
      * @param canvas canvas to draw on
@@ -302,7 +302,7 @@ public class PointsGraphSeries<E extends DataPointInterface> extends BaseSeries<
     }
 
     /**
-     * Use a custom handler to render your own
+     * Use a custom handler to draw your own
      * drawing for each data point.
      *
      * @param shape handler to use a custom drawing

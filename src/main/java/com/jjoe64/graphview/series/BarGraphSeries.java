@@ -501,7 +501,7 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
     }
 
     /**
-     * render the series with an animation
+     * draw the series with an animation
      *
      * @param animated animation activated or not
      */

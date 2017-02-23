@@ -22,7 +22,6 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Point;
 import android.graphics.PointF;
 import android.net.Uri;
 import android.provider.MediaStore;
@@ -156,10 +155,14 @@ public class GraphView extends View {
      */
     private Paint mPaintTitle;
 
+    private boolean mIsCursorMode;
+
     /**
      * paint for the preview (in the SDK)
      */
     private Paint mPreviewPaint;
+
+    private CursorMode mCursorMode;
 
     /**
      * Initialize the GraphView view
@@ -309,6 +312,11 @@ public class GraphView extends View {
                 s.draw(this, canvas, true);
             }
         }
+
+        if (mCursorMode != null) {
+            mCursorMode.draw(canvas);
+        }
+
         mViewport.draw(canvas);
         mLegendRenderer.draw(canvas);
     }
@@ -568,7 +576,7 @@ public class GraphView extends View {
 
     /**
      * Remove a specific series of the graph.
-     * This will also re-render the graph, but
+     * This will also re-draw the graph, but
      * without recalculating the viewport and
      * label sizes.
      * If you want this, you have to call {@link #onDataChanged(boolean, boolean)}
@@ -616,5 +624,24 @@ public class GraphView extends View {
         } catch (android.content.ActivityNotFoundException ex) {
             ex.printStackTrace();
         }
+    }
+
+    public void setCursorMode(boolean b) {
+        mIsCursorMode = b;
+        if (mIsCursorMode) {
+            if (mCursorMode == null) {
+                mCursorMode = new CursorMode(this);
+            }
+        } else {
+            mCursorMode = null;
+        }
+    }
+
+    public CursorMode getCursorMode() {
+        return mCursorMode;
+    }
+
+    public boolean isCursorMode() {
+        return mIsCursorMode;
     }
 }

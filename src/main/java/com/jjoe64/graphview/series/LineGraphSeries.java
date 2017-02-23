@@ -395,7 +395,7 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
                         if (mDrawAsPath) {
                             mPath.lineTo(endXAnimated, endY);
                         } else {
-                            // render vertical lines that were skipped
+                            // draw vertical lines that were skipped
                             if (sameXSkip) {
                                 sameXSkip = false;
                                 renderLine(canvas, new float[] {lastRenderedX, minYOnSameX, lastRenderedX, maxYOnSameX}, paint);
@@ -405,7 +405,7 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
                         lastRenderedX = endX;
                     } else {
                         // rendering on same x position
-                        // save min+max y position and render it as line
+                        // save min+max y position and draw it as line
                         if (sameXSkip) {
                             minYOnSameX = Math.min(minYOnSameX, endY);
                             maxYOnSameX = Math.max(maxYOnSameX, endY);

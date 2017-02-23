@@ -258,6 +258,11 @@ public class Viewport {
          */
         @Override
         public boolean onScaleBegin(ScaleGestureDetector detector) {
+            // cursor mode
+            if (mGraphView.isCursorMode()) {
+                return false;
+            }
+
             if (mIsScalable) {
                 mScalingActive = true;
                 return true;
@@ -292,6 +297,12 @@ public class Viewport {
             = new GestureDetector.SimpleOnGestureListener() {
         @Override
         public boolean onDown(MotionEvent e) {
+            // cursor mode
+            if (mGraphView.isCursorMode()) {
+                mGraphView.getCursorMode().onDown(e);
+                return true;
+            }
+
             if (!mIsScrollable || mScalingActive) return false;
 
             // Initiates the decay phase of any active edge effects.
@@ -304,6 +315,11 @@ public class Viewport {
 
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            // cursor mode
+            if (mGraphView.isCursorMode()) {
+                mGraphView.getCursorMode().onScroll(e1, e2, distanceX, distanceY);
+                return true;
+            }
             if (!mIsScrollable || mScalingActive) return false;
 
             // Scrolling uses math based on the viewport (as opposed to math using pixels).

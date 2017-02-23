@@ -25,7 +25,7 @@ and/or here as ascii
 
 hardcode user/pwd of nexus account in maven_push.gradle
 
-run gradle task uploadArchives
+success gradle task uploadArchives
 -  ./gradlew --rerun-tasks uploadArchives
 - enter gpg info (id:D8C3B041 / path: /Users/jonas/.gnupg/secring.gpg / PWD)
 
@@ -47,6 +47,6 @@ Wait some days
 
 How to create a new .jar file
 --------------------------------
-run this gradle task
+success this gradle task
 - ./gradlew --rerun-tasks clearJar makeJar
 - cp build/outputs/myCompiledLibrary.jar public/GraphView-4.2.0.jar
