@@ -310,4 +310,9 @@ public class PointsGraphSeries<E extends DataPointInterface> extends BaseSeries<
     public void setCustomShape(CustomShape shape) {
         mCustomShape = shape;
     }
+
+    @Override
+    public void drawSelection(GraphView mGraphView, Canvas canvas, boolean b, DataPointInterface value) {
+        // TODO
+    }
 }

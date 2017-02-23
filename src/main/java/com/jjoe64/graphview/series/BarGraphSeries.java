@@ -515,4 +515,9 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
     public boolean isAnimated() {
         return mAnimated;
     }
+
+    @Override
+    public void drawSelection(GraphView mGraphView, Canvas canvas, boolean b, DataPointInterface value) {
+        // TODO
+    }
 }

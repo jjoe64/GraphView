@@ -30,6 +30,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.jjoe64.graphview.series.BaseSeries;
 import com.jjoe64.graphview.series.Series;
 
 import java.io.ByteArrayOutputStream;
@@ -634,6 +635,11 @@ public class GraphView extends View {
             }
         } else {
             mCursorMode = null;
+        }
+        for (Series series : mSeries) {
+            if (series instanceof BaseSeries) {
+                ((BaseSeries) series).clearCursorModeCache();
+            }
         }
     }
 

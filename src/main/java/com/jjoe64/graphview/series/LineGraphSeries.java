@@ -85,6 +85,8 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
      */
     private Styles mStyles;
 
+    private Paint mSelectionPaint;
+
     /**
      * internal paint object
      */
@@ -172,6 +174,10 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
         mPaint.setStrokeCap(Paint.Cap.ROUND);
         mPaint.setStyle(Paint.Style.STROKE);
         mPaintBackground = new Paint();
+
+        mSelectionPaint = new Paint();
+        mSelectionPaint.setColor(Color.argb(80, 0, 0, 0));
+        mSelectionPaint.setStyle(Paint.Style.FILL);
 
         mPathBackground = new Path();
         mPath = new Path();
@@ -674,5 +680,29 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
             return curr-mAnimationStart <= ANIMATION_DURATION;
         }
         return false;
+    }
+
+    @Override
+    public void drawSelection(GraphView graphView, Canvas canvas, boolean b, DataPointInterface value) {
+        double spanX = graphView.getViewport().getMaxX(false) - graphView.getViewport().getMinX(false);
+        double spanXPixel = graphView.getGraphContentWidth();
+
+        double spanY = graphView.getViewport().getMaxY(false) - graphView.getViewport().getMinY(false);
+        double spanYPixel = graphView.getGraphContentHeight();
+
+        double pointX = (value.getX() - graphView.getViewport().getMinX(false)) * spanXPixel / spanX;
+        pointX += graphView.getGraphContentLeft();
+
+        double pointY = (value.getY() - graphView.getViewport().getMinY(false)) * spanYPixel / spanY;
+        pointY = graphView.getGraphContentTop() + spanYPixel - pointY;
+
+        // border
+        canvas.drawCircle((float) pointX, (float) pointY, 30f, mSelectionPaint);
+
+        // fill
+        Paint.Style prevStyle = mPaint.getStyle();
+        mPaint.setStyle(Paint.Style.FILL);
+        canvas.drawCircle((float) pointX, (float) pointY, 23f, mPaint);
+        mPaint.setStyle(prevStyle);
     }
 }

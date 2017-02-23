@@ -16,6 +16,7 @@
  */
 package com.jjoe64.graphview.series;
 
+import android.graphics.Canvas;
 import android.graphics.PointF;
 import android.util.Log;
 
@@ -92,6 +93,7 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
      * Can be more than one.
      */
     private List<GraphView> mGraphViews;
+    private Boolean mIsCursorModeCache;
 
     /**
      * creates series without data
@@ -339,6 +341,27 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
         return null;
     }
 
+    public E findDataPointAtX(float x) {
+        float shortestDistance = Float.NaN;
+        E shortest = null;
+        for (Map.Entry<PointF, E> entry : mDataPoints.entrySet()) {
+            float x1 = entry.getKey().x;
+            float x2 = x;
+
+            float distance = Math.abs(x1 - x2);
+            if (shortest == null || distance < shortestDistance) {
+                shortestDistance = distance;
+                shortest = entry.getValue();
+            }
+        }
+        if (shortest != null) {
+            if (shortestDistance < 200) {
+                return shortest;
+            }
+        }
+        return null;
+    }
+
     /**
      * register the datapoint to find it at a tap
      *
@@ -349,9 +372,21 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
     protected void registerDataPoint(float x, float y, E dp) {
         // performance
         // TODO maybe invalidate after setting the listener
-        if (mOnDataPointTapListener != null) {
+        if (mOnDataPointTapListener != null || isCursorMode()) {
             mDataPoints.put(new PointF(x, y), dp);
         }
+    }
+
+    private boolean isCursorMode() {
+        if (mIsCursorModeCache != null) {
+            return mIsCursorModeCache;
+        }
+        for (GraphView graphView : mGraphViews) {
+            if (graphView.isCursorMode()) {
+                return mIsCursorModeCache = true;
+            }
+        }
+        return mIsCursorModeCache = false;
     }
 
     /**
@@ -496,5 +531,11 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
                 }
             }
         }
+    }
+
+    public abstract void drawSelection(GraphView mGraphView, Canvas canvas, boolean b, DataPointInterface value);
+
+    public void clearCursorModeCache() {
+        mIsCursorModeCache = null;
     }
 }

@@ -638,6 +638,9 @@ public class Viewport {
     public boolean onTouchEvent(MotionEvent event) {
         boolean b = mScaleGestureDetector.onTouchEvent(event);
         b |= mGestureDetector.onTouchEvent(event);
+        if (mGraphView.isCursorMode() && event.getAction() == MotionEvent.ACTION_UP) {
+            b |= mGraphView.getCursorMode().onUp(event);
+        }
         return b;
     }
 
