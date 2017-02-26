@@ -37,13 +37,14 @@ public class CursorMode {
     protected final Paint mPaintLine;
     protected final GraphView mGraphView;
     protected float mPosX;
+    protected float mPosY;
     protected boolean mCursorVisible;
     protected final Map<BaseSeries, DataPointInterface> mCurrentSelection;
     protected final Paint mRectPaint;
     protected final Paint mTextPaint;
     protected double mCurrentSelectionX;
     protected Styles mStyles;
-    private int cachedLegendWidth;
+    protected int cachedLegendWidth;
 
     public CursorMode(GraphView graphView) {
         mStyles = new Styles();
@@ -91,7 +92,9 @@ public class CursorMode {
 
 
     public void onDown(MotionEvent e) {
-        mPosX = e.getX();
+        mPosX = Math.max(e.getX(), mGraphView.getGraphContentLeft());
+        mPosX = Math.min(mPosX, mGraphView.getGraphContentLeft() + mGraphView.getGraphContentWidth());
+        mPosY = e.getY();
         mCursorVisible = true;
         findCurrentDataPoint();
         mGraphView.invalidate();
@@ -99,7 +102,9 @@ public class CursorMode {
 
     public void onMove(MotionEvent e) {
         if (mCursorVisible) {
-            mPosX = e.getX();
+            mPosX = Math.max(e.getX(), mGraphView.getGraphContentLeft());
+            mPosX = Math.min(mPosX, mGraphView.getGraphContentLeft() + mGraphView.getGraphContentWidth());
+            mPosY = e.getY();
             findCurrentDataPoint();
             mGraphView.invalidate();
         }
@@ -132,6 +137,7 @@ public class CursorMode {
 
     protected void drawLegend(Canvas canvas) {
         mTextPaint.setTextSize(mStyles.textSize);
+        mTextPaint.setColor(mStyles.textColor);
 
         int shapeSize = (int) (mStyles.textSize*0.8d);
 
@@ -163,10 +169,16 @@ public class CursorMode {
 
         // rect
         float legendHeight = (mStyles.textSize+mStyles.spacing) * (mCurrentSelection.size() + 1) -mStyles.spacing;
+
+        float legendPosY = mPosY;
+        if (legendPosY + legendHeight > canvas.getHeight()) {
+            legendPosY = canvas.getHeight() - legendHeight;
+        }
+
         float lLeft;
         float lTop;
         lLeft = legendPosX;
-        lTop = mGraphView.getGraphContentTop() + mStyles.margin;
+        lTop = legendPosY;
 
         float lRight = lLeft+legendWidth;
         float lBottom = lTop+legendHeight+2*mStyles.padding;

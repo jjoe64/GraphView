@@ -635,6 +635,7 @@ public class GraphView extends View {
             }
         } else {
             mCursorMode = null;
+            invalidate();
         }
         for (Series series : mSeries) {
             if (series instanceof BaseSeries) {
