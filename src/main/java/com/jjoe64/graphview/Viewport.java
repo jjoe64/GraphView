@@ -299,7 +299,6 @@ public class Viewport {
         public boolean onDown(MotionEvent e) {
             // cursor mode
             if (mGraphView.isCursorMode()) {
-                mGraphView.getCursorMode().onDown(e);
                 return true;
             }
 
@@ -317,7 +316,6 @@ public class Viewport {
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
             // cursor mode
             if (mGraphView.isCursorMode()) {
-                mGraphView.getCursorMode().onScroll(e1, e2, distanceX, distanceY);
                 return true;
             }
             if (!mIsScrollable || mScalingActive) return false;
@@ -638,8 +636,18 @@ public class Viewport {
     public boolean onTouchEvent(MotionEvent event) {
         boolean b = mScaleGestureDetector.onTouchEvent(event);
         b |= mGestureDetector.onTouchEvent(event);
-        if (mGraphView.isCursorMode() && event.getAction() == MotionEvent.ACTION_UP) {
-            b |= mGraphView.getCursorMode().onUp(event);
+        if (mGraphView.isCursorMode()) {
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                mGraphView.getCursorMode().onDown(event);
+                b |= true;
+            }
+            if (event.getAction() == MotionEvent.ACTION_MOVE) {
+                mGraphView.getCursorMode().onMove(event);
+                b |= true;
+            }
+            if (event.getAction() == MotionEvent.ACTION_UP) {
+                b |= mGraphView.getCursorMode().onUp(event);
+            }
         }
         return b;
     }
