@@ -67,9 +67,13 @@ public class Viewport {
     protected boolean scalableY;
 
     /**
-     * min size of viewport when scaling and scrolling
+     * minimal viewport used for scaling and scrolling.
+     * this is used if the data that is available is
+     * less then the viewport that we want to be able to display.
+     *
+     * Double.NaN to disable this value
      */
-    private double mAllowedSize = Double.NaN;
+    private RectD mMinimalViewport = new RectD(Double.NaN, Double.NaN, Double.NaN, Double.NaN);
 
     /**
      * the reference number to generate the labels
@@ -88,26 +92,6 @@ public class Viewport {
             // starting from 0 so that the steps have nice numbers
             return 0;
         }
-    }
-
-    /**
-     * optionally set the allowed size of the viewport
-     * that will be respected when scaling and scrolling.
-     * Default is the size of the complete data (maxX-minX).
-     */
-    public double getAllowedSize() {
-        return mAllowedSize;
-    }
-
-    /**
-     * optionally set the allowed size of the viewport
-     * that will be respected when scaling and scrolling.
-     * Default is the size of the complete data (maxX-minX).
-     *
-     * @param size Double.NaN to reset to defaults
-     */
-    public void setAllowedSize(double size) {
-        this.mAllowedSize = size;
     }
 
     /**
@@ -144,6 +128,8 @@ public class Viewport {
             // --- horizontal scaling ---
             double viewportWidth = mCurrentViewport.width();
 
+            Log.d("Viewport", "on Scale...");
+
             if (mMaxXAxisSize != 0) {
                 if (viewportWidth > mMaxXAxisSize) {
                     viewportWidth = mMaxXAxisSize;
@@ -165,6 +151,9 @@ public class Viewport {
 
             // viewportStart must not be < minX
             double minX = getMinX(true);
+            if (!Double.isNaN(mMinimalViewport.left)) {
+                minX = Math.min(minX, mMinimalViewport.left);
+            }
             if (mCurrentViewport.left < minX) {
                 mCurrentViewport.left = minX;
                 mCurrentViewport.right = mCurrentViewport.left+viewportWidth;
@@ -172,6 +161,9 @@ public class Viewport {
 
             // viewportStart + viewportSize must not be > maxX
             double maxX = getMaxX(true);
+            if (!Double.isNaN(mMinimalViewport.right)) {
+                maxX = Math.max(maxX, mMinimalViewport.right);
+            }
             if (viewportWidth == 0) {
                 mCurrentViewport.right = maxX;
             }
@@ -210,6 +202,9 @@ public class Viewport {
                 if (!hasSecondScale) {
                     // viewportStart must not be < minY
                     double minY = getMinY(true);
+                    if (!Double.isNaN(mMinimalViewport.bottom)) {
+                        minY = Math.min(minY, mMinimalViewport.bottom);
+                    }
                     if (mCurrentViewport.bottom < minY) {
                         mCurrentViewport.bottom = minY;
                         mCurrentViewport.top = mCurrentViewport.bottom+viewportHeight;
@@ -217,6 +212,9 @@ public class Viewport {
 
                     // viewportStart + viewportSize must not be > maxY
                     double maxY = getMaxY(true);
+                    if (!Double.isNaN(mMinimalViewport.top)) {
+                        maxY = Math.max(maxY, mMinimalViewport.top);
+                    }
                     if (viewportHeight == 0) {
                         mCurrentViewport.top = maxY;
                     }
@@ -331,20 +329,41 @@ public class Viewport {
             double viewportOffsetX = distanceX * mCurrentViewport.width() / mGraphView.getGraphContentWidth();
             double viewportOffsetY = distanceY * mCurrentViewport.height() / mGraphView.getGraphContentHeight();
 
-            int completeWidth = (int)((mCompleteRange.width()/mCurrentViewport.width()) * (double) mGraphView.getGraphContentWidth());
-            int completeHeight = (int)((mCompleteRange.height()/mCurrentViewport.height()) * (double) mGraphView.getGraphContentHeight());
+            // respect minimal viewport
+            double completeRangeLeft = mCompleteRange.left;
+            if (!Double.isNaN(mMinimalViewport.left)) {
+                completeRangeLeft = Math.min(completeRangeLeft, mMinimalViewport.left);
+            }
+            double completeRangeRight = mCompleteRange.right;
+            if (!Double.isNaN(mMinimalViewport.right)) {
+                completeRangeRight = Math.max(completeRangeRight, mMinimalViewport.right);
+            }
+            double completeRangeWidth = completeRangeRight - completeRangeLeft;
+
+            double completeRangeBottom = mCompleteRange.bottom;
+            if (!Double.isNaN(mMinimalViewport.bottom)) {
+                completeRangeBottom = Math.min(completeRangeBottom, mMinimalViewport.bottom);
+            }
+            double completeRangeTop = mCompleteRange.top;
+            if (!Double.isNaN(mMinimalViewport.top)) {
+                completeRangeTop = Math.max(completeRangeTop, mMinimalViewport.top);
+            }
+            double completeRangeHeight = completeRangeTop - completeRangeBottom;
+
+            int completeWidth = (int)((completeRangeWidth/mCurrentViewport.width()) * (double) mGraphView.getGraphContentWidth());
+            int completeHeight = (int)((completeRangeHeight/mCurrentViewport.height()) * (double) mGraphView.getGraphContentHeight());
 
             int scrolledX = (int) (completeWidth
-                    * (mCurrentViewport.left + viewportOffsetX - mCompleteRange.left)
-                    / mCompleteRange.width());
+                    * (mCurrentViewport.left + viewportOffsetX - completeRangeLeft)
+                    / completeRangeWidth);
 
             int scrolledY = (int) (completeHeight
-                    * (mCurrentViewport.bottom + viewportOffsetY - mCompleteRange.bottom)
-                    / mCompleteRange.height()*-1);
-            boolean canScrollX = mCurrentViewport.left > mCompleteRange.left
-                    || mCurrentViewport.right < mCompleteRange.right;
-            boolean canScrollY = mCurrentViewport.bottom > mCompleteRange.bottom
-                    || mCurrentViewport.top < mCompleteRange.top;
+                    * (mCurrentViewport.bottom + viewportOffsetY - completeRangeBottom)
+                    / completeRangeHeight*-1);
+            boolean canScrollX = mCurrentViewport.left > completeRangeLeft
+                    || mCurrentViewport.right < completeRangeRight;
+            boolean canScrollY = mCurrentViewport.bottom > completeRangeBottom
+                    || mCurrentViewport.top < completeRangeTop;
 
             boolean hasSecondScale = mGraphView.mSecondScale != null;
 
@@ -360,12 +379,12 @@ public class Viewport {
 
             if (canScrollX) {
                 if (viewportOffsetX < 0) {
-                    double tooMuch = mCurrentViewport.left+viewportOffsetX - mCompleteRange.left;
+                    double tooMuch = mCurrentViewport.left+viewportOffsetX - completeRangeLeft;
                     if (tooMuch < 0) {
                         viewportOffsetX -= tooMuch;
                     }
                 } else {
-                    double tooMuch = mCurrentViewport.right+viewportOffsetX - mCompleteRange.right;
+                    double tooMuch = mCurrentViewport.right+viewportOffsetX - completeRangeRight;
                     if (tooMuch > 0) {
                         viewportOffsetX -= tooMuch;
                     }
@@ -383,12 +402,12 @@ public class Viewport {
                 // if we have the second axis we ignore the max/min range
                 if (!hasSecondScale) {
                     if (viewportOffsetY < 0) {
-                        double tooMuch = mCurrentViewport.bottom+viewportOffsetY - mCompleteRange.bottom;
+                        double tooMuch = mCurrentViewport.bottom+viewportOffsetY - completeRangeBottom;
                         if (tooMuch < 0) {
                             viewportOffsetY -= tooMuch;
                         }
                     } else {
-                        double tooMuch = mCurrentViewport.top+viewportOffsetY - mCompleteRange.top;
+                        double tooMuch = mCurrentViewport.top+viewportOffsetY - completeRangeTop;
                         if (tooMuch > 0) {
                             viewportOffsetY -= tooMuch;
                         }
@@ -808,11 +827,6 @@ public class Viewport {
         // fixes blank screen when range is zero
         if (mCurrentViewport.left == mCurrentViewport.right) mCurrentViewport.right++;
         if (mCurrentViewport.top == mCurrentViewport.bottom) mCurrentViewport.top++;
-
-        // if we have a minimum size
-        if (!Double.isNaN(mAllowedSize)) {
-            mCompleteRange.left = Math.min(mCompleteRange.left, mCompleteRange.right - mAllowedSize);
-        }
     }
 
     /**
@@ -1320,5 +1334,21 @@ public class Viewport {
      */
     public void setMaxYAxisSize(double mMaxYAxisViewportSize) {
         this.mMaxYAxisSize = mMaxYAxisViewportSize;
+    }
+
+    /**
+     * minimal viewport used for scaling and scrolling.
+     * this is used if the data that is available is
+     * less then the viewport that we want to be able to display.
+     *
+     * if Double.NaN is used, then this value is ignored
+     *
+     * @param minX
+     * @param maxX
+     * @param minY
+     * @param maxY
+     */
+    public void setMinimalViewport(double minX, double maxX, double minY, double maxY) {
+       mMinimalViewport.set(minX, maxY, maxX, minY);
     }
 }
