@@ -68,7 +68,7 @@ public class CursorMode {
         mStyles.padding = (int) (mStyles.textSize / 2);
         mStyles.width = 0;
         mStyles.backgroundColor = Color.argb(180, 100, 100, 100);
-        mStyles.margin = (int) (mStyles.textSize / 5);
+        mStyles.margin = (int) (mStyles.textSize);
 
         // get matching styles from theme
         TypedValue typedValue = new TypedValue();
@@ -170,9 +170,9 @@ public class CursorMode {
         // rect
         float legendHeight = (mStyles.textSize+mStyles.spacing) * (mCurrentSelection.size() + 1) -mStyles.spacing;
 
-        float legendPosY = mPosY;
-        if (legendPosY + legendHeight > canvas.getHeight()) {
-            legendPosY = canvas.getHeight() - legendHeight;
+        float legendPosY = mPosY - legendHeight - 4.5f * mStyles.textSize;
+        if (legendPosY < 0) {
+            legendPosY = 0;
         }
 
         float lLeft;
