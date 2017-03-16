@@ -119,4 +119,11 @@ public interface Series<E extends DataPointInterface> {
      * @return whether there are data points
      */
     boolean isEmpty();
+
+    /**
+     * clear reference to view and activity
+     *
+     * @param graphView
+     */
+    void clearReference(GraphView graphView);
 }

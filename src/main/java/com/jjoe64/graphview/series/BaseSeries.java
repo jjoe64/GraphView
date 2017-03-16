@@ -22,6 +22,7 @@ import android.util.Log;
 
 import com.jjoe64.graphview.GraphView;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -92,14 +93,14 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
      * stores the graphviews where this series is used.
      * Can be more than one.
      */
-    private List<GraphView> mGraphViews;
+    private List<WeakReference<GraphView>> mGraphViews;
     private Boolean mIsCursorModeCache;
 
     /**
      * creates series without data
      */
     public BaseSeries() {
-        mGraphViews = new ArrayList<GraphView>();
+        mGraphViews = new ArrayList<>();
     }
 
     /**
@@ -109,7 +110,7 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
      *              important: array has to be sorted from lowest x-value to the highest
      */
     public BaseSeries(E[] data) {
-        mGraphViews = new ArrayList<GraphView>();
+        mGraphViews = new ArrayList<>();
         for (E d : data) {
             mData.add(d);
         }
@@ -381,8 +382,8 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
         if (mIsCursorModeCache != null) {
             return mIsCursorModeCache;
         }
-        for (GraphView graphView : mGraphViews) {
-            if (graphView.isCursorMode()) {
+        for (WeakReference<GraphView> graphView : mGraphViews) {
+            if (graphView != null && graphView.get() != null && graphView.get().isCursorMode()) {
                 return mIsCursorModeCache = true;
             }
         }
@@ -413,8 +414,10 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
         mHighestYCache = mLowestYCache = Double.NaN;
 
         // update graphview
-        for (GraphView gv : mGraphViews) {
-            gv.onDataChanged(true, false);
+        for (WeakReference<GraphView> gv : mGraphViews) {
+            if (gv != null && gv.get() != null) {
+                gv.get().onDataChanged(true, false);
+            }
         }
     }
 
@@ -425,7 +428,7 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
      */
     @Override
     public void onGraphViewAttached(GraphView graphView) {
-        mGraphViews.add(graphView);
+        mGraphViews.add(new WeakReference<>(graphView));
     }
 
     /**
@@ -475,11 +478,13 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
 
             // update linked graph views
             // update graphview
-            for (GraphView gv : mGraphViews) {
-                if (scrollToEnd) {
-                    gv.getViewport().scrollToEnd();
-                } else {
-                    gv.onDataChanged(keepLabels, scrollToEnd);
+            for (WeakReference<GraphView> gv : mGraphViews) {
+                if (gv != null && gv.get() != null) {
+                    if (scrollToEnd) {
+                        gv.get().getViewport().scrollToEnd();
+                    } else {
+                        gv.get().onDataChanged(keepLabels, scrollToEnd);
+                    }
                 }
             }
         }
@@ -537,5 +542,16 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
 
     public void clearCursorModeCache() {
         mIsCursorModeCache = null;
+    }
+
+    @Override
+    public void clearReference(GraphView graphView) {
+        // find and remove
+        for (WeakReference<GraphView> view : mGraphViews) {
+            if (view != null && view.get() != null && view.get() == graphView) {
+                mGraphViews.remove(view);
+                break;
+            }
+        }
     }
 }
