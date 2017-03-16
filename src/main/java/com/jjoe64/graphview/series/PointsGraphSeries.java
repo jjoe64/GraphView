@@ -94,6 +94,11 @@ public class PointsGraphSeries<E extends DataPointInterface> extends BaseSeries<
     }
 
     /**
+     * Sets the limit for highest value to turn red
+     */
+    private double LIMIT;
+
+    /**
      * wrapped styles
      */
     private Styles mStyles;
@@ -222,7 +227,13 @@ public class PointsGraphSeries<E extends DataPointInterface> extends BaseSeries<
                 if (mCustomShape != null) {
                     mCustomShape.draw(canvas, mPaint, endX, endY, value);
                 } else if (mStyles.shape == Shape.POINT) {
-                    canvas.drawCircle(endX, endY, mStyles.size, mPaint);
+                    if (value.getY() >= LIMIT) {
+                        mPaint.setColor(Color.RED);
+                        canvas.drawCircle(endX, endY, mStyles.size, mPaint);
+                        mPaint.setColor(getColor());
+                    } else {
+                        canvas.drawCircle(endX, endY, mStyles.size, mPaint);
+                    }
                 } else if (mStyles.shape == Shape.RECTANGLE) {
                     canvas.drawRect(endX-mStyles.size, endY-mStyles.size, endX+mStyles.size, endY+mStyles.size, mPaint);
                 } else if (mStyles.shape == Shape.TRIANGLE) {
@@ -299,6 +310,16 @@ public class PointsGraphSeries<E extends DataPointInterface> extends BaseSeries<
      */
     public void setShape(Shape s) {
         mStyles.shape = s;
+    }
+
+    /**
+     * This sets the limit of the data points,
+     * changing data points above the LIMIT to red.
+     *
+     * @param limitIn limit to be set
+     */
+    public void setLimit(double limitIn) {
+        LIMIT = limitIn;
     }
 
     /**
