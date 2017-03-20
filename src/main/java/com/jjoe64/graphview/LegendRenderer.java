@@ -57,19 +57,51 @@ public class LegendRenderer {
      */
     public enum LegendAlign {
         /**
-         * top right corner
+         * top left corner
+         */
+        TOPLEFT,
+
+        /**
+         * top center corner
          */
         TOP,
 
         /**
-         * middle right
+         * top right corner
+         */
+        TOPRIGHT,
+
+        /**
+         * middle left
+         */
+        MIDDLELEFT,
+
+        /**
+         * middle
          */
         MIDDLE,
+
+
+        /**
+         * middle right
+         */
+        MIDDLERIGHT,
+
+        /**
+         * bottom left corner
+         */
+        BOTTOMLEFT,
+
+        /**
+         * bottom center corner
+         */
+        BOTTOM,
+
 
         /**
          * bottom right corner
          */
-        BOTTOM
+        BOTTOMRIGHT
     }
 
     /**
@@ -198,16 +230,20 @@ public class LegendRenderer {
             lLeft = mGraphView.getGraphContentLeft() + mStyles.margin + mStyles.fixedPosition.x;
             lTop = mGraphView.getGraphContentTop() + mStyles.margin + mStyles.fixedPosition.y;
         } else {
-            lLeft = mGraphView.getGraphContentLeft() + mGraphView.getGraphContentWidth() - legendWidth - mStyles.margin;
-            switch (mStyles.align) {
-                case TOP:
-                    lTop = mGraphView.getGraphContentTop() + mStyles.margin;
-                    break;
-                case MIDDLE:
-                    lTop = mGraphView.getHeight() / 2 - legendHeight / 2;
-                    break;
-                default:
-                    lTop = mGraphView.getGraphContentTop() + mGraphView.getGraphContentHeight() - mStyles.margin - legendHeight - 2*mStyles.padding;
+            if (mStyles.align == LegendAlign.BOTTOMRIGHT || mStyles.align == LegendAlign.MIDDLERIGHT || mStyles.align == LegendAlign.TOPRIGHT) {
+                lLeft = mGraphView.getGraphContentLeft() + mGraphView.getGraphContentWidth() - legendWidth - mStyles.margin;
+            } else if (mStyles.align == LegendAlign.MIDDLE || mStyles.align == LegendAlign.TOP || mStyles.align == LegendAlign.BOTTOM) {
+                lLeft = mGraphView.getGraphContentLeft() + mGraphView.getGraphContentWidth()/2 - legendWidth/2 - mStyles.margin/2;
+            } else { // left
+                lLeft = mGraphView.getGraphContentLeft() + mStyles.margin;
+            }
+
+            if (mStyles.align == LegendAlign.TOP || mStyles.align == LegendAlign.TOPLEFT || mStyles.align == LegendAlign.TOPRIGHT) {
+                lTop = mGraphView.getGraphContentTop() + mStyles.margin;
+            } else if (mStyles.align == LegendAlign.MIDDLE || mStyles.align == LegendAlign.MIDDLELEFT || mStyles.align == LegendAlign.MIDDLERIGHT) {
+                lTop = mGraphView.getHeight() / 2 - legendHeight / 2;
+            } else { // bottom
+                lTop = mGraphView.getGraphContentTop() + mGraphView.getGraphContentHeight() - mStyles.margin - legendHeight - 2*mStyles.padding;
             }
         }
         float lRight = lLeft+legendWidth;
