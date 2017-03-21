@@ -128,8 +128,6 @@ public class Viewport {
             // --- horizontal scaling ---
             double viewportWidth = mCurrentViewport.width();
 
-            Log.d("Viewport", "on Scale...");
-
             if (mMaxXAxisSize != 0) {
                 if (viewportWidth > mMaxXAxisSize) {
                     viewportWidth = mMaxXAxisSize;
@@ -182,7 +180,7 @@ public class Viewport {
 
 
             // --- vertical scaling ---
-            if (scalableY && android.os.Build.VERSION.SDK_INT >= 11) {
+            if (scalableY && android.os.Build.VERSION.SDK_INT >= 11 && detector.getCurrentSpanY() != 0f && detector.getPreviousSpanY() != 0f) {
                 boolean hasSecondScale = mGraphView.mSecondScale != null;
 
                 double viewportHeight = mCurrentViewport.height()*-1;
@@ -194,6 +192,7 @@ public class Viewport {
                 }
 
                 center = mCurrentViewport.bottom + viewportHeight / 2;
+
                 viewportHeight /= detector.getCurrentSpanY()/detector.getPreviousSpanY();
                 mCurrentViewport.bottom = center - viewportHeight / 2;
                 mCurrentViewport.top = mCurrentViewport.bottom+viewportHeight;

@@ -21,7 +21,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.util.Log;
 import android.util.TypedValue;
 
 import java.util.LinkedHashMap;
@@ -686,6 +685,12 @@ public class GridLabelRenderer {
         // round because of floating error
         exactSteps = Math.round(exactSteps * 1000000d) / 1000000d;
 
+        // smallest viewport
+        if (exactSteps == 0d) {
+            exactSteps = 0.0000001d;
+            maxY = minY + exactSteps * (numVerticalLabels - 1);
+        }
+
         // human rounding to have nice numbers (1, 2, 5, ...)
         if (isHumanRounding()) {
             exactSteps = humanRound(exactSteps, changeBounds);
@@ -818,6 +823,12 @@ public class GridLabelRenderer {
 
         // round because of floating error
         exactSteps = Math.round(exactSteps * 1000000d) / 1000000d;
+
+        // smallest viewport
+        if (exactSteps == 0d) {
+            exactSteps = 0.0000001d;
+            maxX = minX + exactSteps * (numHorizontalLabels - 1);
+        }
 
         // human rounding to have nice numbers (1, 2, 5, ...)
         if (isHumanRounding()) {
