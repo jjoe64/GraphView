@@ -99,6 +99,14 @@ public interface Series<E extends DataPointInterface> {
      */
     public void setOnDataPointTapListener(OnDataPointTapListener l);
 
+
+    /**
+     * @param x
+     * @param y
+     * @return the distance between the given x,y and the nearest point of the series
+     */
+    float distanceToNearestPoint(float x, float y);
+
     /**
      * called by the tap detector in order to trigger
      * the on tap on datapoint event.

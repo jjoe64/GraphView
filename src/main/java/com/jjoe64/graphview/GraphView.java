@@ -450,13 +450,26 @@ public class GraphView extends View {
 
         // is it a click?
         if (mTapDetector.onTouchEvent(event)) {
+            Series nearestSeries = null;
+            float minDistance = Float.MAX_VALUE;
             for (Series s : mSeries) {
-                s.onTap(event.getX(), event.getY());
+                float distance = s.distanceToNearestPoint(event.getX(), event.getY());
+                if (distance < minDistance) {
+                    nearestSeries = s;
+                    minDistance = distance;
+                }
             }
             if (mSecondScale != null) {
                 for (Series s : mSecondScale.getSeries()) {
-                    s.onTap(event.getX(), event.getY());
+                    float distance = s.distanceToNearestPoint(event.getX(), event.getY());
+                    if (distance < minDistance) {
+                        nearestSeries = s;
+                        minDistance = distance;
+                    }
                 }
+            }
+            if (minDistance != Float.MAX_VALUE) {
+                nearestSeries.onTap(event.getX(), event.getY());
             }
         }
 
