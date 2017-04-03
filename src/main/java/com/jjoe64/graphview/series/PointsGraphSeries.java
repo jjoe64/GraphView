@@ -17,7 +17,6 @@
 package com.jjoe64.graphview.series;
 
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Point;
@@ -192,40 +191,24 @@ public class PointsGraphSeries<E extends DataPointInterface> extends BaseSeries<
             double orgX = x;
             double orgY = y;
 
-            // overdraw
-            boolean overdraw = false;
-            if (x > graphWidth) { // end right
-                overdraw = true;
-            }
-            if (y < 0) { // end bottom
-                overdraw = true;
-            }
-            if (y > graphHeight) { // end top
-                overdraw = true;
-            }
-            /* Fix a bug that continue to show the DOT after Y axis */
-            if(x < 0) {
-            	overdraw = true;
-            }
-            
-            float endX = (float) x + (graphLeft + 1);
-            float endY = (float) (graphTop - y) + graphHeight;
-            registerDataPoint(endX, endY, value);
+            float endX = ( float ) x + ( graphLeft + 1 );
+            float endY = ( float ) ( graphTop - y ) + graphHeight;
+            registerDataPoint( endX, endY, value );
 
             // draw data point
-            if (!overdraw) {
-                if (mCustomShape != null) {
-                    mCustomShape.draw(canvas, mPaint, endX, endY, value);
-                } else if (mStyles.shape == Shape.POINT) {
-                    canvas.drawCircle(endX, endY, mStyles.size, mPaint);
-                } else if (mStyles.shape == Shape.RECTANGLE) {
-                    canvas.drawRect(endX-mStyles.size, endY-mStyles.size, endX+mStyles.size, endY+mStyles.size, mPaint);
-                } else if (mStyles.shape == Shape.TRIANGLE) {
-                    Point[] points = new Point[3];
-                    points[0] = new Point((int)endX, (int)(endY-getSize()));
-                    points[1] = new Point((int)(endX+getSize()), (int)(endY+getSize()*0.67));
-                    points[2] = new Point((int)(endX-getSize()), (int)(endY+getSize()*0.67));
-                    drawArrows(points, canvas, mPaint);
+            if ( !isOverdraw(graphWidth, graphHeight, x, y) ) {
+                if ( mCustomShape != null ) {
+                    mCustomShape.draw( canvas, mPaint, endX, endY, value );
+                } else if ( mStyles.shape == Shape.POINT ) {
+                    canvas.drawCircle( endX, endY, mStyles.size, mPaint );
+                } else if ( mStyles.shape == Shape.RECTANGLE ) {
+                    canvas.drawRect( endX - mStyles.size, endY - mStyles.size, endX + mStyles.size, endY + mStyles.size, mPaint );
+                } else if ( mStyles.shape == Shape.TRIANGLE ) {
+                    Point[] points = new Point[ 3 ];
+                    points[ 0 ] = new Point( ( int ) endX, ( int ) ( endY - getSize() ) );
+                    points[ 1 ] = new Point( ( int ) ( endX + getSize() ), ( int ) ( endY + getSize() * 0.67 ) );
+                    points[ 2 ] = new Point( ( int ) ( endX - getSize() ), ( int ) ( endY + getSize() * 0.67 ) );
+                    drawArrows( points, canvas, mPaint );
                 }
             }
 
@@ -235,29 +218,42 @@ public class PointsGraphSeries<E extends DataPointInterface> extends BaseSeries<
     }
 
     /**
+     * checker for overdraw
+     *
+     * @param graphWidth float width
+     * @param graphHeight float height
+     * @param x double coordinate
+     * @param y double coordinate
+     */
+    private boolean isOverdraw( float graphWidth, float graphHeight, double x, double y ) {
+
+        return x > graphWidth || y < 0 || y > graphHeight || x < 0;
+    }
+
+    /**
      * helper to draw triangle
      *
      * @param point array with 3 coordinates
      * @param canvas canvas to draw on
      * @param paint paint object
      */
-    private void drawArrows(Point[] point, Canvas canvas, Paint paint) {
-        float [] points  = new float[8];
-        points[0] = point[0].x;
-        points[1] = point[0].y;
-        points[2] = point[1].x;
-        points[3] = point[1].y;
-        points[4] = point[2].x;
-        points[5] = point[2].y;
-        points[6] = point[0].x;
-        points[7] = point[0].y;
+    private void drawArrows( Point[] point, Canvas canvas, Paint paint ) {
+        float[] points = new float[ 8 ];
+        points[ 0 ] = point[ 0 ].x;
+        points[ 1 ] = point[ 0 ].y;
+        points[ 2 ] = point[ 1 ].x;
+        points[ 3 ] = point[ 1 ].y;
+        points[ 4 ] = point[ 2 ].x;
+        points[ 5 ] = point[ 2 ].y;
+        points[ 6 ] = point[ 0 ].x;
+        points[ 7 ] = point[ 0 ].y;
 
-        canvas.drawVertices(Canvas.VertexMode.TRIANGLES, 8, points, 0, null, 0, null, 0, null, 0, 0, paint);
+        canvas.drawVertices( Canvas.VertexMode.TRIANGLES, 8, points, 0, null, 0, null, 0, null, 0, 0, paint );
         Path path = new Path();
-        path.moveTo(point[0].x , point[0].y);
-        path.lineTo(point[1].x,point[1].y);
-        path.lineTo(point[2].x,point[2].y);
-        canvas.drawPath(path,paint);
+        path.moveTo( point[ 0 ].x, point[ 0 ].y );
+        path.lineTo( point[ 1 ].x, point[ 1 ].y );
+        path.lineTo( point[ 2 ].x, point[ 2 ].y );
+        canvas.drawPath( path, paint );
     }
 
     /**
