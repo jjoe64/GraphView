@@ -83,12 +83,12 @@ public class SecondScale {
     /**
      * font size of the vertical axis title
      */
-    public float mVerticalAxisTitleTextSize;
+    private float mVerticalAxisTitleTextSize;
 
     /**
      * font color of the vertical axis title
      */
-    public int mVerticalAxisTitleColor;
+    private int mVerticalAxisTitleColor;
 
     /**
      * creates the second scale.
