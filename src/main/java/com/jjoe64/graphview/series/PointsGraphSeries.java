@@ -99,11 +99,6 @@ public class PointsGraphSeries<E extends DataPointInterface> extends BaseSeries<
     private Styles mStyles;
 
     /**
-     * internal paint object
-     */
-    private Paint mPaint;
-
-    /**
      * handler to use a custom drawing
      */
     private CustomShape mCustomShape;

@@ -43,11 +43,6 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
     private static final long ANIMATION_DURATION = 333;
 
     /**
-     * paint to do drawing on canvas
-     */
-    private Paint mPaint;
-
-    /**
      * custom paint that can be used.
      * this will ignore the value dependent color.
      */

@@ -88,11 +88,6 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
     private Paint mSelectionPaint;
 
     /**
-     * internal paint object
-     */
-    private Paint mPaint;
-
-    /**
      * paint for the background
      */
     private Paint mPaintBackground;
