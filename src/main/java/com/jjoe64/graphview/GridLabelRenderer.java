@@ -125,7 +125,7 @@ public class GridLabelRenderer {
          * font color of the horizontal axis title
          */
         public int horizontalAxisTitleColor;
-        
+
         /**
          * angle of the horizontal axis label in 
          * degrees between 0 and 180
@@ -402,7 +402,7 @@ public class GridLabelRenderer {
 
         mStyles.horizontalLabelsVisible = true;
         mStyles.verticalLabelsVisible = true;
-        
+
         mStyles.horizontalLabelsAngle = 0f;
 
         mStyles.gridStyle = GridStyle.BOTH;
@@ -482,7 +482,7 @@ public class GridLabelRenderer {
     public int getHorizontalLabelsColor() {
         return mStyles.horizontalLabelsColor;
     }
-    
+
     /**
      * @return the angle of the horizontal labels
      */
@@ -553,7 +553,7 @@ public class GridLabelRenderer {
             exactSteps = (maxY - minY) / (numVerticalLabels - 1);
 
             // round because of floating error
-            exactSteps = Math.round(exactSteps * 1000000d) / 1000000d;
+            exactSteps = getRoundExactSteps(exactSteps , false);
         } else {
             // TODO auto adjusting
             throw new IllegalStateException("Not yet implemented");
@@ -683,11 +683,10 @@ public class GridLabelRenderer {
         exactSteps = (maxY - minY) / (numVerticalLabels - 1);
 
         // round because of floating error
-        exactSteps = Math.round(exactSteps * 1000000d) / 1000000d;
+        exactSteps = getRoundExactSteps(exactSteps , true);
 
         // smallest viewport
-        if (exactSteps == 0d) {
-            exactSteps = 0.0000001d;
+        if (exactSteps == 0.0000001d) {
             maxY = minY + exactSteps * (numVerticalLabels - 1);
         }
 
@@ -822,11 +821,10 @@ public class GridLabelRenderer {
         exactSteps = (maxX - minX) / (numHorizontalLabels - 1);
 
         // round because of floating error
-        exactSteps = Math.round(exactSteps * 1000000d) / 1000000d;
+        exactSteps = getRoundExactSteps(exactSteps , true);
 
         // smallest viewport
-        if (exactSteps == 0d) {
-            exactSteps = 0.0000001d;
+        if (exactSteps == 0.0000001d) {
             maxX = minX + exactSteps * (numHorizontalLabels - 1);
         }
 
@@ -928,6 +926,15 @@ public class GridLabelRenderer {
         }
 
         return true;
+    }
+
+    private double getRoundExactSteps(double exactSteps, boolean isSmallestViewport) {
+        exactSteps = Math.round(exactSteps * 1000000d) / 1000000d;
+
+        if (isSmallestViewport && exactSteps == 0d) {
+            exactSteps = 0.0000001d;
+        }
+        return exactSteps;
     }
 
     /**
@@ -1198,7 +1205,7 @@ public class GridLabelRenderer {
                     label = "";
                 }
                 String[] lines = label.split("\n");
-                
+
                 // If labels are angled, calculate adjustment to line them up with the grid
                 int labelWidthAdj = 0;
                 if (mStyles.horizontalLabelsAngle > 0f && mStyles.horizontalLabelsAngle <= 180f) {
@@ -1492,7 +1499,7 @@ public class GridLabelRenderer {
     public void setHorizontalLabelsColor(int horizontalLabelsColor) {
         mStyles.horizontalLabelsColor = horizontalLabelsColor;
     }
-    
+
     /**
      * @param horizontalLabelsAngle the angle of the horizontal labels in degrees
      */
