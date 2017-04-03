@@ -63,10 +63,9 @@ public class DateAsXAxisLabelFormatter extends DefaultLabelFormatter {
      * create the formatter with your own custom
      * date format to convert the x-values.
      *
-     * @param context the application context
      * @param dateFormat custom date format
      */
-    public DateAsXAxisLabelFormatter(Context context, DateFormat dateFormat) {
+    public DateAsXAxisLabelFormatter(DateFormat dateFormat) {
         mDateFormat = dateFormat;
         mCalendar = Calendar.getInstance();
     }
