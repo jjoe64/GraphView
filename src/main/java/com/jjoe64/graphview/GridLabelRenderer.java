@@ -328,11 +328,18 @@ public class GridLabelRenderer {
      * activate or deactivate human rounding of the
      * horizontal axis. GraphView tries to fit the labels
      * to display numbers that can be divided by 1, 2, or 5.
+     */
+    private boolean mHumanRoundingY;
+
+    /**
+     * activate or deactivate human rounding of the
+     * horizontal axis. GraphView tries to fit the labels
+     * to display numbers that can be divided by 1, 2, or 5.
      *
      * By default this is enabled. It makes sense to deactivate it
      * when using Dates on the x axis.
      */
-    private boolean mHumanRounding;
+    private boolean mHumanRoundingX;
 
     /**
      * create the default grid label renderer.
@@ -346,7 +353,8 @@ public class GridLabelRenderer {
         resetStyles();
         mNumVerticalLabels = 5;
         mNumHorizontalLabels = 5;
-        mHumanRounding = true;
+        mHumanRoundingX = true;
+        mHumanRoundingY = true;
     }
 
     /**
@@ -436,8 +444,18 @@ public class GridLabelRenderer {
 
      * @return if human rounding is enabled
      */
-    public boolean isHumanRounding() {
-        return mHumanRounding;
+    public boolean isHumanRoundingX() {
+        return mHumanRoundingX;
+    }
+
+    /**
+     * GraphView tries to fit the labels
+     * to display numbers that can be divided by 1, 2, or 5.
+     *
+     * @return if human rounding is enabled
+     */
+    public boolean isHumanRoundingY() {
+        return mHumanRoundingY;
     }
 
     /**
@@ -448,10 +466,12 @@ public class GridLabelRenderer {
      * By default this is enabled. It makes sense to deactivate it
      * when using Dates on the x axis.
      *
-     * @param humanRounding false to deactivate
+     * @param humanRoundingX false to deactivate
+     * @param humanRoundingY false to deactivate
      */
-    public void setHumanRounding(boolean humanRounding) {
-        this.mHumanRounding = humanRounding;
+    public void setHumanRounding(boolean humanRoundingX, boolean humanRoundingY) {
+        this.mHumanRoundingX = humanRoundingX;
+        this.mHumanRoundingY = humanRoundingY;
     }
 
     /**
@@ -692,7 +712,7 @@ public class GridLabelRenderer {
         }
 
         // human rounding to have nice numbers (1, 2, 5, ...)
-        if (isHumanRounding()) {
+        if (isHumanRoundingY()) {
             exactSteps = humanRound(exactSteps, changeBounds);
         } else if (mStepsVertical != null && mStepsVertical.size() > 1) {
             // else choose other nice steps that previous
@@ -831,7 +851,7 @@ public class GridLabelRenderer {
         }
 
         // human rounding to have nice numbers (1, 2, 5, ...)
-        if (isHumanRounding()) {
+        if (isHumanRoundingX()) {
             exactSteps = humanRound(exactSteps, false);
         } else if (mStepsHorizontal != null && mStepsHorizontal.size() > 1) {
             // else choose other nice steps that previous
