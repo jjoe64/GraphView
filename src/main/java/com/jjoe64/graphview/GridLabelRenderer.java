@@ -475,6 +475,20 @@ public class GridLabelRenderer {
     }
 
     /**
+     * activate or deactivate human rounding of the
+     * horizontal axis. GraphView tries to fit the labels
+     * to display numbers that can be divided by 1, 2, or 5.
+     *
+     * By default this is enabled.
+     *
+     * @param humanRoundingBoth false to deactivate on both axises
+     */
+    public void setHumanRounding(boolean humanRoundingBoth) {
+        this.mHumanRoundingX = humanRoundingBoth;
+        this.mHumanRoundingY = humanRoundingBoth;
+    }
+
+    /**
      * @return the general text size for the axis titles
      */
     public float getTextSize() {
