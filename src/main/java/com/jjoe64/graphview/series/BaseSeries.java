@@ -18,10 +18,7 @@ package com.jjoe64.graphview.series;
 
 import android.graphics.Canvas;
 import android.graphics.PointF;
-import android.util.Log;
-
 import com.jjoe64.graphview.GraphView;
-
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,7 +26,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Set;
 
 /**
  * Basis implementation for series.
@@ -46,6 +42,7 @@ import java.util.Set;
  * @author jjoe64
  */
 public abstract class BaseSeries<E extends DataPointInterface> implements Series<E> {
+
     /**
      * holds the data
      */
@@ -106,8 +103,7 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
     /**
      * creates series with data
      *
-     * @param data  data points
-     *              important: array has to be sorted from lowest x-value to the highest
+     * @param data data points important: array has to be sorted from lowest x-value to the highest
      */
     public BaseSeries(E[] data) {
         mGraphViews = new ArrayList<>();
@@ -121,7 +117,9 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
      * @return the lowest x value, or 0 if there is no data
      */
     public double getLowestValueX() {
-        if (mData.isEmpty()) return 0d;
+        if (mData.isEmpty()) {
+            return 0d;
+        }
         return mData.get(0).getX();
     }
 
@@ -129,15 +127,19 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
      * @return the highest x value, or 0 if there is no data
      */
     public double getHighestValueX() {
-        if (mData.isEmpty()) return 0d;
-        return mData.get(mData.size()-1).getX();
+        if (mData.isEmpty()) {
+            return 0d;
+        }
+        return mData.get(mData.size() - 1).getX();
     }
 
     /**
      * @return the lowest y value, or 0 if there is no data
      */
     public double getLowestValueY() {
-        if (mData.isEmpty()) return 0d;
+        if (mData.isEmpty()) {
+            return 0d;
+        }
         if (!Double.isNaN(mLowestYCache)) {
             return mLowestYCache;
         }
@@ -155,7 +157,9 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
      * @return the highest y value, or 0 if there is no data
      */
     public double getHighestValueY() {
-        if (mData.isEmpty()) return 0d;
+        if (mData.isEmpty()) {
+            return 0d;
+        }
         if (!Double.isNaN(mHighestYCache)) {
             return mHighestYCache;
         }
@@ -234,8 +238,11 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
                         if (nextNextValue != null) {
                             nextValue = nextNextValue;
                             nextNextValue = null;
-                        } else if (org.hasNext()) nextValue = org.next();
-                        else nextValue = null;
+                        } else if (org.hasNext()) {
+                            nextValue = org.next();
+                        } else {
+                            nextValue = null;
+                        }
                         return r;
                     } else {
                         throw new NoSuchElementException();
@@ -249,6 +256,22 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
             };
         }
     }
+
+
+    /**
+     * Get all {@link DataPoint} entries
+     *
+     * @return the data points
+     */
+    public List<DataPoint> getDataPoints() {
+        List<DataPoint> dataPoints = new ArrayList<>();
+        Iterator itr = getValues(0, mData.size() - 1);
+        while (itr.hasNext()) {
+            dataPoints.add((DataPoint) itr.next());
+        }
+        return dataPoints;
+    }
+
 
     /**
      * @return the title of the series
@@ -278,8 +301,6 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
      * set the color of the series. This will be used in
      * plotting (depends on the series implementation) and
      * is used in the legend.
-     *
-     * @param mColor
      */
     public void setColor(int mColor) {
         this.mColor = mColor;
@@ -328,7 +349,7 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
             float x2 = x;
             float y2 = y;
 
-            float distance = (float) Math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
+            float distance = (float) Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
             if (shortest == null || distance < shortestDistance) {
                 shortestDistance = distance;
                 shortest = entry.getValue();
@@ -401,8 +422,8 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
      * clears the data of this series and sets new.
      * will redraw the graph
      *
-     * @param data the values must be in the correct order!
-     *             x-value has to be ASC. First the lowest x value and at least the highest x value.
+     * @param data the values must be in the correct order! x-value has to be ASC. First the lowest
+     * x value and at least the highest x value.
      */
     public void resetData(E[] data) {
         mData.clear();
@@ -432,19 +453,19 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
     }
 
     /**
-     *
-     * @param dataPoint values the values must be in the correct order!
-     *                  x-value has to be ASC. First the lowest x value and at least the highest x value.
+     * @param dataPoint values the values must be in the correct order! x-value has to be ASC. First
+     * the lowest x value and at least the highest x value.
      * @param scrollToEnd true => graphview will scroll to the end (maxX)
-     * @param maxDataPoints if max data count is reached, the oldest data
-     *                      value will be lost to avoid memory leaks
-     * @param silent    set true to avoid rerender the graph
+     * @param maxDataPoints if max data count is reached, the oldest data value will be lost to
+     * avoid memory leaks
+     * @param silent set true to avoid rerender the graph
      */
     public void appendData(E dataPoint, boolean scrollToEnd, int maxDataPoints, boolean silent) {
         checkValueOrder(dataPoint);
 
-        if (!mData.isEmpty() && dataPoint.getX() < mData.get(mData.size()-1).getX()) {
-            throw new IllegalArgumentException("new x-value must be greater then the last value. x-values has to be ordered in ASC.");
+        if (!mData.isEmpty() && dataPoint.getX() < mData.get(mData.size() - 1).getX()) {
+            throw new IllegalArgumentException(
+                "new x-value must be greater then the last value. x-values has to be ordered in ASC.");
         }
         synchronized (mData) {
             int curDataCount = mData.size();
@@ -491,12 +512,11 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
     }
 
     /**
-     *
-     * @param dataPoint values the values must be in the correct order!
-     *                  x-value has to be ASC. First the lowest x value and at least the highest x value.
+     * @param dataPoint values the values must be in the correct order! x-value has to be ASC. First
+     * the lowest x value and at least the highest x value.
      * @param scrollToEnd true => graphview will scroll to the end (maxX)
-     * @param maxDataPoints if max data count is reached, the oldest data
-     *                      value will be lost to avoid memory leaks
+     * @param maxDataPoints if max data count is reached, the oldest data value will be lost to
+     * avoid memory leaks
      */
     public void appendData(E dataPoint, boolean scrollToEnd, int maxDataPoints) {
         appendData(dataPoint, scrollToEnd, maxDataPoints, false);
@@ -513,15 +533,15 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
     /**
      * checks that the data is in the correct order
      *
-     * @param onlyLast  if not null, it will only check that this
-     *                  datapoint is after the last point.
+     * @param onlyLast if not null, it will only check that this datapoint is after the last point.
      */
     protected void checkValueOrder(DataPointInterface onlyLast) {
-        if (mData.size()>1) {
+        if (mData.size() > 1) {
             if (onlyLast != null) {
                 // only check last
-                if (onlyLast.getX() < mData.get(mData.size()-1).getX()) {
-                    throw new IllegalArgumentException("new x-value must be greater then the last value. x-values has to be ordered in ASC.");
+                if (onlyLast.getX() < mData.get(mData.size() - 1).getX()) {
+                    throw new IllegalArgumentException(
+                        "new x-value must be greater then the last value. x-values has to be ordered in ASC.");
                 }
             } else {
                 double lx = mData.get(0).getX();
@@ -529,7 +549,8 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
                 for (int i = 1; i < mData.size(); i++) {
                     if (mData.get(i).getX() != Double.NaN) {
                         if (lx > mData.get(i).getX()) {
-                            throw new IllegalArgumentException("The order of the values is not correct. X-Values have to be ordered ASC. First the lowest x value and at least the highest x value.");
+                            throw new IllegalArgumentException(
+                                "The order of the values is not correct. X-Values have to be ordered ASC. First the lowest x value and at least the highest x value.");
                         }
                         lx = mData.get(i).getX();
                     }
@@ -538,7 +559,8 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
         }
     }
 
-    public abstract void drawSelection(GraphView mGraphView, Canvas canvas, boolean b, DataPointInterface value);
+    public abstract void drawSelection(GraphView mGraphView, Canvas canvas, boolean b,
+        DataPointInterface value);
 
     public void clearCursorModeCache() {
         mIsCursorModeCache = null;
