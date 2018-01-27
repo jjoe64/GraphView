@@ -67,6 +67,11 @@ public class Viewport {
     protected boolean scalableY;
 
     /**
+     * flag whether the logarithmic scale scaling is activated
+     */
+    protected boolean logarithmicScale;
+
+    /**
      * minimal viewport used for scaling and scrolling.
      * this is used if the data that is available is
      * less then the viewport that we want to be able to display.
@@ -885,9 +890,10 @@ public class Viewport {
      * Make sure to set the y bounds to manual via
      * {@link #setYAxisBoundsManual(boolean)}
      * @param y max / highest value
+     * notice: if logarithmic scale is active, Math.log10 is applied
      */
     public void setMaxY(double y) {
-        mCurrentViewport.top = y;
+        mCurrentViewport.top = (logarithmicScale)?Math.floor(Math.log10(y)):y;
     }
 
     /**
@@ -1291,6 +1297,20 @@ public class Viewport {
             }
         }
         this.scalableY = scalableY;
+    }
+
+    /**
+     * activate or deactivate the logarithmic scaling functionallity.
+     * notice: sets the y axis bounds to manual
+     *
+     * @param logarithmicScale true to activate
+     */
+    public void setLogarithmicScale(boolean logarithmicScale) {
+        if (logarithmicScale) {
+            this.logarithmicScale = true;
+            setYAxisBoundsManual(true);
+        }
+        this.logarithmicScale = logarithmicScale;
     }
 
     /**
