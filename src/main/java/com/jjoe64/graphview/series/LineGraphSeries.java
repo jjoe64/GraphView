@@ -475,6 +475,7 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
                     paint.setStyle(Paint.Style.FILL);
                     canvas.drawCircle(first_X, first_Y, mStyles.dataPointsRadius, paint);
                     paint.setStyle(prevStyle);
+                    registerDataPoint(first_X, first_Y, value);
                 }
             }
             lastEndY = orgY;
