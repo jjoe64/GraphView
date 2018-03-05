@@ -148,6 +148,15 @@ public class LegendRenderer {
         cachedLegendWidth = 0;
     }
 
+    protected List<Series> getAllSeries() {
+        List<Series> allSeries = new ArrayList<Series>();
+        allSeries.addAll(mGraphView.getSeries());
+        if (mGraphView.mSecondScale != null) {
+            allSeries.addAll(mGraphView.getSecondScale().getSeries());
+        }
+        return allSeries;
+    }
+
     /**
      * draws the legend if it is visible
      *
@@ -161,11 +170,7 @@ public class LegendRenderer {
 
         int shapeSize = (int) (mStyles.textSize*0.8d);
 
-        List<Series> allSeries = new ArrayList<Series>();
-        allSeries.addAll(mGraphView.getSeries());
-        if (mGraphView.mSecondScale != null) {
-            allSeries.addAll(mGraphView.getSecondScale().getSeries());
-        }
+        List<Series> allSeries = getAllSeries();
 
         // width
         int legendWidth = mStyles.width;
