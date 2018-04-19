@@ -512,6 +512,11 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
      * @param paint
      */
     private void renderLine(Canvas canvas, float[] pts, Paint paint) {
+        if (pts.length == 4 && pts[0] == pts[2] && pts[1] == pts[3]) {
+            // avoid zero length lines, to makes troubles on some devices
+            // see https://github.com/appsthatmatter/GraphView/issues/499
+            return;
+        }
         canvas.drawLines(pts, paint);
     }
 
