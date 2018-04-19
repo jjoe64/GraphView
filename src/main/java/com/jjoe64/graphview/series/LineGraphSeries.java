@@ -1,13 +1,13 @@
 /**
  * GraphView
  * Copyright 2016 Jonas Gehring
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -252,7 +252,7 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
         float firstX = -1;
         float firstY = -1;
         float lastRenderedX = Float.NaN;
-        int i=0;
+        int i = 0;
         float lastAnimationReferenceX = graphLeft;
 
         boolean sameXSkip = false;
@@ -281,18 +281,18 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
                 boolean skipDraw = false;
 
                 if (x > graphWidth) { // end right
-                    double b = ((graphWidth - lastEndX) * (y - lastEndY)/(x - lastEndX));
-                    y = lastEndY+b;
+                    double b = ((graphWidth - lastEndX) * (y - lastEndY) / (x - lastEndX));
+                    y = lastEndY + b;
                     x = graphWidth;
                     isOverdrawEndPoint = true;
                 }
                 if (y < 0) { // end bottom
                     // skip when previous and this point is out of bound
                     if (lastEndY < 0) {
-                        skipDraw=true;
+                        skipDraw = true;
                     } else {
-                        double b = ((0 - lastEndY) * (x - lastEndX)/(y - lastEndY));
-                        x = lastEndX+b;
+                        double b = ((0 - lastEndY) * (x - lastEndX) / (y - lastEndY));
+                        x = lastEndX + b;
                     }
                     y = 0;
                     isOverdrawY = isOverdrawEndPoint = true;
@@ -300,17 +300,17 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
                 if (y > graphHeight) { // end top
                     // skip when previous and this point is out of bound
                     if (lastEndY > graphHeight) {
-                        skipDraw=true;
+                        skipDraw = true;
                     } else {
-                        double b = ((graphHeight - lastEndY) * (x - lastEndX)/(y - lastEndY));
-                        x = lastEndX+b;
+                        double b = ((graphHeight - lastEndY) * (x - lastEndX) / (y - lastEndY));
+                        x = lastEndX + b;
                     }
                     y = graphHeight;
                     isOverdrawY = isOverdrawEndPoint = true;
                 }
                 if (lastEndX < 0) { // start left
-                    double b = ((0 - x) * (y - lastEndY)/(lastEndX - x));
-                    lastEndY = y-b;
+                    double b = ((0 - x) * (y - lastEndY) / (lastEndX - x));
+                    lastEndY = y - b;
                     lastEndX = 0;
                 }
 
@@ -320,7 +320,7 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
                 if (lastEndY < 0) { // start bottom
                     if (!skipDraw) {
                         double b = ((0 - y) * (x - lastEndX) / (lastEndY - y));
-                        lastEndX = x-b;
+                        lastEndX = x - b;
                     }
                     lastEndY = 0;
                     isOverdrawY = true;
@@ -328,8 +328,8 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
                 if (lastEndY > graphHeight) { // start top
                     // skip when previous and this point is out of bound
                     if (!skipDraw) {
-                        double b = ((graphHeight - y) * (x - lastEndX)/(lastEndY - y));
-                        lastEndX = x-b;
+                        double b = ((graphHeight - y) * (x - lastEndX) / (lastEndY - y));
+                        lastEndX = x - b;
                     }
                     lastEndY = graphHeight;
                     isOverdrawY = true;
@@ -365,12 +365,12 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
                                     mAnimationStartFrameNo++;
                                 }
                             }
-                            float timeFactor = (float) (currentTime-mAnimationStart) / ANIMATION_DURATION;
+                            float timeFactor = (float) (currentTime - mAnimationStart) / ANIMATION_DURATION;
                             float factor = mAnimationInterpolator.getInterpolation(timeFactor);
                             if (timeFactor <= 1.0) {
-                                startXAnimated = (startX-lastAnimationReferenceX) * factor + lastAnimationReferenceX;
+                                startXAnimated = (startX - lastAnimationReferenceX) * factor + lastAnimationReferenceX;
                                 startXAnimated = Math.max(startXAnimated, lastAnimationReferenceX);
-                                endXAnimated = (endX-lastAnimationReferenceX) * factor + lastAnimationReferenceX;
+                                endXAnimated = (endX - lastAnimationReferenceX) * factor + lastAnimationReferenceX;
                                 ViewCompat.postInvalidateOnAnimation(graphView);
                             } else {
                                 // animation finished
@@ -397,16 +397,16 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
                         mPath.moveTo(startXAnimated, startY);
                     }
                     // performance opt.
-                    if (Float.isNaN(lastRenderedX) || Math.abs(endX-lastRenderedX) > .3f) {
+                    if (Float.isNaN(lastRenderedX) || Math.abs(endX - lastRenderedX) > .3f) {
                         if (mDrawAsPath) {
                             mPath.lineTo(endXAnimated, endY);
                         } else {
                             // draw vertical lines that were skipped
                             if (sameXSkip) {
                                 sameXSkip = false;
-                                renderLine(canvas, new float[] {lastRenderedX, minYOnSameX, lastRenderedX, maxYOnSameX}, paint);
+                                renderLine(canvas, new float[]{lastRenderedX, minYOnSameX, lastRenderedX, maxYOnSameX}, paint);
                             }
-                            renderLine(canvas, new float[] {startXAnimated, startY, endXAnimated, endY}, paint);
+                            renderLine(canvas, new float[]{startXAnimated, startY, endXAnimated, endY}, paint);
                         }
                         lastRenderedX = endX;
                     } else {
@@ -452,17 +452,17 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
                 float first_X = (float) x + (graphLeft + 1);
                 float first_Y = (float) (graphTop - y) + graphHeight;
 
-                if (first_X >= graphLeft && first_Y <= (graphTop+graphHeight)) {
+                if (first_X >= graphLeft && first_Y <= (graphTop + graphHeight)) {
                     if (mAnimated && (Double.isNaN(mLastAnimatedValue) || mLastAnimatedValue < valueX)) {
                         long currentTime = System.currentTimeMillis();
                         if (mAnimationStart == 0) {
                             // start animation
                             mAnimationStart = currentTime;
                         }
-                        float timeFactor = (float) (currentTime-mAnimationStart) / ANIMATION_DURATION;
+                        float timeFactor = (float) (currentTime - mAnimationStart) / ANIMATION_DURATION;
                         float factor = mAnimationInterpolator.getInterpolation(timeFactor);
                         if (timeFactor <= 1.0) {
-                            first_X = (first_X-lastAnimationReferenceX) * factor + lastAnimationReferenceX;
+                            first_X = (first_X - lastAnimationReferenceX) * factor + lastAnimationReferenceX;
                             ViewCompat.postInvalidateOnAnimation(graphView);
                         } else {
                             // animation finished
@@ -605,7 +605,7 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
     }
 
     /**
-     * @return  the background color for the filling under
+     * @return the background color for the filling under
      *          the line.
      * @see #setDrawBackground(boolean)
      */
@@ -683,7 +683,7 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
     private boolean isAnimationActive() {
         if (mAnimated) {
             long curr = System.currentTimeMillis();
-            return curr-mAnimationStart <= ANIMATION_DURATION;
+            return curr - mAnimationStart <= ANIMATION_DURATION;
         }
         return false;
     }
