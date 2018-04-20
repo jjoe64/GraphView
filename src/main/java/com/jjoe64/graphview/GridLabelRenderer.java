@@ -656,10 +656,14 @@ public class GridLabelRenderer {
         // it can happen that we need to add some more labels to fill the complete screen
         numVerticalLabels = (int) ((mGraphView.getSecondScale().mCurrentViewport.height()*-1 / exactSteps)) + 2;
 
+        // ensure that the value is valid (minimum 2)
+        // see https://github.com/appsthatmatter/GraphView/issues/520
+        numVerticalLabels = Math.max(numVerticalLabels, 2);
+
         if (mStepsVerticalSecondScale != null) {
             mStepsVerticalSecondScale.clear();
         } else {
-            mStepsVerticalSecondScale = new LinkedHashMap<>((int) numVerticalLabels);
+            mStepsVerticalSecondScale = new LinkedHashMap<>(numVerticalLabels);
         }
 
         int height = mGraphView.getGraphContentHeight();
