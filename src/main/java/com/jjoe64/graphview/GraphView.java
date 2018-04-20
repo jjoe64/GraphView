@@ -616,6 +616,10 @@ public class GraphView extends View {
         inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
 
         String path = MediaStore.Images.Media.insertImage(context.getContentResolver(), inImage, imageName, null);
+        if (path == null) {
+            // most likely a security problem
+            throw new SecurityException("Could not get path from MediaStore. Please check permissions.");
+        }
 
         Intent i = new Intent(Intent.ACTION_SEND);
         i.setType("image/*");
