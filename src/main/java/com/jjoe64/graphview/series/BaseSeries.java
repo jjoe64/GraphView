@@ -17,6 +17,7 @@
 package com.jjoe64.graphview.series;
 
 import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.graphics.PointF;
 import android.util.Log;
 
@@ -46,6 +47,12 @@ import java.util.Set;
  * @author jjoe64
  */
 public abstract class BaseSeries<E extends DataPointInterface> implements Series<E> {
+
+    /**
+     * paint to do drawing on canvas
+     */
+    protected Paint mPaint;
+
     /**
      * holds the data
      */

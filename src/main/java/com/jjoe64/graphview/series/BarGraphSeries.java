@@ -18,9 +18,7 @@ package com.jjoe64.graphview.series;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.RectF;
 import android.support.v4.view.ViewCompat;
-import android.util.Log;
 import android.view.animation.AccelerateInterpolator;
 
 import com.jjoe64.graphview.GraphView;
@@ -41,11 +39,6 @@ import java.util.TreeSet;
  */
 public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> {
     private static final long ANIMATION_DURATION = 333;
-
-    /**
-     * paint to do drawing on canvas
-     */
-    private Paint mPaint;
 
     /**
      * custom paint that can be used.
@@ -262,9 +255,7 @@ public class BarGraphSeries<E extends DataPointInterface> extends BaseSeries<E> 
             double ratY = valY / diffY;
             double y = contentHeight * ratY;
 
-            double valY0 = 0 - minY;
-            double ratY0 = valY0 / diffY;
-            double y0 = contentHeight * ratY0;
+            double y0 = contentHeight * (0 - minY) / diffY;
 
             double valueX = value.getX();
             double valX = valueX - minX;
