@@ -23,6 +23,8 @@ and/or here as ascii
 
 => needs some time
 
+hardcode gpg key password in maven_push.gradle
+
 hardcode user/pwd of nexus account in maven_push.gradle
 
 success gradle task uploadArchives

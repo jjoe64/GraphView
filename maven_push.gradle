@@ -13,7 +13,7 @@ gradle.taskGraph.whenReady { taskGraph ->
 
         def id = "D8C3B041"
         def file = "/Users/jonas/.gnupg/secring.gpg"
-        def password = "joAJsd8278(§i2nf"
+        def password = ""
 
         allprojects { ext."signing.keyId" = id }
         allprojects { ext."signing.secretKeyRingFile" = file }
@@ -35,11 +35,11 @@ if (isReleaseBuild()) {
 }
 
 def getRepositoryUsername() {
-    return hasProperty('nexusUsername') ? nexusUsername : "jjoe64"
+    return ""
 }
 
 def getRepositoryPassword() {
-    return hasProperty('nexusPassword') ? nexusPassword : "eeghoYo7"
+    return ""
 }
 
 def isReleaseBuild() {
@@ -52,7 +52,9 @@ afterEvaluate { project ->
             mavenDeployer {
                 beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
 
+                pom.groupId = GROUP
                 pom.artifactId = POM_ARTIFACT_ID
+                pom.version = VERSION_NAME
 
                 repository(url: sonatypeRepositoryUrl) {
                     authentication(userName: getRepositoryUsername(), password: getRepositoryPassword())
@@ -63,6 +65,7 @@ afterEvaluate { project ->
                     packaging POM_PACKAGING
                     description POM_DESCRIPTION
                     url POM_URL
+
 
                     scm {
                         url POM_SCM_URL

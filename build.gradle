@@ -9,10 +9,11 @@ buildscript {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '3.3'
+    gradleVersion = '4.4'
 }
 
 apply plugin: 'com.android.library'
+
 
 android {
     compileSdkVersion 27
@@ -58,3 +59,6 @@ makeJar.dependsOn(clearJar, build)
 
 apply from: './maven_push.gradle'
 
+repositories {
+    google()
+}
