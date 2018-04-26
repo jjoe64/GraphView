@@ -45,7 +45,7 @@ Supported graph types:
 
 1) Add gradle dependency:
 ```
-compile 'com.jjoe64:graphview:4.2.1'
+implementation 'com.jjoe64:graphview:4.2.2'
 ```
 
 2) Add view to layout:
