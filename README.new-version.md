@@ -47,8 +47,13 @@ Release entry
 
 Wait some days
 
-How to create a new .jar file
---------------------------------
-success this gradle task
-- ./gradlew --rerun-tasks clearJar makeJar
-- cp build/outputs/myCompiledLibrary.jar public/GraphView-4.2.0.jar
+## update java doc
+
+$ javadoc -d javadoc -sourcepath src/main/java/ -subpackages com.jjoe64
+$ mv javadoc/ ..
+$ git checkout gh-pages 
+$ rm -rf javadoc
+$ mv ../javadoc/ .
+$ git add javadoc
+$ git commit -a
+
