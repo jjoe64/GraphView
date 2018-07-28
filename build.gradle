@@ -37,7 +37,7 @@ android {
 }
 
 dependencies {
-    implementation 'com.android.support:support-v4:27.1.1'
+    implementation 'androidx.core:core:1.0.0-beta01'
 }
 
 
@@ -61,4 +61,6 @@ apply from: './maven_push.gradle'
 
 repositories {
     google()
+    mavenCentral()
+    jcenter()
 }

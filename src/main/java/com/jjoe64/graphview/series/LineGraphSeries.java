@@ -20,7 +20,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.support.v4.view.ViewCompat;
+import androidx.core.view.ViewCompat;
 import android.view.animation.AccelerateInterpolator;
 
 import com.jjoe64.graphview.GraphView;
