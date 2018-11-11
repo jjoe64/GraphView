@@ -57,4 +57,66 @@ public class DataPoint implements DataPointInterface, Serializable {
     public String toString() {
         return "["+x+"/"+y+"]";
     }
+    
+    /**
+     * Sorts an array of DataPoints in-place by their x-values using the quicksort algorithm
+     * <p>
+     * DataPoints must be sorted by x-value prior to insertion into a Graph
+     * @param points The array of DataPoints to sort
+     */
+    public static void sort(DataPoint[] points)
+    {
+        sortDataPointsHelper(points, 0, points.length);
+    }
+
+    /**
+     * Recursive quicksort helper method
+     * @param points The array of points to sort
+     * @param lowIdx The low index of the array segment
+     * @param highIdx The high index of the array segment
+     */
+    private static void sortDataPointsHelper(DataPoint[] points, int lowIdx, int highIdx)
+    {
+        int partitionIdx;
+
+        if (lowIdx < highIdx)
+        {
+            partitionIdx = partitionDataPoints(points, lowIdx, highIdx);
+            sortDataPointsHelper(points, lowIdx, partitionIdx - 1);
+            sortDataPointsHelper(points, partitionIdx + 1, highIdx);
+        }
+    }
+
+    /**
+     * Partitions array and sorts based on pivot element
+     * @param points The array of points to sort
+     * @param lowIdx The low index of the array segment
+     * @param highIdx The high index of the array segment
+     */
+    private static int partitionDataPoints(DataPoint[] points, int lowIdx, int highIdx)
+    {
+        int pivotIdx = (highIdx + lowIdx) / 2;
+        DataPoint pivot = points[pivotIdx];
+        DataPoint swapPoint;
+
+        int iterIdx;
+        int swapIdx = lowIdx - 1;
+
+        for (iterIdx = lowIdx; iterIdx < highIdx; iterIdx++)
+        {
+            if (points[iterIdx].getX() < pivot.getX() && swapIdx != iterIdx)
+            {
+                swapIdx++;
+                swapPoint = points[swapIdx];
+                points[swapIdx] = points[iterIdx];
+                points[iterIdx] = swapPoint;
+            }
+        }
+        swapIdx++;
+        points[pivotIdx] = points[swapIdx];
+        points[swapIdx] = pivot;
+        pivotIdx = swapIdx;
+
+        return pivotIdx;
+    }
 }
