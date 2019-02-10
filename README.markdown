@@ -1,5 +1,7 @@
 # Chart and Graph Library for Android
 
+## Project maintainer wanted! For time reasons I can not continue to maintain GraphView. Contact me if you are interested and serious about this project.
+
 ## What is GraphView
 
 GraphView is a library for Android to programmatically create
