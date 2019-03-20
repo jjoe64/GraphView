@@ -4,7 +4,7 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.1.0'
+        classpath 'com.android.tools.build:gradle:3.2.0-rc03'
     }
 }
 
@@ -17,7 +17,7 @@ apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion 27
-    buildToolsVersion '27.0.3'
+    buildToolsVersion '28.0.2'
 
     defaultConfig {
         minSdkVersion 9
@@ -37,7 +37,7 @@ android {
 }
 
 dependencies {
-    implementation 'com.android.support:support-v4:27.1.1'
+    implementation 'androidx.core:core:1.0.0-beta01'
 }
 
 
@@ -61,4 +61,6 @@ apply from: './maven_push.gradle'
 
 repositories {
     google()
+    mavenCentral()
+    jcenter()
 }
