@@ -1,6 +1,6 @@
 # Chart and Graph Library for Android
 
-## Project maintainer wanted! For time reasons I can not continue to maintain GraphView. Contact me if you are interested and serious about this project.
+## Project maintainer wanted! For time reasons I can not continue to maintain GraphView. Contact me if you are interested and serious about this project. g.jjoe64@gmail.com
 
 ## What is GraphView
 
