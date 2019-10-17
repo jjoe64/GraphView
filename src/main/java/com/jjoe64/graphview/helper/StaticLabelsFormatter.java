@@ -174,21 +174,31 @@ public class StaticLabelsFormatter implements LabelFormatter {
      *                  false if it is a value for the y axis
      * @return
      */
+    static int oldIdx = -1;
+    String result = "";
     @Override
-    public String formatLabel(double value, boolean isValueX) {
+    synchronized public String formatLabel(double value, boolean isValueX) {
+
         if (isValueX && mHorizontalLabels != null) {
             double minX = mViewport.getMinX(false);
             double maxX = mViewport.getMaxX(false);
             double range = maxX - minX;
-            value = value-minX;
-            int idx = (int)((value/range) * (mHorizontalLabels.length-1));
-            return mHorizontalLabels[idx];
+            value = value - minX;
+            int idx = (int) ((value / range) * (mHorizontalLabels.length - 1));
+            // Log.e("StaticLabelsFormatter i= "+i, "formatLabel idx ="+idx+" " + mHorizontalLabels[i<mHorizontalLabels.length? i:mHorizontalLabels.length-1]);
+            if (oldIdx != idx)
+                result = mHorizontalLabels[idx];
+            else
+                result = mHorizontalLabels[idx + 1];
+            oldIdx = idx;
+            return result;
+
         } else if (!isValueX && mVerticalLabels != null) {
             double minY = mViewport.getMinY(false);
             double maxY = mViewport.getMaxY(false);
             double range = maxY - minY;
-            value = value-minY;
-            int idx = (int)((value/range) * (mVerticalLabels.length-1));
+            value = value - minY;
+            int idx = (int) ((value / range) * (mVerticalLabels.length - 1));
             return mVerticalLabels[idx];
         } else {
             return mDynamicLabelFormatter.formatLabel(value, isValueX);
