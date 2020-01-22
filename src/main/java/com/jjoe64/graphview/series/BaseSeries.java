@@ -260,6 +260,7 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
     /**
      * set the title of the series. This will be used in
      * the legend.
+     * Use null if you want to hide the legend entry
      *
      * @param mTitle title of the series
      */

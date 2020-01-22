@@ -194,8 +194,15 @@ public class LegendRenderer {
             }
         }
 
+        int SeriesWithLegendCount = 0;
+        for (Series s : allSeries) {
+            if (s.getTitle() != null) {
+                SeriesWithLegendCount++;
+            }
+        }
+
         // rect
-        float legendHeight = (mStyles.textSize+mStyles.spacing)*allSeries.size() -mStyles.spacing;
+        float legendHeight = (mStyles.textSize+mStyles.spacing)*SeriesWithLegendCount -mStyles.spacing;
         float lLeft;
         float lTop;
         if (mStyles.fixedPosition != null) {
@@ -222,13 +229,13 @@ public class LegendRenderer {
 
         int i=0;
         for (Series series : allSeries) {
-            mPaint.setColor(series.getColor());
-            canvas.drawRect(new RectF(lLeft+mStyles.padding, lTop+mStyles.padding+(i*(mStyles.textSize+mStyles.spacing)), lLeft+mStyles.padding+shapeSize, lTop+mStyles.padding+(i*(mStyles.textSize+mStyles.spacing))+shapeSize), mPaint);
             if (series.getTitle() != null) {
+                mPaint.setColor(series.getColor());
+                canvas.drawRect(new RectF(lLeft+mStyles.padding, lTop+mStyles.padding+(i*(mStyles.textSize+mStyles.spacing)), lLeft+mStyles.padding+shapeSize, lTop+mStyles.padding+(i*(mStyles.textSize+mStyles.spacing))+shapeSize), mPaint);
                 mPaint.setColor(mStyles.textColor);
                 canvas.drawText(series.getTitle(), lLeft+mStyles.padding+shapeSize+mStyles.spacing, lTop+mStyles.padding+mStyles.textSize+(i*(mStyles.textSize+mStyles.spacing)), mPaint);
+                i++;
             }
-            i++;
         }
     }
 
