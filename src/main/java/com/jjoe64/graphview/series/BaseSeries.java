@@ -295,6 +295,34 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
     }
 
     /**
+     * @param x
+     * @param y
+     * @return the distance between the given x,y and the nearest point of the series
+     */
+    public float distanceToNearestPoint(float x, float y) {
+        float shortestDistance = Float.NaN;
+        E shortest = null;
+        for (Map.Entry<PointF, E> entry : mDataPoints.entrySet()) {
+            float x1 = entry.getKey().x;
+            float y1 = entry.getKey().y;
+            float x2 = x;
+            float y2 = y;
+
+            float distance = (float) Math.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
+            if (shortest == null || distance < shortestDistance) {
+                shortestDistance = distance;
+                shortest = entry.getValue();
+            }
+        }
+        if (shortest != null) {
+            if (shortestDistance < 120) {
+                return shortestDistance;
+            }
+        }
+        return Float.MAX_VALUE;
+    }
+
+    /**
      * called by the tap detector in order to trigger
      * the on tap on datapoint event.
      *
