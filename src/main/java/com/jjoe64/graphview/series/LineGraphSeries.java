@@ -489,13 +489,14 @@ public class LineGraphSeries<E extends DataPointInterface> extends BaseSeries<E>
         }
 
         if (mStyles.drawBackground && firstX != -1) {
+            float zero = (float) (graphHeight + graphTop + minY / diffY * graphHeight);
             // end / close path
-            if (lastUsedEndY != graphHeight + graphTop) {
+            if (lastUsedEndY != zero) {
                 // dont draw line to same point, otherwise the path is completely broken
-                mPathBackground.lineTo((float) lastUsedEndX, graphHeight + graphTop);
+                mPathBackground.lineTo((float) lastUsedEndX, zero);
             }
-            mPathBackground.lineTo(firstX, graphHeight + graphTop);
-            if (firstY != graphHeight + graphTop) {
+            mPathBackground.lineTo(firstX, zero);
+            if (firstY != zero) {
                 // dont draw line to same point, otherwise the path is completely broken
                 mPathBackground.lineTo(firstX, firstY);
             }
