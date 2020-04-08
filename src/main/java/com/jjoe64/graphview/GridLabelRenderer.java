@@ -76,6 +76,11 @@ public class GridLabelRenderer {
         public Paint.Align verticalLabelsSecondScaleAlign;
 
         /**
+         * the alignment of the horizontal labels bottom
+         */
+        public Paint.Align horizontalLabelsAlign;
+
+        /**
          * the color of the vertical labels
          */
         public int verticalLabelsColor;
@@ -400,6 +405,7 @@ public class GridLabelRenderer {
         mStyles.labelsSpace = (int) mStyles.textSize/5;
 
         mStyles.verticalLabelsAlign = Paint.Align.RIGHT;
+        mStyles.horizontalLabelsAlign = Paint.Align.CENTER;
         mStyles.verticalLabelsSecondScaleAlign = Paint.Align.LEFT;
         mStyles.highlightZeroLines = true;
 
@@ -508,6 +514,14 @@ public class GridLabelRenderer {
      */
     public Paint.Align getVerticalLabelsAlign() {
         return mStyles.verticalLabelsAlign;
+    }
+
+    /**
+     * @return  the alignment of the text of the
+     *          vertical labels
+     */
+    public Paint.Align getHorizontalLabelsAlign() {
+        return mStyles.horizontalLabelsAlign;
     }
 
     /**
@@ -1223,11 +1237,11 @@ public class GridLabelRenderer {
                         mPaintLabel.setTextAlign((Paint.Align.LEFT));
                     }
                 } else {
-                    mPaintLabel.setTextAlign(Paint.Align.CENTER);
-                    if (i == mStepsHorizontal.size() - 1)
+                    mPaintLabel.setTextAlign(getHorizontalLabelsAlign());
+                    /*if (i == mStepsHorizontal.size() - 1)
                         mPaintLabel.setTextAlign(Paint.Align.RIGHT);
                     if (i == 0)
-                        mPaintLabel.setTextAlign(Paint.Align.LEFT);
+                        mPaintLabel.setTextAlign(Paint.Align.LEFT);*/
                 }
 
                 // multiline labels
@@ -1515,6 +1529,13 @@ public class GridLabelRenderer {
      */
     public void setVerticalLabelsAlign(Paint.Align verticalLabelsAlign) {
         mStyles.verticalLabelsAlign = verticalLabelsAlign;
+    }
+
+    /**
+     * @param horizontalLabelsAlign the alignment of the vertical labels
+     */
+    public void setHorizontalLabelsAlign(Paint.Align horizontalLabelsAlign) {
+        mStyles.horizontalLabelsAlign = horizontalLabelsAlign;
     }
 
     /**
