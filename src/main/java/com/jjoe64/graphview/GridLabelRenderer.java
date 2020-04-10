@@ -953,7 +953,7 @@ public class GridLabelRenderer {
         }
 
         // it can happen that we need to add some more labels to fill the complete screen
-        numHorizontalLabels = (int) ((mGraphView.getViewport().mCurrentViewport.width() / exactSteps)) + 1;
+        numHorizontalLabels = (int) ((mGraphView.getViewport().mCurrentViewport.width() / exactSteps)) + 2;
 
         if (mStepsHorizontal != null) {
             mStepsHorizontal.clear();
