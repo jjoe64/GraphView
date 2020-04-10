@@ -17,7 +17,7 @@ apply plugin: 'com.android.library'
 
 
 android {
-    compileSdkVersion 27
+    compileSdkVersion 28
     buildToolsVersion '28.0.3'
 
     defaultConfig {
@@ -44,18 +44,20 @@ dependencies {
 
 //this is used to generate .jar files and push to maven repo
 // This is the actual solution, as in http://stackoverflow.com/a/19037807/1002054
-task clearJar(type: Delete) {
-    delete 'build/outputs/myCompiledLibrary.jar'
+task deleteJar(type: Delete) {
+    delete 'libs/jars/graphViewM.jar'
 }
 
-task makeJar(type: Copy) {
-    from('build/intermediates/bundles/release/')
-    into('build/outputs/')
+task createJar(type: Copy) {
+    //from('build/intermediates/bundles/release/')
+    from('build/intermediates/packaged-classes/release/')
+    //from('build/intermediates/aar_main_jar/release/')
+    into('libs/jars/')
     include('classes.jar')
-    rename ('classes.jar', 'myCompiledLibrary.jar')
+    rename('classes.jar', 'graphViewM.jar')
 }
 
-makeJar.dependsOn(clearJar, build)
+createJar.dependsOn(deleteJar, build)
 
 
 apply from: './maven_push.gradle'
