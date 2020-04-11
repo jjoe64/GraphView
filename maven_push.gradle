@@ -3,7 +3,7 @@ apply plugin: 'signing'
 
 import org.gradle.plugins.signing.Sign
 
-gradle.taskGraph.whenReady { taskGraph ->
+/*gradle.taskGraph.whenReady { taskGraph ->
     if (taskGraph.allTasks.any { it instanceof Sign }) {
         // Use Java 6's console to read from the console (no good for
         // a CI environment)
@@ -21,7 +21,7 @@ gradle.taskGraph.whenReady { taskGraph ->
 
         console.printf "\nThanks.\n\n" + file
     }
-}
+}*/
 
 def sonatypeRepositoryUrl
 if (isReleaseBuild()) {
