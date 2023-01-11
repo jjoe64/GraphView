@@ -80,7 +80,7 @@ public abstract class BaseSeries<E extends DataPointInterface> implements Series
     private double mLowestYCache = Double.NaN;
 
     /**
-     * cahce for highest y value
+     * cache for highest y value
      */
     private double mHighestYCache = Double.NaN;
 
